@@ -53,7 +53,7 @@ export default {
             isFirstPaintable: false,
             hidePaintable: false,
             disableNavigation: true,
-            dynamicLineWidth: 0,
+            dynamicLineWidth: 20,
             isActive: true,
             useEraser: false,
             color: "#000",
@@ -164,17 +164,22 @@ export default {
     display: inline-block;
     position: absolute;
     top: 0;
-    right: 2%;
+
     margin: auto;
-    transform-origin: center left;
-    transform: scaleX(-1);
+
+   
     bottom: 0;
     animation: spin 1s linear infinite;
+
+
+    left: 18%;
+margin: auto;
+transform-origin: center right;
 }
 
 @keyframes spinLeft {
     0% {
-        transform: rotateY(40deg) rotateZ(-5deg)
+        transform: rotateY(40deg) rotateZ(-5deg) 
     }
 
     50% {
@@ -188,15 +193,15 @@ export default {
 
 @keyframes spin {
     0% {
-        transform: rotateY(-40deg) rotateZ(5deg)
+        transform: rotateY(-40deg) rotateZ(5deg)   scaleX(-1);
     }
 
     50% {
-        transform: rotateY(40deg) rotateZ(-5deg)
+        transform: rotateY(40deg) rotateZ(-5deg) scaleX(-1);
     }
 
     100% {
-        transform: rotateY(-40deg) rotateZ(5deg)
+        transform: rotateY(-40deg) rotateZ(5deg) scaleX(-1);
     }
 }
 
@@ -264,7 +269,7 @@ export default {
 }
 
 .mirror {
-    -webkit-transform: scaleX(-1);
+  
     transform: scaleX(-1);
 }
 
