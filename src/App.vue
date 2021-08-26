@@ -58,7 +58,7 @@ export default {
             dynamicLineWidth: 20,
             isActive: true,
             useEraser: false,
-            color: "#000",
+            color: "#fd8686",
             threshold: 1,
         };
     },
@@ -96,6 +96,7 @@ export default {
             image.id = "pic";
             image.src = canvas.toDataURL();
             this.currentImage = image.src;
+       
         },
         finishedPaint() {
             document.body.onmouseup = () => {
