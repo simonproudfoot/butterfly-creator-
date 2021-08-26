@@ -2,19 +2,21 @@
 <div id="app">
     <div class="wrapper">
         <div class="menu">
-            <div class="text-white">Select colour</div>
-            <div style="display: flex; flex-wrap: wrap">
+            <button class="brush" @click="useEraser = !useEraser">{{useEraser ? 'USE BRUSH' : 'USE ERASER'}}</button>
+            <div style="display: flex; flex-wrap: wrap" :style="useEraser ? 'opacity: 0.5' : null">
                 <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
             </div>
             <div class="text-white">Brush width</div>
             <div style=" display: flex; flex-wrap: wrap; align-items: center;justify-content: center;">
                 <span v-for="b in brushWidths" class="brushWidths" :class="b == dynamicLineWidth ? 'selected' : null" :style="{ height: b + 'px', width: b + 'px' }" :key="b" @click="selectBrush(b)"></span>
             </div>
-            <button class=" saveButton" @click="save">Save</button>
+
+            <button class="saveButton" @click="save">Save</button>
         </div>
         <!-- canvas -->
         <div class="row g-0">
-            <div class="col-6 wrapper__col left" style="position: relative">
+            <div class="col-6 wrapper__col left" style="position: relative; border-right: 1px grey solid">
+                <h4 style="position: absolute; top: 0; left: 0; right: 0; margin: auto ">Paint here</h4>
                 <img :src="require('@/assets/butterfly.svg')" class="template left" />
                 <paintable alwaysOnTop :active="isActive" :width="600" :height="800" :disableNavigation="disableNavigation" :hide="hidePaintable" :horizontalNavigation="true" :navigation="navigation" :name="isFirstPaintable ? 'my-screen' : 'my-second-screen'" :factor="1" :lineWidth="dynamicLineWidth" :lineWidthEraser="20" :useEraser="useEraser" :color="color" class="paint" :threshold="10" ref="paintable" @toggle-paintable="finishedPaint">
                 </paintable>
@@ -164,22 +166,17 @@ export default {
     display: inline-block;
     position: absolute;
     top: 0;
-
     margin: auto;
-
-   
     bottom: 0;
     animation: spin 1s linear infinite;
-
-
     left: 18%;
-margin: auto;
-transform-origin: center right;
+    margin: auto;
+    transform-origin: center right;
 }
 
 @keyframes spinLeft {
     0% {
-        transform: rotateY(40deg) rotateZ(-5deg) 
+        transform: rotateY(40deg) rotateZ(-5deg)
     }
 
     50% {
@@ -193,7 +190,7 @@ transform-origin: center right;
 
 @keyframes spin {
     0% {
-        transform: rotateY(-40deg) rotateZ(5deg)   scaleX(-1);
+        transform: rotateY(-40deg) rotateZ(5deg) scaleX(-1);
     }
 
     50% {
@@ -269,7 +266,7 @@ transform-origin: center right;
 }
 
 .mirror {
-  
+
     transform: scaleX(-1);
 }
 
@@ -321,6 +318,15 @@ transform-origin: center right;
     height: 100px;
     display: block;
     left: 0;
+    color: #fff;
+    border: none;
+}
+
+.brush {
+    background-color:#452770;
+    width: 100%;
+    height: 100px;
+    display: block;
     color: #fff;
     border: none;
 }
