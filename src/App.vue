@@ -48,6 +48,7 @@ export default {
     name: "App",
     data() {
         return {
+            ready: false,
             butterFlys: [],
             colours: ["#fd8686", "#ffa77c", "#f9d62e", "#a0e169", "#04d2d4", "#000"],
             brushWidths: [10, 20, 30, 40],
@@ -96,7 +97,7 @@ export default {
             image.id = "pic";
             image.src = canvas.toDataURL();
             this.currentImage = image.src;
-       
+
         },
         finishedPaint() {
             document.body.onmouseup = () => {
@@ -116,10 +117,26 @@ export default {
             this.isActive = isActive;
         },
     },
+    watch: {
+        butterFlys() {
+            if (this.ready) {
+                localStorage.setItem('previous', JSON.stringify(this.butterFlys));
+            }
+        }
+    },
     mounted() {
         setTimeout(() => {
             this.mirrorScreen();
         }, 100);
+        var saved = this.butterFlys = JSON.parse(localStorage.getItem('previous'))
+        if (saved.length) {
+            this.butterFlys = saved
+        }
+
+        setTimeout(() => {
+            this.ready = true
+        }, 1000);
+
     },
 };
 </script>
@@ -324,7 +341,7 @@ export default {
 }
 
 .brush {
-    background-color:#452770;
+    background-color: #452770;
     width: 100%;
     height: 100px;
     display: block;
