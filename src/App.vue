@@ -50,7 +50,7 @@ export default {
         return {
             ready: false,
             butterFlys: [],
-            colours: ["#fd8686", "#ffa77c", "#f9d62e", "#a0e169", "#04d2d4", "#000"],
+            colours: ["#fd8686", "#ffa77c", "#f9d62e", "#a0e169", "#04d2d4", '#dc3545', '#6f42c1', '#198754', '#0d6efd','#d63384', "#000"],
             brushWidths: [10, 20, 30, 40],
             currentImage: null,
             isFirstPaintable: false,
