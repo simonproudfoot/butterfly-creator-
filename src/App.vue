@@ -29,7 +29,7 @@
     </div>
     <!--canvas -->
     <div class="previous">
-        <p class="text-white mb-0">Images get added to array (locally)</p>
+        <p class="text-white mb-0">Images get added to array and save in browser session (refresh the page)</p>
 
         <div v-for="(butterfly, i) in butterFlys" :key="i">
             <div class="butterfly">
