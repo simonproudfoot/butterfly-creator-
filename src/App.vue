@@ -129,8 +129,10 @@ export default {
             this.mirrorScreen();
         }, 100);
         var saved = this.butterFlys = JSON.parse(localStorage.getItem('previous'))
-        if (saved.length) {
+        if (saved) {
             this.butterFlys = saved
+        } else {
+            this.butterFlys = []
         }
 
         setTimeout(() => {
