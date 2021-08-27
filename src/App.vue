@@ -17,40 +17,40 @@
         <div class="row g-0">
             <div class="col-6 wrapper__col left" style="position: relative; border-right: 1px grey solid">
                 <h4 style="position: absolute; top: 0; left: 0; right: 0; margin: auto ">Paint here</h4>
-                <img :src="require('@/assets/butterfly.svg')" class="template left" />
+                <!-- <img :src="require('@/assets/butterfly.svg')" class="template left" /> -->
                 <paintable alwaysOnTop :active="isActive" :width="600" :height="800" :disableNavigation="disableNavigation" :hide="hidePaintable" :horizontalNavigation="true" :navigation="navigation" :name="isFirstPaintable ? 'my-screen' : 'my-second-screen'" :factor="1" :lineWidth="dynamicLineWidth" :lineWidthEraser="20" :useEraser="useEraser" :color="color" class="paint" :threshold="10" ref="paintable" @toggle-paintable="finishedPaint">
                 </paintable>
             </div>
             <div class="col-6 wrapper__col" style="cursor: drop; pointer-events: none">
-                <img :src="require('@/assets/butterfly-right.svg')" class="template right" />
+                <!-- <img :src="require('@/assets/butterfly-right.svg')" class="template right" /> -->
                 <img :src="currentImage" alt="" class="mirror" style="cursor: drop; pointer-events: none" />
             </div>
         </div>
     </div>
     <!--canvas -->
-    <div class="previous">
+    <div class="previous" :key="updated">
         <p class="text-white mb-0">Images get added to array and save in browser session (refresh the page)</p>
 
-        <div v-for="(butterfly, i) in butterFlys" :key="i">
-            <div class="butterfly">
-                <img :src="butterfly" class="butterfly--left">
-                <div class="butterfly--body">
-                </div>
-                <img :src="butterfly" class="butterfly--right">
-            </div>
-        </div>
+        <butterFlyModel :wingDesign="butterFlys[0]" :index="'test'" />
+        <!-- <div v-for="(butterfly, i) in butterFlys" :key="i">
+            <butterFlyModel :wingDesign="butterfly[0]" :index="0" />
+        </div> -->
     </div>
 </div>
 </template>
 
 <script>
+import butterFlyModel from './components/butterFlyModel'
 export default {
     name: "App",
+    components: { butterFlyModel },
     data() {
         return {
+            wingMap: require('@/assets/test.png'),
+            updated: 0,
             ready: false,
             butterFlys: [],
-            colours: ["#fd8686", "#ffa77c", "#f9d62e", "#a0e169", "#04d2d4", '#dc3545', '#6f42c1', '#198754', '#0d6efd','#d63384', "#000"],
+            colours: ["#fd8686", "#ffa77c", "#f9d62e", "#a0e169", "#04d2d4", '#dc3545', '#6f42c1', '#198754', '#0d6efd', '#d63384', "#000"],
             brushWidths: [10, 20, 30, 40],
             currentImage: null,
             isFirstPaintable: false,
@@ -63,26 +63,18 @@ export default {
             threshold: 1,
         };
     },
-    computed: {
-        navigation() {
-            return {
-                "draw-save": {
-                    body: "click here!",
-                    activeBody: "<strong>save</strong>",
-                },
-                color: {
-                    body: "color",
-                },
-            };
-        },
-    },
+
     methods: {
         save() {
             this.butterFlys.unshift(this.currentImage)
+            if (this.butterFlys.length > 2) {
+                this.butterFlys.pop()
+            }
             this.isActive = false
             setTimeout(() => {
                 this.isActive = true
                 this.mirrorScreen()
+                this.updated++
             }, 100);
         },
         selectColor(color) {
@@ -92,6 +84,7 @@ export default {
             this.dynamicLineWidth = b;
         },
         mirrorScreen() {
+            // this.addMask()
             var image = new Image();
             var canvas = this.$refs.paintable.$el.children[0];
             image.id = "pic";
@@ -116,6 +109,15 @@ export default {
         toggledPaintable(isActive) {
             this.isActive = isActive;
         },
+        addMask() {
+            var canvas = this.$refs.paintable.$el.children[0];
+            var ctx = canvas.getContext("2d");
+            var map = new Image();
+            map.src = this.wingMap;
+            map.onload = function () {
+                ctx.drawImage(map, 0, 0);
+            }
+        }
     },
     watch: {
         butterFlys() {
@@ -125,16 +127,17 @@ export default {
         }
     },
     mounted() {
+        this.addMask()
         setTimeout(() => {
             this.mirrorScreen();
         }, 100);
-        var saved = this.butterFlys = JSON.parse(localStorage.getItem('previous'))
+        var saved = JSON.parse(localStorage.getItem('previous'))
+        if (saved.length > 3) saved.length = 3
         if (saved) {
             this.butterFlys = saved
         } else {
             this.butterFlys = []
         }
-
         setTimeout(() => {
             this.ready = true
         }, 1000);
@@ -305,7 +308,7 @@ export default {
     right: 0;
     position: fixed;
     width: 200px;
-    padding: 10px;
+
     height: 100%;
     background: brown;
     z-index: 1000;
