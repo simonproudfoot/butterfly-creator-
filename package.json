@@ -22,6 +22,7 @@
     "three-gltf-loader-wtower": "^1.112.2",
     "three-obj-mtl-loader": "^1.0.3",
     "vue": "^2.6.14",
+    "vue-paintable": "^2.1.5",
     "vue-threejs": "^0.2.0-alpha.1",
     "webpack-obj-loader": "^1.0.4"
   },
