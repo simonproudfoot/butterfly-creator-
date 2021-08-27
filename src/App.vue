@@ -11,10 +11,10 @@
                 <span v-for="b in brushWidths" class="brushWidths" :class="b == dynamicLineWidth ? 'selected' : null" :style="{ height: b + 'px', width: b + 'px' }" :key="b" @click="selectBrush(b)"></span>
             </div>
 
-            <button class="saveButton" @click="save">Save</button>
+            <button class="saveButton" @click="save">{{!showFinished ? 'CREATE' : 'START AGAIN'}}</button>
         </div>
         <!-- canvas -->
-        <div class="row g-0">
+        <div class="row g-0" v-if="!this.showFinished">
             <div class="col-6 wrapper__col left" style="position: relative; border-right: 1px grey solid">
                 <h4 style="position: absolute; top: 0; left: 0; right: 0; margin: auto ">Paint here</h4>
                 <!-- <img :src="require('@/assets/butterfly.svg')" class="template left" /> -->
@@ -26,15 +26,17 @@
                 <img :src="currentImage" alt="" class="mirror" style="cursor: drop; pointer-events: none" />
             </div>
         </div>
+        <butterFlyModel v-else :wingDesign="butterFlys[0]" :final="true" :index="'main'" />
+
     </div>
+
     <!--canvas -->
     <div class="previous" :key="updated">
-        <p class="text-white mb-0">Images get added to array and save in browser session (refresh the page)</p>
+        <p class="text-white mb-0">previous designs get added to array and save in browser session (refresh the page)</p>
 
-        <butterFlyModel :wingDesign="butterFlys[0]" :index="'test'" />
-        <!-- <div v-for="(butterfly, i) in butterFlys" :key="i">
-            <butterFlyModel :wingDesign="butterfly[0]" :index="0" />
-        </div> -->
+        <div v-for="(butterfly, i) in butterFlys" :key="i">
+            <butterFlyModel :wingDesign="butterfly" :index="i" />
+        </div>
     </div>
 </div>
 </template>
@@ -46,7 +48,7 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
-            wingMap: require('@/assets/test.png'),
+            wingMap: require('@/assets/test2.png'),
             updated: 0,
             ready: false,
             butterFlys: [],
@@ -61,21 +63,31 @@ export default {
             useEraser: false,
             color: "#fd8686",
             threshold: 1,
+            showFinished: false
+
         };
     },
 
     methods: {
         save() {
-            this.butterFlys.unshift(this.currentImage)
-            if (this.butterFlys.length > 2) {
-                this.butterFlys.pop()
+
+            if (!this.showFinished) {
+                this.butterFlys.unshift(this.currentImage)
+                if (this.butterFlys.length > 2) {
+                    this.butterFlys.pop()
+                }
+                this.isActive = false
+                this.showFinished = true
+
+            } else {
+                location.reload();
             }
-            this.isActive = false
-            setTimeout(() => {
-                this.isActive = true
-                this.mirrorScreen()
-                this.updated++
-            }, 100);
+
+            // setTimeout(() => {
+            //     this.isActive = true
+            //     this.mirrorScreen()
+
+            // }, 100);
         },
         selectColor(color) {
             this.color = color;

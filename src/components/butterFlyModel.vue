@@ -1,6 +1,7 @@
 <template>
 <div>
     <div :id="index" class="container"></div>
+
 </div>
 </template>
 
@@ -8,7 +9,7 @@
 import * as Three from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 export default {
-    props: ['wingDesign', 'index'],
+    props: ['wingDesign', 'index', 'final'],
     name: 'ThreeTest',
     data() {
         return {
@@ -35,7 +36,7 @@ export default {
                 texture.flipY = false;
             }
             const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
-            console.log(material.map.flipY = false)
+            material.map.flipY = false
             this.scene.getObjectByName('Wings').material = material
             this.scene.getObjectByName('Wings').rotation.y = Math.PI / 2;
 
@@ -45,10 +46,19 @@ export default {
             let container = document.getElementById(this.index);
             // camera
             this.camera = new Three.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 1, 30);
-            this.camera.position.z = 20;
+            if (!this.final) {
+                this.camera.position.z = 20;
+            } else {
+                this.camera.position.z = 15;
+            }
             this.scene = new Three.Scene();
             // background
-            this.scene.background = new Three.Color(0xab2a2a);
+            if (!this.final) {
+                this.scene.background = new Three.Color(0xab2a2a);
+            } else {
+                this.scene.background = new Three.Color('white');
+            }
+
             // LIGHT
             const ambientLight = new Three.AmbientLight('lightBlue', 2);
             const mainLight = new Three.DirectionalLight('lightGreen', 4);
@@ -66,9 +76,11 @@ export default {
                 this.mixer = new Three.AnimationMixer(gltf.scene);
                 this.butterfly.rotation.x = -30
                 this.butterfly.rotation.y = -3.14
-                gltf.animations.forEach((clip) => {
-                    this.mixer.clipAction(clip).play();
-                });
+                if (this.final) {
+                    gltf.animations.forEach((clip) => {
+                        this.mixer.clipAction(clip).play();
+                    });
+                }
                 this.changeWing();
             })
             // RENDER
@@ -95,7 +107,11 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+#main {
+    height: 100vh;
+}
+
 .container {
     width: 100%;
     height: 200px;
