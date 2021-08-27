@@ -18,7 +18,7 @@
             <div class="col-6 wrapper__col left" style="position: relative; border-right: 1px grey solid">
                 <h4 style="position: absolute; top: 0; left: 0; right: 0; margin: auto ">Paint here</h4>
                 <!-- <img :src="require('@/assets/butterfly.svg')" class="template left" /> -->
-                <paintable alwaysOnTop :active="isActive" :width="600" :height="800" :disableNavigation="disableNavigation" :hide="hidePaintable" :horizontalNavigation="true" :navigation="navigation" :name="isFirstPaintable ? 'my-screen' : 'my-second-screen'" :factor="1" :lineWidth="dynamicLineWidth" :lineWidthEraser="20" :useEraser="useEraser" :color="color" class="paint" :threshold="10" ref="paintable" @toggle-paintable="finishedPaint">
+                <paintable alwaysOnTop :active="isActive" :width="600" :height="800" :disableNavigation="disableNavigation" :hide="hidePaintable" :horizontalNavigation="true"  :name="isFirstPaintable ? 'my-screen' : 'my-second-screen'" :factor="1" :lineWidth="dynamicLineWidth" :lineWidthEraser="20" :useEraser="useEraser" :color="color" class="paint" :threshold="10" ref="paintable" @toggle-paintable="finishedPaint">
                 </paintable>
             </div>
             <div class="col-6 wrapper__col" style="cursor: drop; pointer-events: none">

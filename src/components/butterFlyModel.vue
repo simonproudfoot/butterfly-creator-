@@ -1,6 +1,8 @@
 <template>
 <div>
-    <div :id="index" class="container"></div>
+    <div :id="index" class="container">
+        <h2 v-if="loading">LOADING...</h2>
+    </div>
 
 </div>
 </template>
@@ -13,6 +15,7 @@ export default {
     name: 'ThreeTest',
     data() {
         return {
+            loading: true,
             ready: true,
             clock: new Three.Clock(),
             mixer: null,
@@ -29,11 +32,12 @@ export default {
 
         changeWing() {
             const texture = new Three.TextureLoader().load(this.wingDesign);
-            const alphaMapImage = new Three.TextureLoader().load(this.wingDesign);
+
             if (texture.onUpdate) {
                 texture.needsUpdate = false;
                 texture.onUpdate(texture);
                 texture.flipY = false;
+
             }
             const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
             material.map.flipY = false
@@ -82,6 +86,7 @@ export default {
                     });
                 }
                 this.changeWing();
+                this.loading = false
             })
             // RENDER
             this.renderer = new Three.WebGLRenderer({ antialias: true });
