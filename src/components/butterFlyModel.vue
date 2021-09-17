@@ -1,9 +1,8 @@
 <template>
 <div>
     <div :id="index" class="container">
-        <h2 v-if="loading">LOADING...</h2>
+        <p v-if="loading">LOADING...</p>
     </div>
-
 </div>
 </template>
 
@@ -25,25 +24,20 @@ export default {
             butterfly: '',
             butterflyUlr: require('@/assets/test.glb'),
             alphaMapImageUlr: require('@/assets/test.png'),
-
         }
     },
     methods: {
-
         changeWing() {
             const texture = new Three.TextureLoader().load(this.wingDesign);
-
             if (texture.onUpdate) {
                 texture.needsUpdate = false;
                 texture.onUpdate(texture);
-                texture.flipY = false;
-
+                texture.flipY = true;
             }
             const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
             material.map.flipY = false
             this.scene.getObjectByName('Wings').material = material
             this.scene.getObjectByName('Wings').rotation.y = Math.PI / 2;
-
         },
 
         init() {
@@ -63,6 +57,7 @@ export default {
                 this.scene.background = new Three.Color('white');
             }
 
+
             // LIGHT
             const ambientLight = new Three.AmbientLight('lightBlue', 2);
             const mainLight = new Three.DirectionalLight('lightGreen', 4);
@@ -72,6 +67,8 @@ export default {
             this.scene.add(ambientLight);
             this.scene.add(mainLight);
             this.scene.add(secondLight);
+
+
             // Load object
             const gltfLoader = new GLTFLoader();
             gltfLoader.load(this.butterflyUlr, (gltf) => {
@@ -102,9 +99,7 @@ export default {
             this.renderer.render(this.scene, this.camera);
         }
     },
-    created() {
 
-    },
     mounted() {
         this.init();
         this.animate();

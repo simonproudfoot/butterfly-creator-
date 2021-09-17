@@ -11,6 +11,7 @@
   "dependencies": {
     "@loaders.gl/core": "^3.0.9",
     "@loaders.gl/gltf": "^3.0.9",
+    "@popperjs/core": "^2.10.1",
     "bootstrap": "^5.1.0",
     "core-js": "^3.6.5",
     "dat.gui": "^0.7.7",
@@ -22,7 +23,6 @@
     "three-gltf-loader-wtower": "^1.112.2",
     "three-obj-mtl-loader": "^1.0.3",
     "vue": "^2.6.14",
-    "vue-paintable": "^2.1.5",
     "vue-threejs": "^0.2.0-alpha.1",
     "webpack-obj-loader": "^1.0.4"
   },
