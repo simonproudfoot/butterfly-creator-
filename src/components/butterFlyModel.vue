@@ -28,6 +28,7 @@ export default {
     },
     methods: {
         changeWing() {
+
             const texture = new Three.TextureLoader().load(this.wingDesign);
             if (texture.onUpdate) {
                 texture.needsUpdate = false;
@@ -41,6 +42,7 @@ export default {
         },
 
         init() {
+            
             let container = document.getElementById(this.index);
             // camera
             this.camera = new Three.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 1, 30);
@@ -57,7 +59,6 @@ export default {
                 this.scene.background = new Three.Color('white');
             }
 
-
             // LIGHT
             const ambientLight = new Three.AmbientLight('lightBlue', 2);
             const mainLight = new Three.DirectionalLight('lightGreen', 4);
@@ -68,13 +69,13 @@ export default {
             this.scene.add(mainLight);
             this.scene.add(secondLight);
 
-
             // Load object
             const gltfLoader = new GLTFLoader();
             gltfLoader.load(this.butterflyUlr, (gltf) => {
                 this.butterfly = gltf.scene
                 this.scene.add(this.butterfly);
                 this.mixer = new Three.AnimationMixer(gltf.scene);
+                this.butterfly.position.y = 1
                 this.butterfly.rotation.x = -30
                 this.butterfly.rotation.y = -3.14
                 if (this.final) {
@@ -85,18 +86,36 @@ export default {
                 this.changeWing();
                 this.loading = false
             })
+
             // RENDER
             this.renderer = new Three.WebGLRenderer({ antialias: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
-
         },
 
         animate() {
             requestAnimationFrame(this.animate);
+         
             var delta = this.clock.getDelta();
             if (this.mixer && this.butterfly) this.mixer.update(delta);
+
+            if (this.clock.elapsedTime < 2) {
+                this.butterfly.rotation.x -= 0.01
+            }
+            
+            if (this.clock.elapsedTime > 1 && this.clock.elapsedTime < 5.4) {
+                this.butterfly.scale.x -= 0.004
+                this.butterfly.scale.z -= 0.004
+                this.butterfly.scale.y -= 0.004
+                this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
+            }
+
+            if (this.clock.elapsedTime > 5.2) {
+                window.location.href = '/'
+            }
+
             this.renderer.render(this.scene, this.camera);
+
         }
     },
 

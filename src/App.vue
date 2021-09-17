@@ -1,9 +1,9 @@
 <template>
 <div id="app">
     <div class="menu">
-        <button class="brush" @click="useEraser = !useEraser">
+        <!-- <button class="brush" @click="color = ">
             {{ useEraser ? "USE BRUSH" : "USE ERASER" }}
-        </button>
+        </button> -->
         <div style="display: flex; flex-wrap: wrap" :style="useEraser ? 'opacity: 0.5' : null">
             <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
         </div>
@@ -21,28 +21,21 @@
         </button>
     </div>
     <div class="wrapper">
-        <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="400" style="
-          width: 800px;
-          height: 400px;
-          display: flex;
-          margin: auto;
-        "></canvas>
-
-         <butterFlyModel v-else :wingDesign="butterFlys[0]" :final="true" :index="'main'" />
-
+        <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="400" style="width: 800px;height: 400px;display: flex;margin: auto;"></canvas>
+        <butterFlyModel v-else :wingDesign="butterFlys[0]" :final="true" :index="'main'" />
     </div>
     <!--canvas -->
-    <!-- <div class="previous" :key="updated">
-        <p class="text-white mb-0">
+    <div class="previous px-3 py-3" :key="updated">
+        <p class="text-white mb-4">
             previous designs get added to array and save in browser session (refresh
             the page)
         </p>
-        {{butterFlys.length}}
-        <div v-for="(butterfly, i) in butterFlys" :key="i">
+        <div v-for="(butterfly, i) in butterFlys" :key="i" class="px-3 py-3">
+            <img :src="butterfly" class="wingA">
+            <img :src="butterfly" style="width; 100%" class="wingB">
 
-            <butterFlyModel :wingDesign="butterfly" :index="i" />
         </div>
-    </div> -->
+    </div>
 </div>
 </template>
 
@@ -96,7 +89,7 @@ export default {
             // set to draw behind current content
             this.ctx.globalCompositeOperation = "destination-over";
             //set background color
-            this.ctx.fillStyle = "#000000";
+            //this.ctx.fillStyle = "#000000";
 
             // draw background/rectangle on entire canvas
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -112,7 +105,7 @@ export default {
 
             if (!this.showFinished) {
                 this.butterFlys.unshift(this.currentImage)
-                if (this.butterFlys.length > 2) {
+                if (this.butterFlys.length > 5) {
                     this.butterFlys.pop()
                 }
                 this.isActive = false
@@ -124,7 +117,6 @@ export default {
             } else {
                 location.reload();
             }
-
         },
         selectColor(color) {
             this.color = color;
@@ -158,9 +150,6 @@ export default {
                 this.canvas.onmouseup = (event) => {
                     this.canvas.onmousemove = null;
                     this.ctx.closePath();
-
-                    // With as width / height: 100 * 100 (scale)
-
                 };
             };
         },
@@ -207,7 +196,7 @@ export default {
 
         var saved = JSON.parse(localStorage.getItem("previous"));
         if (saved.length > 5) saved.length = 5;
-        console.log(saved)
+
         if (saved) {
             this.butterFlys = saved;
         } else {
@@ -305,6 +294,16 @@ export default {
     text-align: center;
     color: #2c3e50;
     height: 100%;
+}
+
+.wingB {
+    transform: scaleX(-1);
+}
+
+.wingB,
+.wingA {
+    display: inline-block;
+    width: 50%;
 }
 
 .template {
