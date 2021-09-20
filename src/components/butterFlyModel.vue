@@ -62,8 +62,8 @@ export default {
             this.scene.add(ambientLight);
             this.scene.add(mainLight);
             this.scene.add(secondLight);
-            this.butterfly = this.loadedScene.scene
-            this.scene.add(this.butterfly);
+            this.butterfly =
+                this.scene.add(this.loadedScene.scene);
             this.mixer = new Three.AnimationMixer(this.loadedScene.scene);
             this.butterfly.position.y = 1
             this.butterfly.rotation.x = -30
@@ -96,8 +96,6 @@ export default {
             }
             if (this.clock.elapsedTime > 5.2) {
                 // RESET
-                this.$emit('event_child', 1)
-
             }
             this.renderer.render(this.scene, this.camera);
         }
@@ -105,6 +103,10 @@ export default {
     mounted() {
         this.init();
         this.animate();
+        setTimeout(() => {
+            this.$emit('event_child')
+            //   this.$destroy();
+        }, 5000);
     }
 }
 </script>

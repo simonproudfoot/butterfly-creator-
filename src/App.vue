@@ -1,6 +1,6 @@
 <template>
 <div id="app">
-    <div class="menu">
+    <div class="menu" :key="refresh">
         <!-- <button class="brush" @click="color = ">
             {{ useEraser ? "USE BRUSH" : "USE ERASER" }}
         </button> -->
@@ -8,12 +8,7 @@
             <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
         </div>
         <div class="text-white">Brush width</div>
-        <div style="
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          justify-content: center;
-        ">
+        <div style=" display: flex; flex-wrap: wrap; align-items: center; justify-content: center;">
             <span v-for="b in brushWidths" class="brushWidths" :class="b == dynamicLineWidth ? 'selected' : null" :style="{ height: b + 'px', width: b + 'px' }" :key="b" @click="selectBrush(b)"></span>
         </div>
         <button v-if="scene" class="saveButton" @click="save">
@@ -24,8 +19,8 @@
         </button>
     </div>
     <div class="wrapper">
-        <canvas :key="refresh" v-if="!showFinished" ref="paintable" id="c1" width="800" height="400" style="width: 800px;height: 400px;display: flex;margin: auto;"></canvas>
-        <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
+        <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="400" style="width: 800px;height: 400px;display: flex;margin: auto;"></canvas>
+        <butterFlyModel v-on:event_child="reset" v-else :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
     </div>
     <!--canvas -->
     <div class="previous px-3 py-3" :key="updated">
@@ -92,20 +87,19 @@ export default {
 
     methods: {
         reset() {
-            this.refresh++
-            this.paintInit()
+
             this.showFinished = false
-            this.isActive = true
-            window.location.href = '/'
+            this.refresh++
+            this.loadObj()
+
+            setTimeout(() => {
+                this.paintInit()
+            }, 1000);
 
         },
         paintInit() {
-
-            if (!this.canvas) {
-                this.canvas = this.$refs.paintable;
-                this.ctx = this.canvas.getContext("2d");
-            }
-
+            this.canvas = this.$refs.paintable;
+            this.ctx = this.canvas.getContext("2d");
             this.mirrorScreen();
             this.ctx.beginPath();
             var p = new Path2D(
@@ -205,6 +199,15 @@ export default {
         show() {
             this.$showPaintableNavigation();
         },
+        loadObj() {
+            const gltfLoader = new GLTFLoader();
+            if (!this.scene) {
+                gltfLoader.load(this.butterflyUlr, (gltf) => {
+                    console.log('Model loaded')
+                    this.scene = gltf
+                })
+            }
+        },
         addMask() {
             var map = new Image();
             map.src = this.wingMap;
@@ -224,14 +227,7 @@ export default {
     },
     mounted() {
         this.paintInit()
-        const gltfLoader = new GLTFLoader();
-        if (!this.scene) {
-            gltfLoader.load(this.butterflyUlr, (gltf) => {
-                console.log('Model loaded')
-                this.scene = gltf
-            })
-        }
-
+        this.loadObj()
     },
 
     created() {
