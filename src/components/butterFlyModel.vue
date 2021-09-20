@@ -9,7 +9,7 @@
 <script>
 import * as Three from 'three'
 export default {
-    props: ['wingDesign', 'index', 'final', 'loadedScene'],
+    props: ['wingDesign', 'index', 'final', 'loadedScene', 'event_child'],
     name: 'ThreeTest',
     data() {
         return {
@@ -95,7 +95,9 @@ export default {
                 this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
             }
             if (this.clock.elapsedTime > 5.2) {
-                window.location.href = '/'
+                // RESET
+                this.$emit('event_child', 1)
+
             }
             this.renderer.render(this.scene, this.camera);
         }
