@@ -16,13 +16,13 @@
         ">
             <span v-for="b in brushWidths" class="brushWidths" :class="b == dynamicLineWidth ? 'selected' : null" :style="{ height: b + 'px', width: b + 'px' }" :key="b" @click="selectBrush(b)"></span>
         </div>
-        <button class="saveButton" @click="save">
+        <button v-if="scene" class="saveButton" @click="save">
             {{ !showFinished ? "CREATE" : "START AGAIN" }}
         </button>
     </div>
     <div class="wrapper">
         <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="400" style="width: 800px;height: 400px;display: flex;margin: auto;"></canvas>
-        <butterFlyModel v-else :wingDesign="butterFlys[0]" :final="true" :index="'main'" />
+        <butterFlyModel v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished"  />
     </div>
     <!--canvas -->
     <div class="previous px-3 py-3" :key="updated">
@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import butterFlyModel from "./components/butterFlyModel";
 export default {
     name: "App",
@@ -78,8 +79,13 @@ export default {
             color: "#fd8686",
             threshold: 1,
             showFinished: false,
+            butterflyUlr: require('@/assets/test.glb'),
+            modelLoading: true,
+            scene: null
+
         };
     },
+
     methods: {
         save() {
             // get the current ImageData for the canvas
@@ -170,8 +176,10 @@ export default {
                 this.ctx.drawImage(map, 0, 0, 800, 400);
             };
         },
+
     },
     watch: {
+
         butterFlys() {
             if (this.ready) {
                 localStorage.setItem("previous", JSON.stringify(this.butterFlys));
@@ -189,7 +197,7 @@ export default {
         );
 
         this.ctx.stroke(p);
-        console.log(p)
+
         //this.ctx.setBounds(20,20, 1500,1500);
         this.ctx.clip(p);
         this.ctx.closePath();
@@ -202,9 +210,16 @@ export default {
         } else {
             this.butterFlys = [];
         }
-        setTimeout(() => {
-            this.ready = true;
-        }, 1000);
+        // setTimeout(() => {
+        //     this.ready = true;
+        // }, 1000);
+
+        const gltfLoader = new GLTFLoader();
+        gltfLoader.load(this.butterflyUlr, (gltf) => {
+            // console.log('Model loaded')
+            this.scene = gltf
+        })
+
     },
 };
 </script>

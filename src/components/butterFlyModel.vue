@@ -8,9 +8,8 @@
 
 <script>
 import * as Three from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 export default {
-    props: ['wingDesign', 'index', 'final'],
+    props: ['wingDesign', 'index', 'final', 'loadedScene'],
     name: 'ThreeTest',
     data() {
         return {
@@ -22,13 +21,11 @@ export default {
             scene: null,
             renderer: null,
             butterfly: '',
-            butterflyUlr: require('@/assets/test.glb'),
             alphaMapImageUlr: require('@/assets/test.png'),
         }
     },
     methods: {
         changeWing() {
-
             const texture = new Three.TextureLoader().load(this.wingDesign);
             if (texture.onUpdate) {
                 texture.needsUpdate = false;
@@ -40,9 +37,7 @@ export default {
             this.scene.getObjectByName('Wings').material = material
             this.scene.getObjectByName('Wings').rotation.y = Math.PI / 2;
         },
-
         init() {
-            
             let container = document.getElementById(this.index);
             // camera
             this.camera = new Three.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 1, 30);
@@ -58,7 +53,6 @@ export default {
             } else {
                 this.scene.background = new Three.Color('white');
             }
-
             // LIGHT
             const ambientLight = new Three.AmbientLight('lightBlue', 2);
             const mainLight = new Three.DirectionalLight('lightGreen', 4);
@@ -68,57 +62,44 @@ export default {
             this.scene.add(ambientLight);
             this.scene.add(mainLight);
             this.scene.add(secondLight);
+            this.butterfly = this.loadedScene.scene
+            this.scene.add(this.butterfly);
+            this.mixer = new Three.AnimationMixer(this.loadedScene.scene);
+            this.butterfly.position.y = 1
+            this.butterfly.rotation.x = -30
+            this.butterfly.rotation.y = -3.14
 
-            // Load object
-            const gltfLoader = new GLTFLoader();
-            gltfLoader.load(this.butterflyUlr, (gltf) => {
-                this.butterfly = gltf.scene
-                this.scene.add(this.butterfly);
-                this.mixer = new Three.AnimationMixer(gltf.scene);
-                this.butterfly.position.y = 1
-                this.butterfly.rotation.x = -30
-                this.butterfly.rotation.y = -3.14
-                if (this.final) {
-                    gltf.animations.forEach((clip) => {
-                        this.mixer.clipAction(clip).play();
-                    });
-                }
-                this.changeWing();
-                this.loading = false
-            })
+            this.loadedScene.animations.forEach((clip) => {
+                this.mixer.clipAction(clip).play();
+            });
+
+            this.changeWing();
+            this.loading = false
 
             // RENDER
             this.renderer = new Three.WebGLRenderer({ antialias: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
         },
-
         animate() {
             requestAnimationFrame(this.animate);
-         
             var delta = this.clock.getDelta();
             if (this.mixer && this.butterfly) this.mixer.update(delta);
-
             if (this.clock.elapsedTime < 2) {
                 this.butterfly.rotation.x -= 0.01
             }
-            
             if (this.clock.elapsedTime > 1 && this.clock.elapsedTime < 5.4) {
                 this.butterfly.scale.x -= 0.004
                 this.butterfly.scale.z -= 0.004
                 this.butterfly.scale.y -= 0.004
                 this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
             }
-
             if (this.clock.elapsedTime > 5.2) {
                 window.location.href = '/'
             }
-
             this.renderer.render(this.scene, this.camera);
-
         }
     },
-
     mounted() {
         this.init();
         this.animate();
@@ -136,7 +117,6 @@ export default {
     height: 200px;
     color: rgb(112, 207, 207);
     z-index: 100;
-
     right: 0;
     z-index: 99999;
 }

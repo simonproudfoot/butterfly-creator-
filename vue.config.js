@@ -2,6 +2,7 @@
 
 module.exports = {
     configureWebpack: {
+        
         module: {
             rules: [{
                 test: /\.(glb)(\?.*)?$/,
