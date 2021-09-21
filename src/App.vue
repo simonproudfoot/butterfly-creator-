@@ -1,29 +1,29 @@
 <template>
-<div id="app">
-    <div class="menu" :key="refresh">
-        <!-- <button class="brush" @click="color = ">
-            {{ useEraser ? "USE BRUSH" : "USE ERASER" }}
-        </button> -->
-        <div style="display: flex; flex-wrap: wrap" :style="useEraser ? 'opacity: 0.5' : null">
-            <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
+<div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/paper.png') + ')' }">
+
+    <div class="row align-items-center" :key="refresh">
+        <div class="col-2">
+            <div class="pallet">
+                <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
+            </div>
         </div>
-        <div class="text-white">Brush width</div>
-        <div style=" display: flex; flex-wrap: wrap; align-items: center; justify-content: center;">
-            <span v-for="b in brushWidths" class="brushWidths" :class="b == dynamicLineWidth ? 'selected' : null" :style="{ height: b + 'px', width: b + 'px' }" :key="b" @click="selectBrush(b)"></span>
+        <!-- <div class="text-white">Brush width</div> -->
+        <!--
+        -->
+        <div class="col-8 wrapper">
+            <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="400" style="width: 800px;height: 400px;display: flex;margin: auto;"></canvas>
+
         </div>
-        <button v-if="scene" class="saveButton" @click="save">
-            {{ !showFinished ? "CREATE" : "START AGAIN" }}
-        </button>
-        <button v-else class="saveButton">
-            LOADING MODEL <small>online example only</small>
-        </button>
-    </div>
-    <div class="wrapper">
-        <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="400" style="width: 800px;height: 400px;display: flex;margin: auto;"></canvas>
-        <butterFlyModel v-on:event_child="reset" v-else :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
-    </div>
-    <!--canvas -->
-    <div class="previous px-3 py-3" :key="updated">
+        <div class="col-2">
+            <div class="brushes">
+                <div v-for="b in brushWidths" :key="b.size">
+                    <span class="brushWidths" :class="b.size == dynamicLineWidth ? 'selected' : null" @click="selectBrush(b.size)"></span>
+                    {{b.name}}
+                </div>
+            </div>
+        </div>
+        <!--canvas -->
+        <!-- <div class="previous px-3 py-3" :key="updated">
         <p class="text-white mb-4">
             previous designs get added to array and save in browser session (refresh
             the page)
@@ -31,9 +31,16 @@
         <div v-for="(butterfly, i) in butterFlys" :key="i" class="px-3 py-3">
             <img :src="butterfly" class="wingA">
             <img :src="butterfly" style="width; 100%" class="wingB">
-
         </div>
+    </div> -->
     </div>
+    <button v-if="scene && !showFinished" class="saveButton" @click="save">
+        {{ !showFinished ? "FLY AWAY" : "START AGAIN" }}
+    </button>
+    <button v-if="!scene" class="saveButton">
+        LOADING MODEL <br> <small>online example only</small>
+    </button>
+    <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
 
@@ -67,12 +74,18 @@ export default {
                 "#d63384",
                 "#000",
             ],
-            brushWidths: [10, 20, 30, 40],
+            brushWidths: [{
+                name: 'Small brush',
+                size: 10,
+            }, {
+                name: 'Large brush',
+                size: 50,
+            }],
             currentImage: null,
             isFirstPaintable: false,
             hidePaintable: false,
             disableNavigation: true,
-            dynamicLineWidth: 20,
+            dynamicLineWidth: 50,
             isActive: true,
             useEraser: false,
             color: "#fd8686",
@@ -87,11 +100,9 @@ export default {
 
     methods: {
         reset() {
-
             this.showFinished = false
             this.refresh++
             this.loadObj()
-
             setTimeout(() => {
                 this.paintInit()
             }, 1000);
@@ -127,7 +138,6 @@ export default {
             this.ctx.globalCompositeOperation = "destination-over";
             //set background color
             //this.ctx.fillStyle = "#000000";
-
             // draw background/rectangle on entire canvas
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var tempCanvas = document.createElement("canvas")
@@ -257,6 +267,7 @@ export default {
     right: 0;
     bottom: 0;
     border-radius: 34px;
+
 }
 
 .butterfly--left {
@@ -322,7 +333,12 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    height: 100%;
+    height: 1080px;
+    width: 1920px;
+    background-size: 200px;
+    background-repeat: repeat;
+    position: relative;
+
 }
 
 .wingB {
@@ -347,22 +363,18 @@ export default {
     mix-blend-mode: color-burn;
 }
 
-canvas {
+canvas {}
+
+.wrapper {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-}
-
-.wrapper {
-    width: 1200px;
-    height: 800px;
-    position: fixed;
-    margin: auto;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    background-color: #fff;
+    height: 500px;
+    padding: 3em;
+    box-shadow: 0px 10px 0px -5px #DDDDDD;
+    min-width: 830px;
 }
 
 .wrapper__col {
@@ -413,33 +425,40 @@ canvas {
     z-index: 1000;
 }
 
-.selected {
-    border: 1px #fff solid;
-}
-
 .color {
     width: 33.33%;
     height: 80px;
     cursor: pointer;
+
 }
 
 .brushWidths {
-    background-color: #000;
+    background-color: #fff;
     margin: 10px;
+    width: 80px;
     height: 80px;
     cursor: pointer;
+    display: block;
     border-radius: 100px;
+}
+
+.brushWidths.selected {
+    border: 2px border #000;
+    background-color: #ffcb00;
 }
 
 .saveButton {
     position: absolute;
-    bottom: 0;
-    background-color: blue;
-    width: 100%;
-    height: 100px;
+    bottom: 10px;
+    background-color: #ffcb00;
+    width: 200px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 70px;
     display: block;
     left: 0;
-    color: #fff;
+    color: #000;
     border: none;
 }
 
@@ -450,5 +469,33 @@ canvas {
     display: block;
     color: #fff;
     border: none;
+}
+
+.brushes {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 30px;
+
+}
+
+.pallet {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.color.selected {
+    width: 6em;
+}
+
+.color {
+    transition-duration: 0.3s;
+    width: 5em;
+    height: 2em;
+    display: block;
+    margin-bottom: 1em;
+    border-radius: 0 1em 1em 0;
+
 }
 </style>
