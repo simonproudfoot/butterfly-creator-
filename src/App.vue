@@ -1,15 +1,15 @@
 <template>
 <div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/paper.png') + ')' }">
-
+<svg height="210" width="500">
+  <polygon points="200,10 250,190 160,210" style="fill:lime;stroke:purple;stroke-width:1" />
+</svg>
     <div class="row align-items-center" :key="refresh">
         <div class="col-2">
             <div class="pallet">
                 <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
             </div>
         </div>
-        <!-- <div class="text-white">Brush width</div> -->
-        <!--
-        -->
+
         <div class="col-8 wrapper">
             <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="400" style="width: 800px;height: 400px;display: flex;margin: auto;"></canvas>
 
@@ -338,7 +338,6 @@ export default {
     background-size: 200px;
     background-repeat: repeat;
     position: relative;
-
 }
 
 .wingB {

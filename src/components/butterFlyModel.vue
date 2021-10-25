@@ -32,7 +32,7 @@ export default {
                 texture.onUpdate(texture);
                 texture.flipY = true;
             }
-            const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
+            const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5, color: 0xFF0000 })
             material.map.flipY = false
             this.scene.getObjectByName('Wings').material = material
             this.scene.getObjectByName('Wings').rotation.y = Math.PI / 2;
@@ -86,7 +86,6 @@ export default {
                 this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
                 this.butterfly.position.y += 0.1
             }
-
             this.renderer.render(this.scene, this.camera);
         }
     },
