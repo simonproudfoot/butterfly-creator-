@@ -36,6 +36,7 @@ export default {
             material.map.flipY = false
             this.scene.getObjectByName('Wings').material = material
             this.scene.getObjectByName('Wings').rotation.y = Math.PI / 2;
+
         },
         init() {
             let container = document.getElementById(this.index);
@@ -69,6 +70,8 @@ export default {
             this.changeWing();
             this.loading = false
 
+            this.butterfly.getObjectByName('Armature').scale.z =1
+           
             // RENDER
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
@@ -80,11 +83,11 @@ export default {
             if (this.mixer && this.butterfly) this.mixer.update(delta);
             if (this.clock.elapsedTime > 1) {
                 this.mixer.timeScale = 2.5
-                this.butterfly.position.z += 0.1
-                this.butterfly.rotation.x += 0.01
-                this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
-                this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
-                this.butterfly.position.y += 0.1
+                // this.butterfly.position.z += 0.1
+                // this.butterfly.rotation.x += 0.01
+                // this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
+                // this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
+                // this.butterfly.position.y += 0.1
             }
             this.renderer.render(this.scene, this.camera);
         }
@@ -93,8 +96,7 @@ export default {
         this.init();
         this.animate();
         setTimeout(() => {
-            this.$emit('event_child')
-
+            //this.$emit('event_child')
         }, 2500);
     }
 }

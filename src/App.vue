@@ -8,8 +8,8 @@
         </div>
 
         <div class="col-8 wrapper">
-            <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="700" style="width: 800px; height: 700px; display: flex; margin: auto"></canvas>
-            <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="700" style="width: 800px; height: 700px; display: flex; margin: auto"></canvas>
+            <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
+            <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
         </div>
         <div class="col-2">
             <div class="brushes">
@@ -92,7 +92,7 @@ export default {
             color: "#fd8686",
             threshold: 1,
             showFinished: false,
-            butterflyUlr: require("@/assets/test.glb"),
+            butterflyUlr: require("@/assets/butterflyB.glb"),
             modelLoading: true,
             scene: null,
         };
@@ -122,7 +122,7 @@ export default {
             backImage.src = require("@/assets/wings/back.png");
 
             backImage.onload = () => {
-                this.ctxBack.drawImage(backImage, 90, 120, backImage.width, backImage.height);
+                this.ctxBack.drawImage(backImage, 90, 20, backImage.width, backImage.height);
             };
 
             // backImage.onload = () => {
@@ -134,7 +134,7 @@ export default {
 
             outlineImage.onload = () => {
                 // this.ctx.globalCompositeOperation = 'source-over';
-                this.ctx.drawImage(outlineImage, 90, 120);
+                this.ctx.drawImage(outlineImage, 90, 20);
                 this.ctx.globalCompositeOperation = "source-atop";
             };
 
@@ -148,34 +148,23 @@ export default {
         },
 
         save() {
-            // get the current ImageData for the canvas
-            var data = this.ctx.getImageData(
-                0,
-                0,
-                this.canvas.width,
-                this.canvas.height
-            );
-            // store the current globalCompositeOperation
-            //   var compositeOperation = this.ctx.globalCompositeOperation;
-            // set to draw behind current content
+
             this.ctx.globalCompositeOperation = "destination-over";
-            //set background color
+
             this.ctx.fillStyle = '#000';
             // draw background/rectangle on entire canvas
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var tempCanvas = document.createElement("canvas");
             var tCtx = tempCanvas.getContext("2d");
             tempCanvas.width = 400;
-            tempCanvas.height = 400;
-
+            tempCanvas.height = 500;
             tCtx.drawImage(this.canvasBack, 0, 0);
             tCtx.globalCompositeOperation = "source-atop";
             tCtx.drawImage(this.canvas, 0, 0);
-            // write on screen
             var img = tempCanvas.toDataURL("image/png");
             this.currentImage = img;
 
-            // put back when finished
+            // go go got
             if (!this.showFinished) {
                 this.butterFlys.unshift(this.currentImage);
                 if (this.butterFlys.length > 5) {
@@ -203,7 +192,6 @@ export default {
                 let px = event.offsetX;
                 let py = event.offsetY;
                 let mirrorPx = 800 - event.offsetX;
-                let mirrorPy = 400 - event.offsetY;
                 this.ctx.moveTo(px, py);
                 this.canvas.onmousemove = (event) => {
                     this.ctx.lineTo(event.offsetX, event.offsetY);
@@ -215,12 +203,14 @@ export default {
                     this.ctx.lineTo(800 - event.offsetX, event.offsetY);
                     this.ctx.stroke();
                     mirrorPx = 800 - event.offsetX;
-                    mirrorPy = 400 - event.offsetY;
                     px = event.offsetX;
                     py = event.offsetY;
                     this.ctx.moveTo(event.offsetX, event.offsetY);
                 };
                 this.canvas.onmouseup = (event) => {
+                    this.ctx.strokeStyle = ''
+                    this.ctx.lineCap = '';
+                    this.ctx.lineWidth = ''
                     this.canvas.onmousemove = null;
                     this.ctx.closePath();
                 };
@@ -395,7 +385,7 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: 1px red dashed;
+
 }
 
 .wrapper {
