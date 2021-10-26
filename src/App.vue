@@ -56,7 +56,7 @@ export default {
             ctx: null,
             tempCanvas: null,
             tempCtx: null,
-            wingMap: require("@/assets/wings/front.png"),
+            wingMap: require("@/assets/wings/3-front.png"),
             updated: 0,
             ready: false,
             butterFlys: [],
@@ -118,8 +118,8 @@ export default {
 
             var backImage = new Image();
             var outlineImage = new Image();
-            outlineImage.src = require("@/assets/wings/front.png");
-            backImage.src = require("@/assets/wings/back.png");
+            outlineImage.src = require("@/assets/wings/3-front.png");
+            backImage.src = require("@/assets/wings/3-back.png");
 
             backImage.onload = () => {
                 this.ctxBack.drawImage(backImage, 90, 20, backImage.width, backImage.height);
