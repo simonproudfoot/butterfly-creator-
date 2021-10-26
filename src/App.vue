@@ -1,44 +1,42 @@
 <template>
 <div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/paper.png') + ')' }">
-    <div class="row align-items-center" :key="refresh">
-        <div class="col-2">
-            <div class="pallet">
-                <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
-            </div>
-        </div>
-
-        <div class="col-8 wrapper">
-            <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
-            <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
-        </div>
-        <div class="col-2">
-            <div class="brushes">
-                <div v-for="b in brushWidths" :key="b.size">
-                    <span class="brushWidths" :class="b.size == dynamicLineWidth ? 'selected' : null" @click="selectBrush(b.size)"></span>
-                    {{ b.name }}
+    <div v-show="!wingSelected" class="choose">
+        <h1>choose you butterfly</h1>
+        <button v-for="nth in 3" :key="nth" @click="selectWing(nth)" class="choose__icon">
+            <img :src="require('@/assets/selection'+nth+'.svg')">
+          
+        </button>
+    </div>
+    <div v-show="wingSelected">
+        <div class="row align-items-center" :key="refresh">
+            <div class="col-2">
+                <div class="pallet">
+                    <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
                 </div>
             </div>
+            <div class="col-8 wrapper">
+                <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
+                <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
+            </div>
+            <div class="col-2">
+                <div class="brushes">
+                    <div v-for="b in brushWidths" :key="b.size">
+                        <span class="brushWidths" :class="b.size == dynamicLineWidth ? 'selected' : null" @click="selectBrush(b.size)"></span>
+                        {{ b.name }}
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <!--canvas -->
-        <!-- <div class="previous px-3 py-3" :key="updated">
-        <p class="text-white mb-4">
-            previous designs get added to array and save in browser session (refresh
-            the page)
-        </p>
-        <div v-for="(butterfly, i) in butterFlys" :key="i" class="px-3 py-3">
-            <img :src="butterfly" class="wingA">
-            <img :src="butterfly" style="width; 100%" class="wingB">
-        </div>
-    </div> -->
+        <button v-if="scene && !showFinished && wingSelected" class="saveButton" @click="save">
+            {{ !showFinished ? "FLY AWAY" : "START AGAIN" }}
+        </button>
+        <button v-if="!scene" class="saveButton">
+            LOADING MODEL <br />
+            <small>online example only</small>
+        </button>
+        <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
     </div>
-    <button v-if="scene && !showFinished" class="saveButton" @click="save">
-        {{ !showFinished ? "FLY AWAY" : "START AGAIN" }}
-    </button>
-    <button v-if="!scene" class="saveButton">
-        LOADING MODEL <br />
-        <small>online example only</small>
-    </button>
-    <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
 
@@ -56,7 +54,7 @@ export default {
             ctx: null,
             tempCanvas: null,
             tempCtx: null,
-            wingMap: require("@/assets/wings/3-front.png"),
+            wingSelected: 0,
             updated: 0,
             ready: false,
             butterFlys: [],
@@ -99,6 +97,10 @@ export default {
     },
 
     methods: {
+        selectWing(wng) {
+            this.wingSelected = wng
+            this.paintInit()
+        },
         reset() {
             this.showFinished = false;
             this.refresh++;
@@ -115,25 +117,17 @@ export default {
             this.ctxBack = this.canvasBack.getContext("2d");
 
             this.mirrorScreen();
-
             var backImage = new Image();
             var outlineImage = new Image();
-            outlineImage.src = require("@/assets/wings/3-front.png");
-            backImage.src = require("@/assets/wings/3-back.png");
+            outlineImage.src = require("@/assets/wings/" + this.wingSelected + "-front.png");
+            backImage.src = require("@/assets/wings/" + this.wingSelected + "-back.png");
 
             backImage.onload = () => {
                 this.ctxBack.drawImage(backImage, 90, 20, backImage.width, backImage.height);
             };
 
-            // backImage.onload = () => {
-            //     this.ctx.globalCompositeOperation = 'destination-over';
-            //     this.ctx.drawImage(backImage, 0, 0);
-            //     this.ctx.globalCompositeOperation = 'source-atop';
-
-            // }
-
             outlineImage.onload = () => {
-                // this.ctx.globalCompositeOperation = 'source-over';
+
                 this.ctx.drawImage(outlineImage, 90, 20);
                 this.ctx.globalCompositeOperation = "source-atop";
             };
@@ -148,9 +142,7 @@ export default {
         },
 
         save() {
-
             this.ctx.globalCompositeOperation = "destination-over";
-
             this.ctx.fillStyle = '#000';
             // draw background/rectangle on entire canvas
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -234,14 +226,6 @@ export default {
                 });
             }
         },
-        addMask() {
-            var map = new Image();
-            map.src = this.wingMap;
-            // ctx.drawImage(image, dx, dy, dWidth, dHeight);
-            map.onload = () => {
-                this.ctx.drawImage(map, 0, 0, 800, 400);
-            };
-        },
     },
     watch: {
         butterFlys() {
@@ -251,7 +235,7 @@ export default {
         },
     },
     mounted() {
-        this.paintInit();
+        //  this.paintInit();
         this.loadObj();
     },
 
@@ -264,6 +248,33 @@ export default {
 </script>
 
 <style>
+
+@font-face {
+    font-family: "Gilroy-Bold";
+    src: local("Gilroy-Bold.woff"), url('./fonts/Gilroy-Bold.woff') format("woff");
+}
+
+@font-face {
+    font-family: "Gilroy-Regular";
+    src: local("Gilroy-Regular.woff"), url('./fonts/Gilroy-Regular.woff') format("woff");
+}
+
+
+.choose {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.choose__icon {
+    height: 500px;
+    width: 500px;
+    border: none;
+    padding: 1em;
+}
+
 .butterfly {
     position: relative;
     width: 180px;
@@ -342,7 +353,7 @@ export default {
 }
 
 #app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
+ font-family: 'Gilroy-Regular', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
