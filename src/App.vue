@@ -1,6 +1,6 @@
 <template>
 <div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/paper.png') + ')' }">
-    <div class="zoomOut">
+    <div class="zoomOut" v-if="scene">
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1">Choose your butterfly</h1>
             <button v-for="nth in 3" :key="nth" @click="selectWing(nth)" class="choose__icon">
@@ -39,6 +39,7 @@
         </div>
 
     </div>
+    <h1 v-else class="loading">Loading</h1>
     <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
@@ -95,7 +96,7 @@ export default {
             color: "#bc291e",
             threshold: 1,
             showFinished: false,
-            butterflyUlr: require("@/assets/butterflyB.glb"),
+            butterflyUlr: require("@/assets/butterflyC.glb"),
             modelLoading: true,
             scene: null,
         };
@@ -306,7 +307,9 @@ h3 {
     font-family: "Gilroy-Bold";
 }
 
-.choose {
+
+
+.choose, .loading {
     position: absolute;
     width: 100%;
     top: 50%;
@@ -466,12 +469,12 @@ canvas {
     border-radius: 30px;
 }
 
-.wrapper .boxShadow{
-position: absolute;
-bottom: -20px;
-height: 20px;
-width: 2172px;
-left: -431px;
+.wrapper .boxShadow {
+    position: absolute;
+    bottom: -20px;
+    height: 20px;
+    width: 2172px;
+    left: -431px;
 }
 
 .wrapper__col {
