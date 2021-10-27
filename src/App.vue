@@ -16,8 +16,8 @@
                 </div>
                 <div class="col-8 wrapper">
                     <img class="boxShadow" :src="require('@/assets/shadow.svg')">
-                    <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
-                    <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
+                    <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" style="display: flex; margin: auto"></canvas>
+                    <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas>
                 </div>
                 <div class="col-2">
                     <div class="brushes">
@@ -52,6 +52,12 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
+            outlineImage: new Image(),
+            backImage: new Image(),
+            buttDimensions: {
+                height: 650,
+                width: 990,
+            },
             refresh: 0,
             canvas: null,
             canvasBack: null,
@@ -115,7 +121,7 @@ export default {
         },
         selectWing(wng) {
             this.wingSelected = wng
-            this.paintInit()
+            //  this.paintInit()
         },
         reset() {
             this.showFinished = false;
@@ -126,22 +132,25 @@ export default {
             }, 1000);
         },
         paintInit() {
+
             this.canvas = this.$refs.paintable;
             this.ctx = this.canvas.getContext("2d");
             this.canvasBack = this.$refs.background;
             this.ctxBack = this.canvasBack.getContext("2d");
+
             // this.mirrorScreen();
-            var backImage = new Image();
-            var outlineImage = new Image();
-            outlineImage.src = require("@/assets/wings/" + this.wingSelected + "-front.png");
-            backImage.src = require("@/assets/wings/" + this.wingSelected + "-back.png");
-            backImage.onload = () => {
-                this.ctxBack.drawImage(backImage, 90, 20, backImage.width, backImage.height);
-            };
-            outlineImage.onload = () => {
-                this.ctx.drawImage(outlineImage, 90, 20);
-                this.ctx.globalCompositeOperation = "source-atop";
-            };
+            console.log(this.backImage.width + '-' + this.backImage.height)
+
+            var hRatio = this.canvas.width / this.backImage.width;
+            var vRatio = this.canvas.height / this.backImage.height;
+            var ratio = Math.min(hRatio, vRatio);
+
+            var centerShift_x = (this.canvas.width - this.backImage.width * ratio) / 2;
+            var centerShift_y = (this.canvas.height - this.backImage.height * ratio) / 2;
+            this.ctxBack.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctxBack.drawImage(this.backImage, 0,0, this.backImage.width, this.backImage.height,centerShift_x,centerShift_y,this.backImage.width*ratio, this.backImage.height*ratio); 
+            this.ctx.drawImage(this.outlineImage, 0,0, this.backImage.width, this.backImage.height,centerShift_x,centerShift_y,this.backImage.width*ratio, this.backImage.height*ratio); 
+            this.ctx.globalCompositeOperation = "source-atop";
             var saved = JSON.parse(localStorage.getItem("previous"));
             if (saved.length > 5) saved.length = 5;
             if (saved) {
@@ -161,8 +170,8 @@ export default {
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var tempCanvas = document.createElement("canvas");
             var tCtx = tempCanvas.getContext("2d");
-            tempCanvas.width = 400;
-            tempCanvas.height = 500;
+            tempCanvas.width = this.buttDimensions.width / 2;
+            tempCanvas.height = this.buttDimensions.height;
             tCtx.drawImage(this.canvasBack, 0, 0);
             tCtx.globalCompositeOperation = "source-atop";
             tCtx.drawImage(this.canvas, 0, 0);
@@ -199,7 +208,7 @@ export default {
                 if (status) {
                     let px = 0
                     let py = 0
-                    let mirrorPx = 800 - 0
+                    let mirrorPx = this.buttDimensions.width - 0
                     this.ctx.beginPath();
                     this.ctx.moveTo(px, py);
                     this.canvas.onmousemove = (event) => {
@@ -209,9 +218,9 @@ export default {
                         this.ctx.lineWidth = this.dynamicLineWidth;
                         this.ctx.stroke();
                         this.ctx.moveTo(mirrorPx, py);
-                        this.ctx.lineTo(800 - event.offsetX, event.offsetY);
+                        this.ctx.lineTo(this.buttDimensions.width - event.offsetX, event.offsetY);
                         this.ctx.stroke();
-                        mirrorPx = 800 - event.offsetX;
+                        mirrorPx = this.buttDimensions.width - event.offsetX;
                         px = event.offsetX;
                         py = event.offsetY;
                         this.ctx.moveTo(event.offsetX, event.offsetY);
@@ -247,6 +256,18 @@ export default {
         },
     },
     watch: {
+        wingSelected(v) {
+
+            this.outlineImage.src = require("@/assets/wings/" + v + "-front.png");
+            this.backImage.src = require("@/assets/wings/" + v + "-back.png");
+
+            this.outlineImage.onload = () => {
+                setTimeout(() => {
+                    this.paintInit()
+                }, 100);
+
+            }
+        },
         butterFlys() {
             if (this.ready) {
                 localStorage.setItem("previous", JSON.stringify(this.butterFlys));
@@ -256,6 +277,7 @@ export default {
     mounted() {
         //  this.paintInit();
         this.loadObj();
+
     },
     created() {
         this.$on("event_parent", function (id) {
@@ -464,6 +486,7 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
     user-select: none;
+    border: red dashed 1px;
 }
 
 .wrapper {
@@ -476,6 +499,15 @@ canvas {
     padding: 3em;
     width: 1347px;
     border-radius: 30px;
+}
+
+.wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background-color: red;
 }
 
 .wrapper .boxShadow {
