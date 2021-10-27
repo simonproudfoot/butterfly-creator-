@@ -138,9 +138,6 @@ export default {
             this.canvasBack = this.$refs.background;
             this.ctxBack = this.canvasBack.getContext("2d");
 
-            // this.mirrorScreen();
-            console.log(this.backImage.width + '-' + this.backImage.height)
-
             var hRatio = this.canvas.width / this.backImage.width;
             var vRatio = this.canvas.height / this.backImage.height;
             var ratio = Math.min(hRatio, vRatio);
@@ -148,8 +145,8 @@ export default {
             var centerShift_x = (this.canvas.width - this.backImage.width * ratio) / 2;
             var centerShift_y = (this.canvas.height - this.backImage.height * ratio) / 2;
             this.ctxBack.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctxBack.drawImage(this.backImage, 0,0, this.backImage.width, this.backImage.height,centerShift_x,centerShift_y,this.backImage.width*ratio, this.backImage.height*ratio); 
-            this.ctx.drawImage(this.outlineImage, 0,0, this.backImage.width, this.backImage.height,centerShift_x,centerShift_y,this.backImage.width*ratio, this.backImage.height*ratio); 
+            this.ctxBack.drawImage(this.backImage, 0, 0, this.backImage.width, this.backImage.height, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
+            this.ctx.drawImage(this.outlineImage, 0, 0, this.backImage.width, this.backImage.height, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
             this.ctx.globalCompositeOperation = "source-atop";
             var saved = JSON.parse(localStorage.getItem("previous"));
             if (saved.length > 5) saved.length = 5;
@@ -170,11 +167,13 @@ export default {
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var tempCanvas = document.createElement("canvas");
             var tCtx = tempCanvas.getContext("2d");
-            tempCanvas.width = this.buttDimensions.width / 2;
-            tempCanvas.height = this.buttDimensions.height;
-            tCtx.drawImage(this.canvasBack, 0, 0);
+            tempCanvas.width = this.canvasBack.width / 2;
+            tempCanvas.height = this.canvasBack.height;
+
+            tCtx.drawImage(this.canvasBack, 0, 0, this.canvasBack.width-50, this.canvasBack.height-50);
+
             tCtx.globalCompositeOperation = "source-atop";
-            tCtx.drawImage(this.canvas, 0, 0);
+            tCtx.drawImage(this.canvas, 0, 0, this.canvasBack.width-50, this.canvasBack.height-50);
             var img = tempCanvas.toDataURL("image/png");
             this.currentImage = img;
             // go go got
@@ -486,7 +485,7 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
     user-select: none;
-    border: red dashed 1px;
+  
 }
 
 .wrapper {
@@ -507,7 +506,7 @@ canvas {
     top: 0;
     width: 1px;
     height: 100%;
-    background-color: red;
+    
 }
 
 .wrapper .boxShadow {

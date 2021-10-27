@@ -5,7 +5,6 @@
     </div>
 </div>
 </template>
-
 <script>
 import * as Three from 'three'
 export default {
@@ -31,12 +30,16 @@ export default {
                 texture.needsUpdate = false;
                 texture.onUpdate(texture);
                 texture.flipY = true;
+               
+                
             }
+            console.log(texture)
+             texture.offset.x = -0.060
+                  texture.offset.y = -0.020
             const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
             material.map.flipY = false
             this.scene.getObjectByName('Wings').material = material
             this.scene.getObjectByName('Wings').rotation.y = Math.PI / 2;
-
         },
         init() {
             let container = document.getElementById(this.index);
@@ -44,7 +47,6 @@ export default {
             this.camera = new Three.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 1, 30);
             this.camera.position.z = 16;
             this.scene = new Three.Scene();
-
             // LIGHT
             const ambientLight = new Three.AmbientLight('lightBlue', 2);
             const mainLight = new Three.DirectionalLight('lightGreen', 4);
@@ -62,16 +64,16 @@ export default {
             //  this.butterfly.position.x = -0.3
             this.butterfly.rotation.x = -30
             this.butterfly.rotation.y = -3.14
-
             this.loadedScene.animations.forEach((clip) => {
                 this.mixer.clipAction(clip).play();
             });
-
             this.changeWing();
             this.loading = false
+            this.butterfly.getObjectByName('Armature').scale.x = 1.2
+            this.butterfly.getObjectByName('Armature').scale.y = 1.2
+            this.butterfly.getObjectByName('Armature').scale.z = 1.2
 
-            this.butterfly.getObjectByName('Armature').scale.z =1
-           
+          //  this.butterfly.getObjectByName('Armature').position.y = 1.2
             // RENDER
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
@@ -95,11 +97,9 @@ export default {
     mounted() {
         this.init();
         this.animate();
-     
     }
 }
 </script>
-
 <style>
 .container {
     height: 1080px;
@@ -111,7 +111,6 @@ export default {
     max-width: none !important;
     padding: 0 !important;
 }
-
 .controls {
     position: fixed;
     bottom: 0;
