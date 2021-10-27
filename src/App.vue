@@ -16,7 +16,7 @@
                 </div>
                 <div class="col-8 wrapper">
                     <img class="boxShadow" :src="require('@/assets/shadow.svg')">
-                    <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
+                    <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" @touchstart="mirrorScreen(true)" @touchleave="mirrorScreen(false)" @touchend="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
                     <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
                 </div>
                 <div class="col-2">
@@ -143,7 +143,7 @@ export default {
             this.canvasBack = this.$refs.background;
             this.ctxBack = this.canvasBack.getContext("2d");
 
-            this.mirrorScreen();
+            // this.mirrorScreen();
             var backImage = new Image();
             var outlineImage = new Image();
             outlineImage.src = require("@/assets/wings/" + this.wingSelected + "-front.png");
@@ -218,12 +218,18 @@ export default {
         selectBrush(b) {
             this.dynamicLineWidth = b;
         },
-        mirrorScreen() {
-            this.canvas.onmousedown = (event) => {
+
+        draw() {
+
+        },
+
+        mirrorScreen(status) {
+
+            let px = event.offsetX;
+            let py = event.offsetY;
+            let mirrorPx = 800 - event.offsetX;
+            if (status) {
                 this.ctx.beginPath();
-                let px = event.offsetX;
-                let py = event.offsetY;
-                let mirrorPx = 800 - event.offsetX;
                 this.ctx.moveTo(px, py);
                 this.canvas.onmousemove = (event) => {
                     this.ctx.lineTo(event.offsetX, event.offsetY);
@@ -239,16 +245,17 @@ export default {
                     py = event.offsetY;
                     this.ctx.moveTo(event.offsetX, event.offsetY);
                 };
-                this.canvas.onmouseup = (event) => {
-                    this.colour = ''
-                    this.ctx.strokeStyle = ''
-                    this.ctx.lineCap = '';
-                    this.ctx.lineWidth = ''
-                    this.canvas.onmousemove = null;
-                    this.ctx.closePath();
-                };
-            };
+            } else {
+                this.colour = ''
+                this.ctx.strokeStyle = ''
+                this.ctx.lineCap = '';
+                this.ctx.lineWidth = ''
+                this.canvas.onmousemove = null;
+                this.ctx.closePath();
+            }
+
         },
+
         navigate() {
             this.isFirstPaintable = !this.isFirstPaintable;
         },
@@ -278,11 +285,9 @@ export default {
     mounted() {
         //  this.paintInit();
         this.loadObj();
-
     },
 
     created() {
-
         this.$on("event_parent", function (id) {
             alert("Event from parent component emitted", id);
         });
@@ -307,9 +312,8 @@ h3 {
     font-family: "Gilroy-Bold";
 }
 
-
-
-.choose, .loading {
+.choose,
+.loading {
     position: absolute;
     width: 100%;
     top: 50%;
@@ -453,6 +457,7 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    user-select: none;
 
 }
 
