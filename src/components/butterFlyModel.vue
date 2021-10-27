@@ -81,13 +81,13 @@ export default {
             requestAnimationFrame(this.animate);
             var delta = this.clock.getDelta(3);
             if (this.mixer && this.butterfly) this.mixer.update(delta);
-            if (this.clock.elapsedTime > 1) {
+            if (this.clock.elapsedTime > 2) {
                 this.mixer.timeScale = 2.5
-                // this.butterfly.position.z += 0.1
-                // this.butterfly.rotation.x += 0.01
-                // this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
-                // this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
-                // this.butterfly.position.y += 0.1
+                this.butterfly.position.z += 0.1
+                this.butterfly.rotation.x += 0.01
+                this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
+                this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
+                this.butterfly.position.y += 0.1
             }
             this.renderer.render(this.scene, this.camera);
         }
@@ -95,9 +95,7 @@ export default {
     mounted() {
         this.init();
         this.animate();
-        setTimeout(() => {
-            //this.$emit('event_child')
-        }, 2500);
+     
     }
 }
 </script>

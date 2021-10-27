@@ -1,48 +1,52 @@
 <template>
 <div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/paper.png') + ')' }">
-    <div v-show="!wingSelected" class="choose">
-        <h1>choose you butterfly</h1>
-        <button v-for="nth in 3" :key="nth" @click="selectWing(nth)" class="choose__icon">
-            <img :src="require('@/assets/selection'+nth+'.svg')">
-          
-        </button>
-    </div>
-    <div v-show="wingSelected">
-        <div class="row align-items-center" :key="refresh">
-            <div class="col-2">
-                <div class="pallet">
-                    <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'background-color:' + c" :key="c" @click="selectColor(c)"></span>
+    <div class="zoomOut">
+        <div v-show="!wingSelected" class="choose">
+            <h1 class="display-1">Choose your butterfly</h1>
+            <button v-for="nth in 3" :key="nth" @click="selectWing(nth)" class="choose__icon">
+                <img :src="require('@/assets/selection'+nth+'.svg')">
+            </button>
+        </div>
+        <div v-show="wingSelected">
+            <div class="row align-items-center" :key="refresh">
+                <div class="col-2">
+                    <div class="pallet">
+                        <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'border-color:'+shadeColor(c,-20)+'; background-color:' + c" :key="c" @click="selectColor(c)"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-8 wrapper">
-                <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
-                <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
-            </div>
-            <div class="col-2">
-                <div class="brushes">
-                    <div v-for="b in brushWidths" :key="b.size">
-                        <span class="brushWidths" :class="b.size == dynamicLineWidth ? 'selected' : null" @click="selectBrush(b.size)"></span>
-                        {{ b.name }}
+                <div class="col-8 wrapper">
+                    <img class="boxShadow" :src="require('@/assets/shadow.svg')">
+                    <canvas v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
+                    <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
+                </div>
+                <div class="col-2">
+                    <div class="brushes">
+                        <div v-for="b in brushWidths" :key="b.size">
+                            <span class="brushWidths" :class="b.size == dynamicLineWidth ? 'selected' : null" @click="selectBrush(b.size)" :style="{ backgroundImage: 'url(' + require('@/assets/brush.svg') + ')' }"></span>
+                            {{ b.name }}
+                        </div>
                     </div>
                 </div>
             </div>
-
+            <button v-if="wingSelected" class="saveButton" @click="save">
+                <!-- {{ !showFinished ? "FLY AWAY" : "START AGAIN" }} -->
+                <img :src="require('@/assets/fly.svg')">
+            </button>
+            <button v-if="!scene" class="saveButton">
+                LOADING MODEL <br />
+                <small>online example only</small>
+            </button>
         </div>
-        <button v-if="scene && !showFinished && wingSelected" class="saveButton" @click="save">
-            {{ !showFinished ? "FLY AWAY" : "START AGAIN" }}
-        </button>
-        <button v-if="!scene" class="saveButton">
-            LOADING MODEL <br />
-            <small>online example only</small>
-        </button>
-        <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
+
     </div>
+    <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
 
 <script>
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import butterFlyModel from "./components/butterFlyModel";
+import gsap from "gsap";
 export default {
     name: "App",
     components: { butterFlyModel },
@@ -59,23 +63,24 @@ export default {
             ready: false,
             butterFlys: [],
             colours: [
-                "#fd8686",
-                "#ffa77c",
-                "#f9d62e",
-                "#a0e169",
-                "#04d2d4",
-                "#dc3545",
-                "#6f42c1",
-                "#198754",
-                "#0d6efd",
-                "#d63384",
-                "#000",
+                "#bc291e",
+                '#fc8c54',
+                '#fdc451',
+                '#c6de94',
+                '#339164',
+                '#5489af',
+                '#7fddda',
+                '#766a90',
+                '#9c76a3',
+
             ],
             brushWidths: [{
+
                     name: "Small brush",
                     size: 10,
                 },
                 {
+
                     name: "Large brush",
                     size: 50,
                 },
@@ -87,7 +92,7 @@ export default {
             dynamicLineWidth: 50,
             isActive: true,
             useEraser: false,
-            color: "#fd8686",
+            color: "#bc291e",
             threshold: 1,
             showFinished: false,
             butterflyUlr: require("@/assets/butterflyB.glb"),
@@ -97,6 +102,27 @@ export default {
     },
 
     methods: {
+
+        shadeColor(color, percent) {
+
+            var R = parseInt(color.substring(1, 3), 16);
+            var G = parseInt(color.substring(3, 5), 16);
+            var B = parseInt(color.substring(5, 7), 16);
+
+            R = parseInt(R * (100 + percent) / 100);
+            G = parseInt(G * (100 + percent) / 100);
+            B = parseInt(B * (100 + percent) / 100);
+
+            R = (R < 255) ? R : 255;
+            G = (G < 255) ? G : 255;
+            B = (B < 255) ? B : 255;
+
+            var RR = ((R.toString(16).length == 1) ? "0" + R.toString(16) : R.toString(16));
+            var GG = ((G.toString(16).length == 1) ? "0" + G.toString(16) : G.toString(16));
+            var BB = ((B.toString(16).length == 1) ? "0" + B.toString(16) : B.toString(16));
+
+            return "#" + RR + GG + BB;
+        },
         selectWing(wng) {
             this.wingSelected = wng
             this.paintInit()
@@ -142,6 +168,11 @@ export default {
         },
 
         save() {
+            gsap.to('.pallet', { x: -20, opacity: 0, duration: 1 })
+            gsap.to('.brushes', { x: 20, opacity: 0, duration: 1 })
+            gsap.to('.saveButton', { y: -20, opacity: 0, duration: 1 })
+            gsap.to('.zoomOut', { opacity: 0, scale: 0.9, duration: 1, delay: 2 })
+
             this.ctx.globalCompositeOperation = "destination-over";
             this.ctx.fillStyle = '#000';
             // draw background/rectangle on entire canvas
@@ -158,6 +189,7 @@ export default {
 
             // go go got
             if (!this.showFinished) {
+
                 this.butterFlys.unshift(this.currentImage);
                 if (this.butterFlys.length > 5) {
                     this.butterFlys.pop();
@@ -167,9 +199,16 @@ export default {
                 setTimeout(() => {
                     localStorage.setItem("previous", JSON.stringify(this.butterFlys));
                 }, 1000);
-            } else {
-                location.reload();
+
             }
+
+            setTimeout(() => {
+                gsap.to('.zoomOut', { scale: 1, opacity: 1 })
+                this.refresh++
+                this.wingSelected = 0
+                this.showFinished = false
+
+            }, 3500);
 
         },
         selectColor(color) {
@@ -200,6 +239,7 @@ export default {
                     this.ctx.moveTo(event.offsetX, event.offsetY);
                 };
                 this.canvas.onmouseup = (event) => {
+                    this.colour = ''
                     this.ctx.strokeStyle = ''
                     this.ctx.lineCap = '';
                     this.ctx.lineWidth = ''
@@ -237,9 +277,11 @@ export default {
     mounted() {
         //  this.paintInit();
         this.loadObj();
+
     },
 
     created() {
+
         this.$on("event_parent", function (id) {
             alert("Event from parent component emitted", id);
         });
@@ -248,7 +290,6 @@ export default {
 </script>
 
 <style>
-
 @font-face {
     font-family: "Gilroy-Bold";
     src: local("Gilroy-Bold.woff"), url('./fonts/Gilroy-Bold.woff') format("woff");
@@ -259,6 +300,11 @@ export default {
     src: local("Gilroy-Regular.woff"), url('./fonts/Gilroy-Regular.woff') format("woff");
 }
 
+h1,
+h2,
+h3 {
+    font-family: "Gilroy-Bold";
+}
 
 .choose {
     position: absolute;
@@ -353,7 +399,7 @@ export default {
 }
 
 #app {
- font-family: 'Gilroy-Regular', Helvetica, Arial, sans-serif;
+    font-family: 'Gilroy-Regular', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
@@ -363,6 +409,14 @@ export default {
     background-size: 200px;
     background-repeat: repeat;
     position: relative;
+}
+
+.zoomOut {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
 
 .wingB {
@@ -405,10 +459,19 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: #fff;
-    height: 500px;
+    height: 800px;
     padding: 3em;
-    box-shadow: 0px 10px 0px -5px #dddddd;
+
     min-width: 830px;
+    border-radius: 30px;
+}
+
+.wrapper .boxShadow{
+position: absolute;
+bottom: -20px;
+height: 20px;
+width: 2172px;
+left: -431px;
 }
 
 .wrapper__col {
@@ -460,38 +523,44 @@ canvas {
 }
 
 .color {
+    border-left: 0 !important;
     width: 33.33%;
     height: 80px;
     cursor: pointer;
 }
 
 .brushWidths {
-    background-color: #fff;
+    background-color: #7392a6;
     margin: 10px;
-    width: 80px;
-    height: 80px;
+    width: 150px;
+    height: 150px;
     cursor: pointer;
     display: block;
     border-radius: 100px;
+    border: 2px border #7392a6;
+    opacity: 0.7;
+    background-repeat: no-repeat;
+    background-size: 35%;
+    background-position: center -40%;
 }
 
 .brushWidths.selected {
-    border: 2px border #000;
-    background-color: #ffcb00;
+    border: 3px solid #2b3a45;
+    opacity: 1
+}
+
+.brushes div:first-of-type .brushWidths {
+    background-size: 20%;
+    background-position: center 180%;
 }
 
 .saveButton {
     position: absolute;
-    bottom: 10px;
-    background-color: #ffcb00;
+    top: -40px;
     width: 200px;
-    left: 0;
-    right: 0;
-    margin: auto;
+    right: 20px;
     height: 70px;
     display: block;
-    left: 0;
-    color: #000;
     border: none;
 }
 
@@ -508,7 +577,7 @@ canvas {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    right: 30px;
+    right: 34px;
 }
 
 .pallet {
@@ -518,15 +587,16 @@ canvas {
 }
 
 .color.selected {
-    width: 6em;
+    width: 10em;
+    border: 4px solid;
 }
 
 .color {
     transition-duration: 0.3s;
-    width: 5em;
-    height: 2em;
+    width: 8em;
+    height: 3em;
     display: block;
     margin-bottom: 1em;
-    border-radius: 0 1em 1em 0;
+    border-radius: 0 2em 2em 0;
 }
 </style>
