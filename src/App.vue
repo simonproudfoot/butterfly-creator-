@@ -1,5 +1,5 @@
 <template>
-<div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/paper.png') + ')' }">
+<div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
     <div class="zoomOut" v-if="scene">
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1">Choose your butterfly</h1>
@@ -16,7 +16,8 @@
                 </div>
                 <div class="col-8 wrapper">
                     <img class="boxShadow" :src="require('@/assets/shadow.svg')">
-                    <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" style="display: flex; margin: auto"></canvas>
+                    <img :src="require('@/assets/body.svg')" class="body" v-if="!showFinished">
+                    <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
                     <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas>
                 </div>
                 <div class="col-2">
@@ -152,6 +153,7 @@ export default {
             if (saved.length > 5) saved.length = 5;
             if (saved) {
                 this.butterFlys = saved;
+
             } else {
                 this.butterFlys = [];
             }
@@ -170,10 +172,10 @@ export default {
             tempCanvas.width = this.canvasBack.width / 2;
             tempCanvas.height = this.canvasBack.height;
 
-            tCtx.drawImage(this.canvasBack, 0, 0, this.canvasBack.width-50, this.canvasBack.height-50);
+            tCtx.drawImage(this.canvasBack, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
 
             tCtx.globalCompositeOperation = "source-atop";
-            tCtx.drawImage(this.canvas, 0, 0, this.canvasBack.width-50, this.canvasBack.height-50);
+            tCtx.drawImage(this.canvas, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
             var img = tempCanvas.toDataURL("image/png");
             this.currentImage = img;
             // go go got
@@ -202,13 +204,13 @@ export default {
             this.dynamicLineWidth = b;
         },
 
-        mirrorScreen(status) {
-            if (this.ctx) {
-                if (status) {
-                    let px = 0
-                    let py = 0
-                    let mirrorPx = this.buttDimensions.width - 0
+        mirrorScreen() {
+            if (this.canvasBack) {
+                this.canvas.onmousedown = (event) => {
                     this.ctx.beginPath();
+                    let px = event.offsetX;
+                    let py = event.offsetY;
+                    let mirrorPx = this.canvas.width - event.offsetX;
                     this.ctx.moveTo(px, py);
                     this.canvas.onmousemove = (event) => {
                         this.ctx.lineTo(event.offsetX, event.offsetY);
@@ -217,22 +219,21 @@ export default {
                         this.ctx.lineWidth = this.dynamicLineWidth;
                         this.ctx.stroke();
                         this.ctx.moveTo(mirrorPx, py);
-                        this.ctx.lineTo(this.buttDimensions.width - event.offsetX, event.offsetY);
+                        this.ctx.lineTo(this.canvas.width - event.offsetX, event.offsetY);
                         this.ctx.stroke();
-                        mirrorPx = this.buttDimensions.width - event.offsetX;
+                        mirrorPx = this.canvas.width - event.offsetX;
                         px = event.offsetX;
                         py = event.offsetY;
                         this.ctx.moveTo(event.offsetX, event.offsetY);
                     };
-                } else {
-
-                    this.colour = ''
-                    this.ctx.strokeStyle = ''
-                    this.ctx.lineCap = '';
-                    this.ctx.lineWidth = ''
-                    this.canvas.onmousemove = null;
-                    this.ctx.closePath();
-                }
+                    this.canvas.onmouseup = (event) => {
+                        this.ctx.strokeStyle = ''
+                        this.ctx.lineCap = '';
+                        this.ctx.lineWidth = ''
+                        this.canvas.onmousemove = null;
+                        this.ctx.closePath();
+                    };
+                };
             }
         },
         navigate() {
@@ -439,8 +440,8 @@ html {
     color: #2c3e50;
     height: 1080px;
     width: 1920px;
-    background-size: 200px;
-    background-repeat: repeat;
+    background-size: cover;
+    background-repeat: no-repeat;
     font-size: 25px;
     position: relative;
 }
@@ -485,7 +486,6 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
     user-select: none;
-  
 }
 
 .wrapper {
@@ -506,7 +506,17 @@ canvas {
     top: 0;
     width: 1px;
     height: 100%;
-    
+
+}
+
+.body {
+
+    position: absolute;
+    height: 262px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    top: 49%;
+
 }
 
 .wrapper .boxShadow {
