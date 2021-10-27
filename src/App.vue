@@ -11,17 +11,17 @@
             <div class="row align-items-center" :key="refresh">
                 <div class="col-2">
                     <div class="pallet">
-                        <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'border-color:'+shadeColor(c,-20)+'; background-color:' + c" :key="c" @click="selectColor(c)"></span>
+                        <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'border-color:'+shadeColor(c,-50)+'; background-color:' + c" :key="c" @click="selectColor(c)"></span>
                     </div>
                 </div>
                 <div class="col-8 wrapper">
                     <img class="boxShadow" :src="require('@/assets/shadow.svg')">
-                    <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" @touchstart="mirrorScreen(true)" @touchleave="mirrorScreen(false)" @touchend="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
+                    <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
                     <canvas v-if="!showFinished" ref="background" id="c2" width="800" height="500" style="width: 800px; height: 500px; display: flex; margin: auto"></canvas>
                 </div>
                 <div class="col-2">
                     <div class="brushes">
-                        <div v-for="b in brushWidths" :key="b.size">
+                        <div v-for="b in brushWidths" :key="b.size" style="margin-bottom: 65px">
                             <span class="brushWidths" :class="b.size == dynamicLineWidth ? 'selected' : null" @click="selectBrush(b.size)" :style="{ backgroundImage: 'url(' + require('@/assets/brush.svg') + ')' }"></span>
                             {{ b.name }}
                         </div>
@@ -42,6 +42,7 @@
     <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
+
 <script>
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import butterFlyModel from "./components/butterFlyModel";
@@ -192,35 +193,38 @@ export default {
         selectBrush(b) {
             this.dynamicLineWidth = b;
         },
-  
+
         mirrorScreen(status) {
-            let px = event.offsetX;
-            let py = event.offsetY;
-            let mirrorPx = 800 - event.offsetX;
-            if (status) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(px, py);
-                this.canvas.onmousemove = (event) => {
-                    this.ctx.lineTo(event.offsetX, event.offsetY);
-                    this.ctx.strokeStyle = this.color;
-                    this.ctx.lineCap = "round";
-                    this.ctx.lineWidth = this.dynamicLineWidth;
-                    this.ctx.stroke();
-                    this.ctx.moveTo(mirrorPx, py);
-                    this.ctx.lineTo(800 - event.offsetX, event.offsetY);
-                    this.ctx.stroke();
-                    mirrorPx = 800 - event.offsetX;
-                    px = event.offsetX;
-                    py = event.offsetY;
-                    this.ctx.moveTo(event.offsetX, event.offsetY);
-                };
-            } else {
-                this.colour = ''
-                this.ctx.strokeStyle = ''
-                this.ctx.lineCap = '';
-                this.ctx.lineWidth = ''
-                this.canvas.onmousemove = null;
-                this.ctx.closePath();
+            if (this.ctx) {
+                if (status) {
+                    let px = 0
+                    let py = 0
+                    let mirrorPx = 800 - 0
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(px, py);
+                    this.canvas.onmousemove = (event) => {
+                        this.ctx.lineTo(event.offsetX, event.offsetY);
+                        this.ctx.strokeStyle = this.color;
+                        this.ctx.lineCap = "round";
+                        this.ctx.lineWidth = this.dynamicLineWidth;
+                        this.ctx.stroke();
+                        this.ctx.moveTo(mirrorPx, py);
+                        this.ctx.lineTo(800 - event.offsetX, event.offsetY);
+                        this.ctx.stroke();
+                        mirrorPx = 800 - event.offsetX;
+                        px = event.offsetX;
+                        py = event.offsetY;
+                        this.ctx.moveTo(event.offsetX, event.offsetY);
+                    };
+                } else {
+
+                    this.colour = ''
+                    this.ctx.strokeStyle = ''
+                    this.ctx.lineCap = '';
+                    this.ctx.lineWidth = ''
+                    this.canvas.onmousemove = null;
+                    this.ctx.closePath();
+                }
             }
         },
         navigate() {
@@ -260,20 +264,45 @@ export default {
     },
 };
 </script>
+
 <style>
 @font-face {
     font-family: "Gilroy-Bold";
     src: local("Gilroy-Bold.woff"), url('./fonts/Gilroy-Bold.woff') format("woff");
 }
+
 @font-face {
     font-family: "Gilroy-Regular";
     src: local("Gilroy-Regular.woff"), url('./fonts/Gilroy-Regular.woff') format("woff");
 }
+
+* {
+    -webkit-touch-callout: none;
+
+    /* iOS Safari */
+    -webkit-user-select: none;
+
+    /* Safari */
+    -khtml-user-select: none;
+
+    /* Konqueror HTML */
+    -moz-user-select: none;
+
+    /* Firefox */
+    -ms-user-select: none;
+
+    /* Internet Explorer/Edge */
+    user-select: none;
+
+    /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+
 h1,
 h2,
 h3 {
     font-family: "Gilroy-Bold";
 }
+
 .choose,
 .loading {
     position: absolute;
@@ -282,17 +311,20 @@ h3 {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
 .choose__icon {
     height: 500px;
     width: 500px;
     border: none;
     padding: 1em;
 }
+
 .butterfly {
     position: relative;
     width: 180px;
     height: 180px;
 }
+
 .butterfly--body {
     width: 15%;
     height: 70px;
@@ -306,6 +338,7 @@ h3 {
     bottom: 0;
     border-radius: 34px;
 }
+
 .butterfly--left {
     width: 40%;
     height: 70%;
@@ -319,6 +352,7 @@ h3 {
     animation: spinLeft 1s linear infinite;
     transform-origin: center right;
 }
+
 .butterfly--right {
     width: 40%;
     height: 70%;
@@ -333,33 +367,49 @@ h3 {
     margin: auto;
     transform-origin: center right;
 }
+
 @keyframes spinLeft {
     0% {
         transform: rotateY(40deg) rotateZ(-5deg);
     }
+
     50% {
         transform: rotateY(-40deg) rotateZ(5deg);
     }
+
     100% {
         transform: rotateY(40deg) rotateZ(-5deg);
     }
 }
+
 @keyframes spin {
     0% {
         transform: rotateY(-40deg) rotateZ(5deg) scaleX(-1);
     }
+
     50% {
         transform: rotateY(40deg) rotateZ(-5deg) scaleX(-1);
     }
+
     100% {
         transform: rotateY(-40deg) rotateZ(5deg) scaleX(-1);
     }
 }
 
-button{
+button {
     -webkit-appearance: none;
-background-color: transparent;
+    background-color: transparent;
 }
+
+body,
+html {
+    height: 1080px;
+    width: 1920px;
+    overflow: hidden;
+
+    touch-action: unset;
+}
+
 #app {
     font-family: 'Gilroy-Regular', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -370,8 +420,10 @@ background-color: transparent;
     width: 1920px;
     background-size: 200px;
     background-repeat: repeat;
+    font-size: 25px;
     position: relative;
 }
+
 .zoomOut {
     position: absolute;
     top: 0;
@@ -379,14 +431,17 @@ background-color: transparent;
     width: 100%;
     height: 100%;
 }
+
 .wingB {
     transform: scaleX(-1);
 }
+
 .wingB,
 .wingA {
     display: inline-block;
     width: 50%;
 }
+
 .template {
     width: 500px;
     height: unset;
@@ -398,9 +453,11 @@ background-color: transparent;
     top: 0;
     mix-blend-mode: color-burn;
 }
+
 #c2 {
     z-index: -1;
 }
+
 canvas {
     position: absolute;
     top: 50%;
@@ -408,46 +465,55 @@ canvas {
     transform: translate(-50%, -50%);
     user-select: none;
 }
+
 .wrapper {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: #fff;
-    height: 800px;
+    height: 869px;
     padding: 3em;
-    min-width: 830px;
+    width: 1347px;
     border-radius: 30px;
 }
+
 .wrapper .boxShadow {
     position: absolute;
     bottom: -20px;
-    height: 20px;
-    width: 2172px;
-    left: -431px;
+    height: 21px;
+    width: 1847px;
+    left: -278px;
 }
+
 .wrapper__col {
     position: relative;
     background-size: contain;
     background-repeat: no-repeat;
 }
+
 .left {
     right: 0;
 }
+
 .right {
     left: 0;
 }
+
 .paint {
     width: 100% !important;
 }
+
 .paintable {
     width: 100% !important;
     position: relative !important;
     height: 100vh;
 }
+
 .mirror {
     transform: scaleX(-1);
 }
+
 .menu {
     top: 0;
     left: 0;
@@ -457,6 +523,7 @@ canvas {
     background: brown;
     z-index: 1000;
 }
+
 .previous {
     top: 0;
     right: 0;
@@ -466,17 +533,19 @@ canvas {
     background: brown;
     z-index: 1000;
 }
+
 .color {
     border-left: 0 !important;
     width: 33.33%;
     height: 80px;
     cursor: pointer;
 }
+
 .brushWidths {
     background-color: #7392a6;
-    margin: 10px;
-    width: 150px;
-    height: 150px;
+    margin: 10px 0;
+    width: 152px;
+    height: 152px;
     cursor: pointer;
     display: block;
     border-radius: 100px;
@@ -486,50 +555,57 @@ canvas {
     background-size: 35%;
     background-position: center -40%;
 }
+
 .brushWidths.selected {
     border: 3px solid #2b3a45;
     opacity: 1
 }
+
 .brushes div:first-of-type .brushWidths {
     background-size: 20%;
     background-position: center 180%;
 }
+
 .saveButton {
     position: absolute;
-    top: -40px;
-    width: 200px;
-    right: 20px;
-  
+    top: -45px;
+    width: 248px;
+    right: 16px;
+
     display: block;
     border: none;
 }
+
 .brush {
-    background-color: #452770;
+    background-color: #746f7a;
     width: 100%;
     height: 100px;
     display: block;
     color: #fff;
     border: none;
 }
+
 .brushes {
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 34px;
+    top: 489px;
+    right: 68px;
 }
+
 .pallet {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
 }
+
 .color.selected {
-    width: 10em;
-    border: 4px solid;
+    width: 225px;
+    border: 6px solid;
 }
+
 .color {
     transition-duration: 0.3s;
-    width: 8em;
-    height: 3em;
+    width: 156px;
+    height: 65px;
     display: block;
     margin-bottom: 1em;
     border-radius: 0 2em 2em 0;
