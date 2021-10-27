@@ -37,13 +37,11 @@
                 <small>online example only</small>
             </button>
         </div>
-
     </div>
     <h1 v-else class="loading">Loading</h1>
     <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
-
 <script>
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import butterFlyModel from "./components/butterFlyModel";
@@ -73,15 +71,12 @@ export default {
                 '#7fddda',
                 '#766a90',
                 '#9c76a3',
-
             ],
             brushWidths: [{
-
                     name: "Small brush",
                     size: 10,
                 },
                 {
-
                     name: "Large brush",
                     size: 50,
                 },
@@ -101,27 +96,20 @@ export default {
             scene: null,
         };
     },
-
     methods: {
-
         shadeColor(color, percent) {
-
             var R = parseInt(color.substring(1, 3), 16);
             var G = parseInt(color.substring(3, 5), 16);
             var B = parseInt(color.substring(5, 7), 16);
-
             R = parseInt(R * (100 + percent) / 100);
             G = parseInt(G * (100 + percent) / 100);
             B = parseInt(B * (100 + percent) / 100);
-
             R = (R < 255) ? R : 255;
             G = (G < 255) ? G : 255;
             B = (B < 255) ? B : 255;
-
             var RR = ((R.toString(16).length == 1) ? "0" + R.toString(16) : R.toString(16));
             var GG = ((G.toString(16).length == 1) ? "0" + G.toString(16) : G.toString(16));
             var BB = ((B.toString(16).length == 1) ? "0" + B.toString(16) : B.toString(16));
-
             return "#" + RR + GG + BB;
         },
         selectWing(wng) {
@@ -139,26 +127,20 @@ export default {
         paintInit() {
             this.canvas = this.$refs.paintable;
             this.ctx = this.canvas.getContext("2d");
-
             this.canvasBack = this.$refs.background;
             this.ctxBack = this.canvasBack.getContext("2d");
-
             // this.mirrorScreen();
             var backImage = new Image();
             var outlineImage = new Image();
             outlineImage.src = require("@/assets/wings/" + this.wingSelected + "-front.png");
             backImage.src = require("@/assets/wings/" + this.wingSelected + "-back.png");
-
             backImage.onload = () => {
                 this.ctxBack.drawImage(backImage, 90, 20, backImage.width, backImage.height);
             };
-
             outlineImage.onload = () => {
-
                 this.ctx.drawImage(outlineImage, 90, 20);
                 this.ctx.globalCompositeOperation = "source-atop";
             };
-
             var saved = JSON.parse(localStorage.getItem("previous"));
             if (saved.length > 5) saved.length = 5;
             if (saved) {
@@ -167,13 +149,11 @@ export default {
                 this.butterFlys = [];
             }
         },
-
         save() {
             gsap.to('.pallet', { x: -20, opacity: 0, duration: 1 })
             gsap.to('.brushes', { x: 20, opacity: 0, duration: 1 })
             gsap.to('.saveButton', { y: -20, opacity: 0, duration: 1 })
             gsap.to('.zoomOut', { opacity: 0, scale: 0.9, duration: 1, delay: 2 })
-
             this.ctx.globalCompositeOperation = "destination-over";
             this.ctx.fillStyle = '#000';
             // draw background/rectangle on entire canvas
@@ -187,10 +167,8 @@ export default {
             tCtx.drawImage(this.canvas, 0, 0);
             var img = tempCanvas.toDataURL("image/png");
             this.currentImage = img;
-
             // go go got
             if (!this.showFinished) {
-
                 this.butterFlys.unshift(this.currentImage);
                 if (this.butterFlys.length > 5) {
                     this.butterFlys.pop();
@@ -200,17 +178,13 @@ export default {
                 setTimeout(() => {
                     localStorage.setItem("previous", JSON.stringify(this.butterFlys));
                 }, 1000);
-
             }
-
             setTimeout(() => {
                 gsap.to('.zoomOut', { scale: 1, opacity: 1 })
                 this.refresh++
                 this.wingSelected = 0
                 this.showFinished = false
-
             }, 3500);
-
         },
         selectColor(color) {
             this.color = color;
@@ -218,13 +192,8 @@ export default {
         selectBrush(b) {
             this.dynamicLineWidth = b;
         },
-
-        draw() {
-
-        },
-
+  
         mirrorScreen(status) {
-
             let px = event.offsetX;
             let py = event.offsetY;
             let mirrorPx = 800 - event.offsetX;
@@ -253,9 +222,7 @@ export default {
                 this.canvas.onmousemove = null;
                 this.ctx.closePath();
             }
-
         },
-
         navigate() {
             this.isFirstPaintable = !this.isFirstPaintable;
         },
@@ -286,7 +253,6 @@ export default {
         //  this.paintInit();
         this.loadObj();
     },
-
     created() {
         this.$on("event_parent", function (id) {
             alert("Event from parent component emitted", id);
@@ -294,24 +260,20 @@ export default {
     },
 };
 </script>
-
 <style>
 @font-face {
     font-family: "Gilroy-Bold";
     src: local("Gilroy-Bold.woff"), url('./fonts/Gilroy-Bold.woff') format("woff");
 }
-
 @font-face {
     font-family: "Gilroy-Regular";
     src: local("Gilroy-Regular.woff"), url('./fonts/Gilroy-Regular.woff') format("woff");
 }
-
 h1,
 h2,
 h3 {
     font-family: "Gilroy-Bold";
 }
-
 .choose,
 .loading {
     position: absolute;
@@ -320,20 +282,17 @@ h3 {
     left: 50%;
     transform: translate(-50%, -50%);
 }
-
 .choose__icon {
     height: 500px;
     width: 500px;
     border: none;
     padding: 1em;
 }
-
 .butterfly {
     position: relative;
     width: 180px;
     height: 180px;
 }
-
 .butterfly--body {
     width: 15%;
     height: 70px;
@@ -347,7 +306,6 @@ h3 {
     bottom: 0;
     border-radius: 34px;
 }
-
 .butterfly--left {
     width: 40%;
     height: 70%;
@@ -361,7 +319,6 @@ h3 {
     animation: spinLeft 1s linear infinite;
     transform-origin: center right;
 }
-
 .butterfly--right {
     width: 40%;
     height: 70%;
@@ -376,35 +333,33 @@ h3 {
     margin: auto;
     transform-origin: center right;
 }
-
 @keyframes spinLeft {
     0% {
         transform: rotateY(40deg) rotateZ(-5deg);
     }
-
     50% {
         transform: rotateY(-40deg) rotateZ(5deg);
     }
-
     100% {
         transform: rotateY(40deg) rotateZ(-5deg);
     }
 }
-
 @keyframes spin {
     0% {
         transform: rotateY(-40deg) rotateZ(5deg) scaleX(-1);
     }
-
     50% {
         transform: rotateY(40deg) rotateZ(-5deg) scaleX(-1);
     }
-
     100% {
         transform: rotateY(-40deg) rotateZ(5deg) scaleX(-1);
     }
 }
 
+button{
+    -webkit-appearance: none;
+background-color: transparent;
+}
 #app {
     font-family: 'Gilroy-Regular', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -417,7 +372,6 @@ h3 {
     background-repeat: repeat;
     position: relative;
 }
-
 .zoomOut {
     position: absolute;
     top: 0;
@@ -425,17 +379,14 @@ h3 {
     width: 100%;
     height: 100%;
 }
-
 .wingB {
     transform: scaleX(-1);
 }
-
 .wingB,
 .wingA {
     display: inline-block;
     width: 50%;
 }
-
 .template {
     width: 500px;
     height: unset;
@@ -447,20 +398,16 @@ h3 {
     top: 0;
     mix-blend-mode: color-burn;
 }
-
 #c2 {
     z-index: -1;
 }
-
 canvas {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     user-select: none;
-
 }
-
 .wrapper {
     position: absolute;
     top: 50%;
@@ -469,11 +416,9 @@ canvas {
     background-color: #fff;
     height: 800px;
     padding: 3em;
-
     min-width: 830px;
     border-radius: 30px;
 }
-
 .wrapper .boxShadow {
     position: absolute;
     bottom: -20px;
@@ -481,35 +426,28 @@ canvas {
     width: 2172px;
     left: -431px;
 }
-
 .wrapper__col {
     position: relative;
     background-size: contain;
     background-repeat: no-repeat;
 }
-
 .left {
     right: 0;
 }
-
 .right {
     left: 0;
 }
-
 .paint {
     width: 100% !important;
 }
-
 .paintable {
     width: 100% !important;
     position: relative !important;
     height: 100vh;
 }
-
 .mirror {
     transform: scaleX(-1);
 }
-
 .menu {
     top: 0;
     left: 0;
@@ -519,7 +457,6 @@ canvas {
     background: brown;
     z-index: 1000;
 }
-
 .previous {
     top: 0;
     right: 0;
@@ -529,14 +466,12 @@ canvas {
     background: brown;
     z-index: 1000;
 }
-
 .color {
     border-left: 0 !important;
     width: 33.33%;
     height: 80px;
     cursor: pointer;
 }
-
 .brushWidths {
     background-color: #7392a6;
     margin: 10px;
@@ -551,27 +486,23 @@ canvas {
     background-size: 35%;
     background-position: center -40%;
 }
-
 .brushWidths.selected {
     border: 3px solid #2b3a45;
     opacity: 1
 }
-
 .brushes div:first-of-type .brushWidths {
     background-size: 20%;
     background-position: center 180%;
 }
-
 .saveButton {
     position: absolute;
     top: -40px;
     width: 200px;
     right: 20px;
-    height: 70px;
+  
     display: block;
     border: none;
 }
-
 .brush {
     background-color: #452770;
     width: 100%;
@@ -580,25 +511,21 @@ canvas {
     color: #fff;
     border: none;
 }
-
 .brushes {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     right: 34px;
 }
-
 .pallet {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
 }
-
 .color.selected {
     width: 10em;
     border: 4px solid;
 }
-
 .color {
     transition-duration: 0.3s;
     width: 8em;
