@@ -24,7 +24,7 @@
                     <div class="brushes">
                         <div v-for="b in brushWidths" :key="b.size" style="margin-bottom: 65px">
                             <span class="brushWidths" :class="b.size == dynamicLineWidth ? 'selected' : null" @click="selectBrush(b.size)" :style="{ backgroundImage: 'url(' + require('@/assets/brush.svg') + ')' }"></span>
-                            {{ b.name }}
+                           <h3>{{ b.name }}</h3> 
                         </div>
                     </div>
                 </div>
@@ -32,6 +32,7 @@
             <button v-if="wingSelected" class="saveButton" @click="save">
                 <!-- {{ !showFinished ? "FLY AWAY" : "START AGAIN" }} -->
                 <img :src="require('@/assets/fly.svg')">
+                <h3>Fly away!</h3>
             </button>
             <button v-if="!scene" class="saveButton">
                 LOADING MODEL <br />
@@ -609,12 +610,14 @@ canvas {
 
 .saveButton {
     position: absolute;
-    top: -45px;
     width: 248px;
     right: 16px;
-
     display: block;
-    border: none;
+    border: none;    
+}
+
+.saveButton h3{
+    margin-top: -100px;
 }
 
 .brush {
