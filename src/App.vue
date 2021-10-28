@@ -24,7 +24,7 @@
                     <div class="brushes">
                         <div v-for="b in brushWidths" :key="b.size" style="margin-bottom: 65px">
                             <span class="brushWidths" :class="b.size == dynamicLineWidth ? 'selected' : null" @click="selectBrush(b.size)" :style="{ backgroundImage: 'url(' + require('@/assets/brush.svg') + ')' }"></span>
-                           <h3>{{ b.name }}</h3> 
+                            <h3>{{ b.name }}</h3>
                         </div>
                     </div>
                 </div>
@@ -340,6 +340,25 @@ h3 {
     width: 500px;
     border: none;
     padding: 1em;
+    animation: fadeInUp 1s ease-in-out 1 forwards;
+    transition-duration: 1s;
+    transition-delay: 3s;
+    opacity: 0;
+
+}
+
+.choose__icon {}
+
+@keyframes fadeInUp {
+    from {
+        margin-top: 600px;
+        opacity: 0;
+    }
+
+    to {
+        margin-top: 0;
+        opacity: 1;
+    }
 }
 
 .butterfly {
@@ -389,6 +408,17 @@ h3 {
     left: 18%;
     margin: auto;
     transform-origin: center right;
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translate3d(0, 40px, 40px)
+    }
+
+    to {
+        transform: translate3d(0, 0, 0);
+        opacity: 1
+    }
 }
 
 @keyframes spinLeft {
@@ -599,7 +629,7 @@ canvas {
 }
 
 .brushWidths.selected {
-    border: 3px solid #2b3a45;
+    border: 6px solid #2b3a45;
     opacity: 1
 }
 
@@ -613,11 +643,13 @@ canvas {
     width: 248px;
     right: 16px;
     display: block;
-    border: none;    
+    border: none;
 }
 
-.saveButton h3{
-    margin-top: -100px;
+.saveButton h3 {
+    position: absolute;
+    bottom: 31px;
+    left: 61px;
 }
 
 .brush {
