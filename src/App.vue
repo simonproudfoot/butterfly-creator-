@@ -336,7 +336,7 @@ h3 {
 }
 
 .choose__icon {
-    height: 500px;
+    height: 510px;
     width: 500px;
     border: none;
     padding: 1em;
