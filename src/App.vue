@@ -2,7 +2,7 @@
 <div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
     <div class="zoomOut" v-if="scene">
         <div v-show="!wingSelected" class="choose">
-            <h1 class="display-1">Choose your butterfly</h1>
+            <h1 class="display-1 mb-1" style="color: #7392a6">Choose your butterfly</h1>
             <button v-for="nth in 3" :key="nth" @click="selectWing(nth)" class="choose__icon">
                 <img :src="require('@/assets/selection'+nth+'.svg')">
             </button>
