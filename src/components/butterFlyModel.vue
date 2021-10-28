@@ -5,6 +5,7 @@
     </div>
 </div>
 </template>
+
 <script>
 import * as Three from 'three'
 export default {
@@ -30,12 +31,11 @@ export default {
                 texture.needsUpdate = false;
                 texture.onUpdate(texture);
                 texture.flipY = true;
-               
-                
+
             }
             console.log(texture)
-             texture.offset.x = -0.060
-                  texture.offset.y = -0.020
+            texture.offset.x = -0.060
+            texture.offset.y = -0.020
             const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
             material.map.flipY = false
             this.scene.getObjectByName('Wings').material = material
@@ -73,7 +73,7 @@ export default {
             this.butterfly.getObjectByName('Armature').scale.y = 1.2
             this.butterfly.getObjectByName('Armature').scale.z = 1.2
 
-          //  this.butterfly.getObjectByName('Armature').position.y = 1.2
+            //  this.butterfly.getObjectByName('Armature').position.y = 1.2
             // RENDER
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
@@ -100,6 +100,7 @@ export default {
     }
 }
 </script>
+
 <style>
 .container {
     height: 1080px;
@@ -111,6 +112,7 @@ export default {
     max-width: none !important;
     padding: 0 !important;
 }
+
 .controls {
     position: fixed;
     bottom: 0;

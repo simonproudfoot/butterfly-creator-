@@ -11,7 +11,7 @@
             <div class="row align-items-center" :key="refresh">
                 <div class="col-2">
                     <div class="pallet">
-                        <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'border-color:'+shadeColor(c,-50)+'; background-color:' + c" :key="c" @click="selectColor(c)"></span>
+                        <span v-for="c in colours" class="color" :class="c == color ? 'selected' : null" :style="'border-color:'+shadeColor(c,-15)+'; background-color:' + c" :key="c" @click="selectColor(c)"></span>
                     </div>
                 </div>
                 <div class="col-8 wrapper">
