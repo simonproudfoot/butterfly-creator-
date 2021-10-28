@@ -19,6 +19,10 @@
                     <img :src="require('@/assets/body.svg')" class="body" v-if="!showFinished">
                     <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
                     <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas>
+
+                    <!-- <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
+                    <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas> -->
+
                 </div>
                 <div class="col-2">
                     <div class="brushes">
@@ -41,7 +45,7 @@
         </div>
     </div>
     <h1 v-else class="loading">Loading</h1>
-    <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
+    <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
 
@@ -57,8 +61,8 @@ export default {
             outlineImage: new Image(),
             backImage: new Image(),
             buttDimensions: {
-                height: 650,
-                width: 990,
+                height: 790,
+                width: 1080,
             },
             refresh: 0,
             canvas: null,
@@ -100,7 +104,7 @@ export default {
             color: "#bc291e",
             threshold: 1,
             showFinished: false,
-            butterflyUlr: require("@/assets/butterflyC.glb"),
+            butterflyUlr: require("@/assets/butterflyD.glb"),
             modelLoading: true,
             scene: null,
         };
@@ -147,8 +151,8 @@ export default {
             var centerShift_x = (this.canvas.width - this.backImage.width * ratio) / 2;
             var centerShift_y = (this.canvas.height - this.backImage.height * ratio) / 2;
             this.ctxBack.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctxBack.drawImage(this.backImage, 0, 0, this.backImage.width, this.backImage.height, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
-            this.ctx.drawImage(this.outlineImage, 0, 0, this.backImage.width, this.backImage.height, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
+            this.ctxBack.drawImage(this.backImage, 0, 0, this.backImage.width + 1, this.backImage.height + 1, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
+            this.ctx.drawImage(this.outlineImage, 0, 0, this.backImage.width + 1, this.backImage.height + 1, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
             this.ctx.globalCompositeOperation = "source-atop";
             var saved = JSON.parse(localStorage.getItem("previous"));
             if (saved.length > 5) saved.length = 5;
@@ -165,7 +169,7 @@ export default {
             gsap.to('.saveButton', { y: -20, opacity: 0, duration: 1 })
             gsap.to('.zoomOut', { opacity: 0, scale: 0.9, duration: 1, delay: 2 })
             this.ctx.globalCompositeOperation = "destination-over";
-            this.ctx.fillStyle = '#000';
+            this.ctx.fillStyle = '#2b3a45';
             // draw background/rectangle on entire canvas
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var tempCanvas = document.createElement("canvas");
@@ -517,6 +521,7 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
     user-select: none;
+
 }
 
 .wrapper {
@@ -543,7 +548,7 @@ canvas {
 .body {
 
     position: absolute;
-    height: 262px;
+    height: 434px;
     left: 50%;
     transform: translate(-50%, -50%);
     top: 49%;
