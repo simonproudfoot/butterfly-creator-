@@ -58,6 +58,10 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
+            imageDimension:{
+                height: 790,
+                width: 1080
+            },
             outlineImage: new Image(),
             backImage: new Image(),
             buttDimensions: {
@@ -139,20 +143,31 @@ export default {
         },
         paintInit() {
 
+
+
             this.canvas = this.$refs.paintable;
             this.ctx = this.canvas.getContext("2d");
+            
+        
             this.canvasBack = this.$refs.background;
             this.ctxBack = this.canvasBack.getContext("2d");
 
-            var hRatio = this.canvas.width / this.backImage.width;
-            var vRatio = this.canvas.height / this.backImage.height;
+            var hRatio = this.canvas.width / this.imageDimension.width;
+            var vRatio = this.canvas.height / this.imageDimension.height;
             var ratio = Math.min(hRatio, vRatio);
 
-            var centerShift_x = (this.canvas.width - this.backImage.width * ratio) / 2;
-            var centerShift_y = (this.canvas.height - this.backImage.height * ratio) / 2;
+            var centerShift_x = (this.canvas.width - this.imageDimension.width * ratio) / 2;
+            var centerShift_y = (this.canvas.height - this.imageDimension.height * ratio) / 2;
             this.ctxBack.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctxBack.drawImage(this.backImage, 0, 0, this.backImage.width+1, this.backImage.height+1, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
-            this.ctx.drawImage(this.outlineImage, 0, 0, this.backImage.width+1, this.backImage.height+1, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
+
+            var topOffset = 0
+
+            if(this.wingSelected == 3){
+                topOffset = -100
+            }
+
+            this.ctxBack.drawImage(this.backImage, 0, topOffset, this.imageDimension.width+1, this.imageDimension.height+1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
+            this.ctx.drawImage(this.outlineImage, 0, topOffset, this.imageDimension.width+1, this.imageDimension.height+1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
             this.ctx.globalCompositeOperation = "source-atop";
             var saved = JSON.parse(localStorage.getItem("previous"));
             if (saved.length > 5) saved.length = 5;
@@ -169,7 +184,7 @@ export default {
             gsap.to('.saveButton', { y: -20, opacity: 0, duration: 1 })
             gsap.to('.zoomOut', { opacity: 0, scale: 0.9, duration: 1, delay: 2 })
             this.ctx.globalCompositeOperation = "destination-over";
-           // this.ctx.fillStyle = '#000';
+            this.ctx.fillStyle = '#2b3a45';
             // draw background/rectangle on entire canvas
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var tempCanvas = document.createElement("canvas");
@@ -181,7 +196,7 @@ export default {
 
             tCtx.globalCompositeOperation = "source-atop";
             tCtx.drawImage(this.canvas, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
-            var img = tempCanvas.toDataURL("image/png");
+            var img = tempCanvas.toDataURL("image/svg");
             this.currentImage = img;
             // go go got
             if (!this.showFinished) {
@@ -196,10 +211,10 @@ export default {
                 }, 1000);
             }
             setTimeout(() => {
-                gsap.to('.zoomOut', { scale: 1, opacity: 1 })
-                this.refresh++
-                this.wingSelected = 0
-                this.showFinished = false
+                // gsap.to('.zoomOut', { scale: 1, opacity: 1 })
+                // this.refresh++
+                // this.wingSelected = 0
+                // this.showFinished = false
             }, 3500);
         },
         selectColor(color) {
@@ -263,8 +278,8 @@ export default {
     watch: {
         wingSelected(v) {
 
-            this.outlineImage.src = require("@/assets/wings/" + v + "-front.png");
-            this.backImage.src = require("@/assets/wings/" + v + "-back.png");
+            this.outlineImage.src = require("@/assets/wings/" + v + "-front.svg");
+            this.backImage.src = require("@/assets/wings/" + v + "-back.svg");
 
             this.outlineImage.onload = () => {
                 setTimeout(() => {
@@ -649,6 +664,7 @@ canvas {
     right: 16px;
     display: block;
     border: none;
+    top: -1px;
 }
 
 .saveButton h3 {
