@@ -22,7 +22,7 @@
 
                     <!-- <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
                     <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas> -->
-                    
+
                 </div>
                 <div class="col-2">
                     <div class="brushes">
@@ -58,15 +58,15 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
-            imageDimension:{
-                height: 790,
-                width: 1080
+            imageDimension: {
+                height: 790 * 2,
+                width: 1080 * 2
             },
             outlineImage: new Image(),
             backImage: new Image(),
             buttDimensions: {
-                height: 790,
-                width: 1080,
+                height: 790 * 2,
+                width: 1080 * 2,
             },
             refresh: 0,
             canvas: null,
@@ -91,18 +91,18 @@ export default {
             ],
             brushWidths: [{
                     name: "Small brush",
-                    size: 10,
+                    size: 50,
                 },
                 {
                     name: "Large brush",
-                    size: 50,
+                    size: 100,
                 },
             ],
             currentImage: null,
             isFirstPaintable: false,
             hidePaintable: false,
             disableNavigation: true,
-            dynamicLineWidth: 50,
+            dynamicLineWidth: 100,
             isActive: true,
             useEraser: false,
             color: "#bc291e",
@@ -143,12 +143,11 @@ export default {
         },
         paintInit() {
 
-
-
             this.canvas = this.$refs.paintable;
             this.ctx = this.canvas.getContext("2d");
-            
-        
+            this.ctx.imageSmoothingQuality = 'high'
+            console.log(this.ctx)
+
             this.canvasBack = this.$refs.background;
             this.ctxBack = this.canvasBack.getContext("2d");
 
@@ -162,12 +161,12 @@ export default {
 
             var topOffset = 0
 
-            if(this.wingSelected == 3){
-                topOffset = -100
+            if (this.wingSelected == 3) {
+                topOffset = -200
             }
 
-            this.ctxBack.drawImage(this.backImage, 0, topOffset, this.imageDimension.width+1, this.imageDimension.height+1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
-            this.ctx.drawImage(this.outlineImage, 0, topOffset, this.imageDimension.width+1, this.imageDimension.height+1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
+            this.ctxBack.drawImage(this.backImage, 0, topOffset, this.imageDimension.width + 1, this.imageDimension.height + 1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
+            this.ctx.drawImage(this.outlineImage, 0, topOffset, this.imageDimension.width + 1, this.imageDimension.height + 1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
             this.ctx.globalCompositeOperation = "source-atop";
             var saved = JSON.parse(localStorage.getItem("previous"));
             if (saved.length > 5) saved.length = 5;
@@ -184,11 +183,12 @@ export default {
             gsap.to('.saveButton', { y: -20, opacity: 0, duration: 1 })
             gsap.to('.zoomOut', { opacity: 0, scale: 0.9, duration: 1, delay: 2 })
             this.ctx.globalCompositeOperation = "destination-over";
-            this.ctx.fillStyle = '#2b3a45';
+            this.ctx.fillStyle = '#000';
             // draw background/rectangle on entire canvas
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var tempCanvas = document.createElement("canvas");
             var tCtx = tempCanvas.getContext("2d");
+            tCtx.imageSmoothingQuality = 'high'
             tempCanvas.width = this.canvasBack.width / 2;
             tempCanvas.height = this.canvasBack.height;
 
@@ -211,10 +211,10 @@ export default {
                 }, 1000);
             }
             setTimeout(() => {
-                // gsap.to('.zoomOut', { scale: 1, opacity: 1 })
-                // this.refresh++
-                // this.wingSelected = 0
-                // this.showFinished = false
+                gsap.to('.zoomOut', { scale: 1, opacity: 1 })
+                this.refresh++
+                this.wingSelected = 0
+                this.showFinished = false
             }, 3500);
         },
         selectColor(color) {
@@ -307,7 +307,9 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+
+
 @font-face {
     font-family: "Gilroy-Bold";
     src: local("Gilroy-Bold.woff"), url('./fonts/Gilroy-Bold.woff') format("woff");
@@ -534,7 +536,7 @@ canvas {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(0.5);
     user-select: none;
 
 }
@@ -566,7 +568,6 @@ canvas {
     height: 434px;
     left: 50%;
     transform: translate(-50%, -50%);
-
 
 }
 

@@ -5,7 +5,6 @@
     </div>
 </div>
 </template>
-
 <script>
 import * as Three from 'three'
 export default {
@@ -46,7 +45,7 @@ export default {
             }
             if (this.wingSelected == 3) {
                 texture.offset.x = -0.050
-                texture.offset.y = -0.020
+                texture.offset.y =0.030
             }
 
             const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
@@ -117,7 +116,7 @@ export default {
                 this.butterfly.getObjectByName('bulb_right').position.set(-0.433, 0.813, 0.959)
             }
             if (this.wingSelected == 3) {
-                this.butterfly.getObjectByName('Armature').position.z = 0.840
+                this.butterfly.getObjectByName('Armature').position.z = 0.330
                 this.butterfly.getObjectByName('Armature').scale.x = 1.400
                 this.butterfly.getObjectByName('Armature').scale.y = 1.020
                 this.butterfly.getObjectByName('Armature').scale.z = 1.750
@@ -144,6 +143,9 @@ export default {
 
             this.scene.getObjectByName('bulb_right').material.color.setHex(0x000);
             this.scene.getObjectByName('bulb_right').material.metalness = 1
+            this.scene.getObjectByName('bulb_right').material.flatShading = true
+            
+            console.log(this.scene.getObjectByName('bulb_right').material)
 
             //  this.butterfly.getObjectByName('Armature').position.y = 1.2
             // RENDER
@@ -156,12 +158,12 @@ export default {
             var delta = this.clock.getDelta(3);
             if (this.mixer && this.butterfly) this.mixer.update(delta);
             if (this.clock.elapsedTime > 2) {
-                // this.mixer.timeScale = 2.5
-                // this.butterfly.position.z += 0.1
-                // this.butterfly.rotation.x += 0.01
-                // this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
-                // this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
-                // this.butterfly.position.y += 0.1
+                this.mixer.timeScale = 2.5
+                this.butterfly.position.z += 0.1
+                this.butterfly.rotation.x += 0.01
+                this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
+                this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
+                this.butterfly.position.y += 0.1
             }
             this.renderer.render(this.scene, this.camera);
         }
