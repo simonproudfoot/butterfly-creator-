@@ -16,7 +16,7 @@
                 </div>
                 <div class="col-8 wrapper">
                     <img class="boxShadow" :src="require('@/assets/shadow.svg')">
-                    <img :src="require('@/assets/body.svg')" class="body" v-if="!showFinished">
+                    <img :src="require('@/assets/body.svg')" class="body" v-if="!showFinished" :style="wingSelected == 3? 'top: 38%' : 'top: 49%'">
                     <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
                     <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas>
 
@@ -195,12 +195,12 @@ export default {
                     localStorage.setItem("previous", JSON.stringify(this.butterFlys));
                 }, 1000);
             }
-            // setTimeout(() => {
-            //     gsap.to('.zoomOut', { scale: 1, opacity: 1 })
-            //     this.refresh++
-            //     this.wingSelected = 0
-            //     this.showFinished = false
-            // }, 3500);
+            setTimeout(() => {
+                gsap.to('.zoomOut', { scale: 1, opacity: 1 })
+                this.refresh++
+                this.wingSelected = 0
+                this.showFinished = false
+            }, 3500);
         },
         selectColor(color) {
             this.color = color;
@@ -551,7 +551,7 @@ canvas {
     height: 434px;
     left: 50%;
     transform: translate(-50%, -50%);
-    top: 49%;
+
 
 }
 

@@ -85,24 +85,43 @@ export default {
                 this.butterfly.getObjectByName('Armature').scale.z = 1.640
                 this.butterfly.getObjectByName('Armature').position.z = 0.660
 
+                this.butterfly.getObjectByName('body').position.set(0.000, 0.729, -1.926)
+
+
+                this.butterfly.getObjectByName('ant-1').position.set(0.008,0.810,-0.496)
+                this.butterfly.getObjectByName('ant-2').position.set(0.008,0.810,-0.496)
+                this.butterfly.getObjectByName('bulb_left').position.set(0.446,0.813,0.959)
+                this.butterfly.getObjectByName('bulb_right').position.set(-0.433,0.813,0.959)
+
+                // this.butterfly.getObjectByName('ant-1').position.z = 0
+                // this.butterfly.getObjectByName('ant-2').position.z =0
+                // this.butterfly.getObjectByName('bulb_left').position.z = 0
+                // this.butterfly.getObjectByName('bulb_right').position.z = 0
+
             }
             if (this.wingSelected == 2) {
                 this.butterfly.getObjectByName('Armature').scale.x = 1.370
                 this.butterfly.getObjectByName('Armature').scale.y = 1.020
                 this.butterfly.getObjectByName('Armature').scale.z = 1.710
                 this.butterfly.getObjectByName('Armature').position.z = 0.840
+
+                this.butterfly.getObjectByName('body').position.set(0.000, 0.729, -1.926)
+                this.butterfly.getObjectByName('ant-1').position.set(0.008,0.810,-0.496)
+                this.butterfly.getObjectByName('ant-2').position.set(0.008,0.810,-0.496)
+                this.butterfly.getObjectByName('bulb_left').position.set(0.446,0.813,0.959)
+                this.butterfly.getObjectByName('bulb_right').position.set(-0.433,0.813,0.959)
             }
             if (this.wingSelected == 3) {
                 this.butterfly.getObjectByName('Armature').position.z = 0.840
                 this.butterfly.getObjectByName('Armature').scale.x = 1.400
                 this.butterfly.getObjectByName('Armature').scale.y = 1.020
                 this.butterfly.getObjectByName('Armature').scale.z = 1.750
-                this.butterfly.getObjectByName('body').position.z = -1.006
 
+                this.butterfly.getObjectByName('body').position.z = -1.006
                 this.butterfly.getObjectByName('ant-1').position.z = 0.370
                 this.butterfly.getObjectByName('ant-2').position.z = 0.370
                 this.butterfly.getObjectByName('bulb_left').position.z = 1.819
-                    this.butterfly.getObjectByName('bulb_right').position.z = 1.819
+                this.butterfly.getObjectByName('bulb_right').position.z = 1.819
 
             }
 
@@ -132,12 +151,12 @@ export default {
             var delta = this.clock.getDelta(3);
             if (this.mixer && this.butterfly) this.mixer.update(delta);
             if (this.clock.elapsedTime > 2) {
-                // this.mixer.timeScale = 2.5
-                // this.butterfly.position.z += 0.1
-                // this.butterfly.rotation.x += 0.01
-                // this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
-                // this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
-                // this.butterfly.position.y += 0.1
+                this.mixer.timeScale = 2.5
+                this.butterfly.position.z += 0.1
+                this.butterfly.rotation.x += 0.01
+                this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
+                this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
+                this.butterfly.position.y += 0.1
             }
             this.renderer.render(this.scene, this.camera);
         }
