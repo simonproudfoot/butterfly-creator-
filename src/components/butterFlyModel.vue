@@ -97,12 +97,29 @@ export default {
                 this.butterfly.getObjectByName('Armature').scale.x = 1.400
                 this.butterfly.getObjectByName('Armature').scale.y = 1.020
                 this.butterfly.getObjectByName('Armature').scale.z = 1.750
+                this.butterfly.getObjectByName('body').position.z = -1.006
+
+                this.butterfly.getObjectByName('ant-1').position.z = 0.370
+                this.butterfly.getObjectByName('ant-2').position.z = 0.370
+                this.butterfly.getObjectByName('bulb_left').position.z = 1.819
+                    this.butterfly.getObjectByName('bulb_right').position.z = 1.819
+
             }
 
             this.scene.getObjectByName('body').material.color.setHex(0x000);
-            this.scene.getObjectByName('body').material.metalness = 1
+            this.scene.getObjectByName('body').material.metalness = 1;
 
-          
+            this.scene.getObjectByName('ant-1').material.color.setHex(0x000);
+            this.scene.getObjectByName('ant-1').material.metalness = 1;
+
+            this.scene.getObjectByName('ant-2').material.color.setHex(0x000);
+            this.scene.getObjectByName('ant-2').material.metalness = 1;
+
+            this.scene.getObjectByName('bulb_left').material.color.setHex(0x000);
+            this.scene.getObjectByName('bulb_left').material.metalness = 1
+
+            this.scene.getObjectByName('bulb_right').material.color.setHex(0x000);
+            this.scene.getObjectByName('bulb_right').material.metalness = 1
 
             //  this.butterfly.getObjectByName('Armature').position.y = 1.2
             // RENDER

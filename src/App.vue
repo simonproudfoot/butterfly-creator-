@@ -22,7 +22,7 @@
 
                     <!-- <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
                     <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas> -->
-
+                    
                 </div>
                 <div class="col-2">
                     <div class="brushes">
@@ -151,8 +151,8 @@ export default {
             var centerShift_x = (this.canvas.width - this.backImage.width * ratio) / 2;
             var centerShift_y = (this.canvas.height - this.backImage.height * ratio) / 2;
             this.ctxBack.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctxBack.drawImage(this.backImage, 0, 0, this.backImage.width + 1, this.backImage.height + 1, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
-            this.ctx.drawImage(this.outlineImage, 0, 0, this.backImage.width + 1, this.backImage.height + 1, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
+            this.ctxBack.drawImage(this.backImage, 0, 0, this.backImage.width+1, this.backImage.height+1, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
+            this.ctx.drawImage(this.outlineImage, 0, 0, this.backImage.width+1, this.backImage.height+1, centerShift_x, centerShift_y, this.backImage.width * ratio, this.backImage.height * ratio);
             this.ctx.globalCompositeOperation = "source-atop";
             var saved = JSON.parse(localStorage.getItem("previous"));
             if (saved.length > 5) saved.length = 5;
@@ -169,7 +169,7 @@ export default {
             gsap.to('.saveButton', { y: -20, opacity: 0, duration: 1 })
             gsap.to('.zoomOut', { opacity: 0, scale: 0.9, duration: 1, delay: 2 })
             this.ctx.globalCompositeOperation = "destination-over";
-            this.ctx.fillStyle = '#2b3a45';
+           // this.ctx.fillStyle = '#000';
             // draw background/rectangle on entire canvas
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             var tempCanvas = document.createElement("canvas");
@@ -195,12 +195,12 @@ export default {
                     localStorage.setItem("previous", JSON.stringify(this.butterFlys));
                 }, 1000);
             }
-            setTimeout(() => {
-                gsap.to('.zoomOut', { scale: 1, opacity: 1 })
-                this.refresh++
-                this.wingSelected = 0
-                this.showFinished = false
-            }, 3500);
+            // setTimeout(() => {
+            //     gsap.to('.zoomOut', { scale: 1, opacity: 1 })
+            //     this.refresh++
+            //     this.wingSelected = 0
+            //     this.showFinished = false
+            // }, 3500);
         },
         selectColor(color) {
             this.color = color;
