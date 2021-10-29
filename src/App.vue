@@ -95,7 +95,7 @@ export default {
                 },
                 {
                     name: "Large brush",
-                    size: 100,
+                    size: 150,
                 },
             ],
             currentImage: null,
