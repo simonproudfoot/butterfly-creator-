@@ -572,11 +572,11 @@ canvas {
 }
 
 .wrapper .boxShadow {
-    position: absolute;
-    bottom: -20px;
-    height: 21px;
-    width: 1847px;
-    left: -278px;
+position: absolute;
+bottom: -22px;
+height: 22px;
+width: 1847px;
+left: -249px;
 }
 
 .wrapper__col {
