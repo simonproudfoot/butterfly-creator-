@@ -1,6 +1,8 @@
 <template>
 <div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
+
     <div class="zoomOut" v-if="scene">
+
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1 mb-1" style="color: #7392a6">Choose your butterfly</h1>
             <button v-for="nth in 3" :key="nth" @click="selectWing(nth)" class="choose__icon">
@@ -17,12 +19,8 @@
                 <div class="col-8 wrapper">
                     <img class="boxShadow" :src="require('@/assets/shadow.svg')">
                     <img :src="require('@/assets/body.svg')" class="body" v-if="!showFinished" :style="wingSelected == 3? 'top: 38%' : 'top: 49%'">
-                    <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
+                    <canvas v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
                     <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas>
-
-                    <!-- <canvas @mousedown="mirrorScreen(true)" @mouseleave="mirrorScreen(false)" @mouseup="mirrorScreen(false)" v-touch:start="mirrorScreen(true)" v-touch:end="mirrorScreen(false)" v-if="!showFinished" ref="paintable" id="c1" :width="buttDimensions.width" :height="buttDimensions.height" :style="['height:'+buttDimensions.height, 'width:'+buttDimensions.width ]" style="display: flex; margin: auto"></canvas>
-                    <canvas v-if="!showFinished" ref="background" id="c2" :width="buttDimensions.width" :height="buttDimensions.height" style=" display: flex; margin: auto"></canvas> -->
-
                 </div>
                 <div class="col-2">
                     <div class="brushes">
@@ -34,7 +32,6 @@
                 </div>
             </div>
             <button v-if="wingSelected" class="saveButton" @click="save">
-                <!-- {{ !showFinished ? "FLY AWAY" : "START AGAIN" }} -->
                 <img :src="require('@/assets/fly.svg')">
                 <h3>Fly away!</h3>
             </button>
@@ -46,6 +43,7 @@
     </div>
     <h1 v-else class="loading">Loading</h1>
     <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
+
 </div>
 </template>
 
@@ -53,6 +51,8 @@
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import butterFlyModel from "./components/butterFlyModel";
 import gsap from "gsap";
+import * as Hammer from 'hammerjs';
+window.Hammer = Hammer.default;
 export default {
     name: "App",
     components: { butterFlyModel },
@@ -102,7 +102,7 @@ export default {
             isFirstPaintable: false,
             hidePaintable: false,
             disableNavigation: true,
-            dynamicLineWidth: 100,
+            dynamicLineWidth: 150,
             isActive: true,
             useEraser: false,
             color: "#bc291e",
@@ -176,6 +176,7 @@ export default {
             } else {
                 this.butterFlys = [];
             }
+
         },
         save() {
             gsap.to('.pallet', { x: -20, opacity: 0, duration: 1 })
@@ -224,38 +225,6 @@ export default {
             this.dynamicLineWidth = b;
         },
 
-        mirrorScreen() {
-            if (this.canvasBack) {
-                this.canvas.onmousedown = (event) => {
-                    this.ctx.beginPath();
-                    let px = event.offsetX;
-                    let py = event.offsetY;
-                    let mirrorPx = this.canvas.width - event.offsetX;
-                    this.ctx.moveTo(px, py);
-                    this.canvas.onmousemove = (event) => {
-                        this.ctx.lineTo(event.offsetX, event.offsetY);
-                        this.ctx.strokeStyle = this.color;
-                        this.ctx.lineCap = "round";
-                        this.ctx.lineWidth = this.dynamicLineWidth;
-                        this.ctx.stroke();
-                        this.ctx.moveTo(mirrorPx, py);
-                        this.ctx.lineTo(this.canvas.width - event.offsetX, event.offsetY);
-                        this.ctx.stroke();
-                        mirrorPx = this.canvas.width - event.offsetX;
-                        px = event.offsetX;
-                        py = event.offsetY;
-                        this.ctx.moveTo(event.offsetX, event.offsetY);
-                    };
-                    this.canvas.onmouseup = (event) => {
-                        this.ctx.strokeStyle = ''
-                        this.ctx.lineCap = '';
-                        this.ctx.lineWidth = ''
-                        this.canvas.onmousemove = null;
-                        this.ctx.closePath();
-                    };
-                };
-            }
-        },
         navigate() {
             this.isFirstPaintable = !this.isFirstPaintable;
         },
@@ -274,16 +243,71 @@ export default {
                 });
             }
         },
+
+        preventDefault(e) {
+            e.preventDefault();
+        },
+        disableScroll() {
+            document.body.addEventListener('touchmove', this.preventDefault, { passive: false });
+        },
+        enableScroll() {
+            document.body.removeEventListener('touchmove', this.preventDefault, { passive: false });
+        },
+        onHold() {
+            console.log('go')
+        }
+
     },
     watch: {
-        wingSelected(v) {
+        canvas(val) {
 
+            var options = {
+                dragLockToAxis: true,
+                dragBlockHorizontal: true,
+                threshold: 0.1,
+                preventDefault: true,
+                velocity: 0.001
+            };
+            var hammertime = new Hammer(this.canvas, options);
+
+            hammertime.on("panstart", (ev) => {
+                this.ctx.beginPath();
+                let px = ev.srcEvent.offsetX
+                let py = ev.srcEvent.offsetY
+                this.ctx.strokeStyle = this.color;
+                this.ctx.lineCap = "round";
+                this.ctx.lineWidth = this.dynamicLineWidth;
+            })
+
+            hammertime.on("panmove", (ev) => {
+                let px = ev.srcEvent.offsetX
+                let py = ev.srcEvent.offsetY
+                let mirrorPx = this.canvas.width - ev.srcEvent.offsetX
+                this.ctx.moveTo(px, py)
+                this.ctx.lineTo(ev.srcEvent.offsetX, ev.srcEvent.offsetY);
+
+                this.ctx.stroke();
+                this.ctx.moveTo(mirrorPx, py);
+                this.ctx.lineTo(this.canvas.width - ev.srcEvent.offsetX, ev.srcEvent.offsetY);
+                this.ctx.stroke();
+            })
+
+            hammertime.on("panend", (ev) => {
+                this.ctx.strokeStyle = ''
+                this.ctx.lineCap = '';
+                this.ctx.lineWidth = ''
+                this.canvas.onmousemove = null;
+                this.ctx.closePath();
+            });
+
+        },
+        wingSelected(v) {
             this.outlineImage.src = require("@/assets/wings/" + v + "-front.svg");
             this.backImage.src = require("@/assets/wings/" + v + "-back.svg");
-
             this.outlineImage.onload = () => {
                 setTimeout(() => {
                     this.paintInit()
+
                 }, 100);
 
             }
@@ -295,7 +319,7 @@ export default {
         },
     },
     mounted() {
-        //  this.paintInit();
+        this.disableScroll()
         this.loadObj();
 
     },
@@ -308,8 +332,6 @@ export default {
 </script>
 
 <style scoped>
-
-
 @font-face {
     font-family: "Gilroy-Bold";
     src: local("Gilroy-Bold.woff"), url('./fonts/Gilroy-Bold.woff') format("woff");
@@ -572,11 +594,11 @@ canvas {
 }
 
 .wrapper .boxShadow {
-position: absolute;
-bottom: -22px;
-height: 22px;
-width: 1847px;
-left: -249px;
+    position: absolute;
+    bottom: -22px;
+    height: 22px;
+    width: 1847px;
+    left: -249px;
 }
 
 .wrapper__col {
@@ -707,5 +729,10 @@ left: -249px;
     display: block;
     margin-bottom: 1em;
     border-radius: 0 2em 2em 0;
+}
+
+#stage {
+    position: relative;
+    z-index: 9999;
 }
 </style>
