@@ -1,6 +1,6 @@
 <template>
 <div>
-    <div :id="index" class="container">
+    <div id="container" class="container">
         <p v-if="loading">LOADING...</p>
     </div>
 </div>
@@ -8,12 +8,11 @@
 <script>
 import * as Three from 'three'
 export default {
-    props: ['wingDesign', 'index', 'final', 'loadedScene', 'event_child', 'wingSelected'],
+    props: ['wingDesign', 'index', 'final', 'loadedScene', 'event_child', 'wingSelected', 'ready'],
     name: 'ThreeTest',
     data() {
         return {
             loading: true,
-            ready: true,
             clock: new Three.Clock(),
             mixer: null,
             camera: null,
@@ -30,10 +29,7 @@ export default {
                 texture.needsUpdate = false;
                 texture.onUpdate(texture);
                 texture.flipY = true;
-
             }
-            console.log(texture)
-
             if (this.wingSelected == 1) {
                 texture.offset.x = -0.050
                 texture.offset.y = -0.030
@@ -45,7 +41,7 @@ export default {
             }
             if (this.wingSelected == 3) {
                 texture.offset.x = -0.050
-                texture.offset.y =0.030
+                texture.offset.y = 0.030
             }
 
             const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
@@ -55,7 +51,7 @@ export default {
         },
         init() {
 
-            let container = document.getElementById(this.index);
+            let container = document.getElementById('container');
             // CAMERA
             this.camera = new Three.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 1, 30);
             this.camera.position.z = 16;
@@ -71,16 +67,17 @@ export default {
             this.scene.add(secondLight);
             this.butterfly = this.scene.add(this.loadedScene.scene);
             this.mixer = new Three.AnimationMixer(this.loadedScene.scene);
-            this.butterfly.position.y = 1.3
-            this.butterfly.scale.set(1, 1, 1)
-            this.butterfly.position.set(0, 0.95, -4)
+            //this.butterfly.position.y = 1.3
+            this.butterfly.scale.set(0.44, 0.44, 0.44)
+            this.butterfly.position.set(0, -1.7, 0)
+                       // this.butterfly.position.set(0, -10.370, -2.120)
             //  this.butterfly.position.x = -0.3
             this.butterfly.rotation.x = -30
             this.butterfly.rotation.y = -3.14
             this.loadedScene.animations.forEach((clip) => {
                 this.mixer.clipAction(clip).play();
             });
-            this.changeWing();
+        //    this.changeWing();
             this.loading = false
 
             if (this.wingSelected == 1) {
@@ -89,9 +86,7 @@ export default {
                 this.butterfly.getObjectByName('Armature').scale.y = 1.2
                 this.butterfly.getObjectByName('Armature').scale.z = 1.640
                 this.butterfly.getObjectByName('Armature').position.z = 0.660
-
                 this.butterfly.getObjectByName('body').position.set(0.000, 0.729, -1.926)
-
                 this.butterfly.getObjectByName('ant-1').position.set(0.008, 0.810, -0.496)
                 this.butterfly.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
                 this.butterfly.getObjectByName('bulb_left').position.set(0.446, 0.813, 0.959)
@@ -108,7 +103,6 @@ export default {
                 this.butterfly.getObjectByName('Armature').scale.y = 1.020
                 this.butterfly.getObjectByName('Armature').scale.z = 1.710
                 this.butterfly.getObjectByName('Armature').position.z = 0.840
-
                 this.butterfly.getObjectByName('body').position.set(0.000, 0.729, -1.926)
                 this.butterfly.getObjectByName('ant-1').position.set(0.008, 0.810, -0.496)
                 this.butterfly.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
@@ -120,13 +114,11 @@ export default {
                 this.butterfly.getObjectByName('Armature').scale.x = 1.400
                 this.butterfly.getObjectByName('Armature').scale.y = 1.020
                 this.butterfly.getObjectByName('Armature').scale.z = 1.750
-
                 this.butterfly.getObjectByName('body').position.z = -1.006
                 this.butterfly.getObjectByName('ant-1').position.z = 0.370
                 this.butterfly.getObjectByName('ant-2').position.z = 0.370
                 this.butterfly.getObjectByName('bulb_left').position.z = 1.819
                 this.butterfly.getObjectByName('bulb_right').position.z = 1.819
-
             }
 
             this.scene.getObjectByName('body').material.color.setHex(0x000);
@@ -144,7 +136,7 @@ export default {
             this.scene.getObjectByName('bulb_right').material.color.setHex(0x000);
             this.scene.getObjectByName('bulb_right').material.metalness = 1
             this.scene.getObjectByName('bulb_right').material.flatShading = true
-            
+
             console.log(this.scene.getObjectByName('bulb_right').material)
 
             //  this.butterfly.getObjectByName('Armature').position.y = 1.2
@@ -157,13 +149,19 @@ export default {
             requestAnimationFrame(this.animate);
             var delta = this.clock.getDelta(3);
             if (this.mixer && this.butterfly) this.mixer.update(delta);
-            if (this.clock.elapsedTime > 2) {
-                this.mixer.timeScale = 2.5
-                this.butterfly.position.z += 0.1
-                this.butterfly.rotation.x += 0.01
-                this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
-                this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
-                this.butterfly.position.y += 0.1
+            if (this.ready) {
+               
+                if (this.clock.elapsedTime > 2) {
+                    this.mixer.timeScale = 2.5
+                    // this.butterfly.position.z += 0.1
+                    // this.butterfly.rotation.x += 0.01
+                    this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
+                    this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
+                 //   this.butterfly.position.y += 0.1
+                } else {
+                    // reset the position
+                    this.ready = false
+                }
             }
             this.renderer.render(this.scene, this.camera);
         }
@@ -176,15 +174,16 @@ export default {
 </script>
 
 <style>
-.container {
-    height: 1080px;
+#container {
+    border: 1px red dashed;
+    height: 2160px !important;
     width: 1920px;
     position: absolute;
     width: 100% !important;
-    height: 100% !important;
     transition-duration: 1s;
     max-width: none !important;
     padding: 0 !important;
+    pointer-events: none;
 }
 
 .controls {

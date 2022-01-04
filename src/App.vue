@@ -1,8 +1,7 @@
 <template>
-<div id="app" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
+<div id="app">
 
-    <div class="zoomOut" v-if="scene">
-
+    <div class="zoomOut creator" v-if="scene" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1 mb-1" style="color: #7392a6">Choose your butterfly</h1>
             <button v-for="nth in 3" :key="nth" @click="selectWing(nth)" class="choose__icon">
@@ -42,8 +41,7 @@
         </div>
     </div>
     <h1 v-else class="loading">Loading</h1>
-    <butterFlyModel v-on:event_child="reset" v-if="scene && showFinished" :wingDesign="butterFlys[0]" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
-
+    <butterFlyModel v-on:event_child="reset" v-if="scene" :wingDesign="butterFlys[0]" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
 
@@ -369,6 +367,10 @@ h3 {
     font-family: "Gilroy-Bold";
 }
 
+.creator {
+    margin-top: 1080px;
+}
+
 .choose,
 .loading {
     position: absolute;
@@ -514,6 +516,7 @@ html {
     color: #2c3e50;
     height: 1080px;
     width: 1920px;
+
     background-size: cover;
     background-repeat: no-repeat;
     font-size: 25px;
