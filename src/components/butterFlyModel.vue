@@ -1,10 +1,12 @@
 <template>
 <div>
+    <span class="background"></span>
     <div id="container" class="container">
         <p v-if="loading">LOADING...</p>
     </div>
 </div>
 </template>
+
 <script>
 import * as Three from 'three'
 export default {
@@ -20,6 +22,11 @@ export default {
             renderer: null,
             butterfly: '',
             alphaMapImageUlr: require('@/assets/test.png'),
+            curve: null,
+            points: null,
+            t: 0,
+            testMesh: null,
+            axis: ''
         }
     },
     methods: {
@@ -35,7 +42,6 @@ export default {
                 texture.offset.y = -0.030
             }
             if (this.wingSelected == 2) {
-
                 texture.offset.x = -0.040
                 texture.offset.y = -0.030
             }
@@ -49,11 +55,38 @@ export default {
             this.scene.getObjectByName('Wings').material = material
             this.scene.getObjectByName('Wings').rotation.y = Math.PI / 2;
         },
-        init() {
+        originalPosition() {
+            this.butterfly.scale.set(0.44, 0.44, 0.44)
+            this.butterfly.position.set(0, -1.7, 0)
+            this.butterfly.rotation.x = -30
+            this.butterfly.rotation.y = -3.14
+        },
+        createPath() {
+            //Create a closed wavey loop
+            // X: L/R
+            // y: up
+            // z: elevation
+            var pos = this.butterfly.position
+            this.curve = new Three.CatmullRomCurve3([
+                new Three.Vector3(pos.x, pos.y, pos.z),
+                new Three.Vector3(0, 0, 0),
+                new Three.Vector3(-1, 1, -5),
+                new Three.Vector3(1, 2, -7.5),
+                new Three.Vector3(-1, 3, -10),
 
+            ]);
+
+            const points = this.curve.getPoints(50);
+            const geometry = new Three.BufferGeometry().setFromPoints(points);
+            const material = new Three.LineBasicMaterial({ color: 0x000 });
+            const visCurve = new Three.Line(geometry, material);
+            this.scene.add(this.curve)
+            this.scene.add(visCurve)
+        },
+        init() {
             let container = document.getElementById('container');
             // CAMERA
-            this.camera = new Three.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 1, 30);
+            this.camera = new Three.PerspectiveCamera(30, container.clientWidth / container.clientHeight, 1, 3000);
             this.camera.position.z = 16;
             this.scene = new Three.Scene();
             // LIGHT
@@ -65,21 +98,25 @@ export default {
             this.scene.add(ambientLight);
             this.scene.add(mainLight);
             this.scene.add(secondLight);
-            this.butterfly = this.scene.add(this.loadedScene.scene);
+            console.log('model', this.loadedScene.scene)
+            this.butterfly = this.loadedScene.scene
+            this.scene.add(this.butterfly);
+            //     this.butterfly.visible = false
+            this.originalPosition()
             this.mixer = new Three.AnimationMixer(this.loadedScene.scene);
-            //this.butterfly.position.y = 1.3
-            this.butterfly.scale.set(0.44, 0.44, 0.44)
-            this.butterfly.position.set(0, -1.7, 0)
-                       // this.butterfly.position.set(0, -10.370, -2.120)
-            //  this.butterfly.position.x = -0.3
-            this.butterfly.rotation.x = -30
-            this.butterfly.rotation.y = -3.14
+
+            // boudning
+            const geometry = new Three.BoxGeometry(1, 1, 1);
+            const material = new Three.MeshBasicMaterial({ color: 0x00ff00 });
+            this.testMesh = new Three.Mesh(geometry, material);
+            //  this.scene.add(this.testMesh);
+
             this.loadedScene.animations.forEach((clip) => {
                 this.mixer.clipAction(clip).play();
             });
-        //    this.changeWing();
+            this.wingSelected ? this.changeWing() : null
+            this.createPath()
             this.loading = false
-
             if (this.wingSelected == 1) {
 
                 this.butterfly.getObjectByName('Armature').scale.x = 1.310
@@ -91,11 +128,6 @@ export default {
                 this.butterfly.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
                 this.butterfly.getObjectByName('bulb_left').position.set(0.446, 0.813, 0.959)
                 this.butterfly.getObjectByName('bulb_right').position.set(-0.433, 0.813, 0.959)
-
-                // this.butterfly.getObjectByName('ant-1').position.z = 0
-                // this.butterfly.getObjectByName('ant-2').position.z =0
-                // this.butterfly.getObjectByName('bulb_left').position.z = 0
-                // this.butterfly.getObjectByName('bulb_right').position.z = 0
 
             }
             if (this.wingSelected == 2) {
@@ -147,23 +179,34 @@ export default {
         },
         animate() {
             requestAnimationFrame(this.animate);
-            var delta = this.clock.getDelta(3);
+            var delta = this.clock.getDelta(9);
             if (this.mixer && this.butterfly) this.mixer.update(delta);
             if (this.ready) {
-               
                 if (this.clock.elapsedTime > 2) {
-                    this.mixer.timeScale = 2.5
-                    // this.butterfly.position.z += 0.1
-                    // this.butterfly.rotation.x += 0.01
-                    this.butterfly.rotation.z = Math.sin(Date.now() * 0.002) * Math.PI * 0.04;
-                    this.butterfly.position.x = Math.sin(Date.now() * 0.02) * Math.PI * 0.015;
-                 //   this.butterfly.position.y += 0.1
+                    this.t += 0.01;
+                    var pos = this.curve.getPoint(this.t);
+                    var look = this.curve.getPoint(this.t + delta)
+
+                    this.butterfly.position.set(pos.x, pos.y, pos.z);
+
+                    //     this.butterfly.lookAt(look);
                 } else {
                     // reset the position
-                    this.ready = false
+                    this.originalPosition()
+                    //   this.ready = false
                 }
             }
             this.renderer.render(this.scene, this.camera);
+        }
+    },
+    watch: {
+        ready(val) {
+            if (val) {
+                //      this.butterfly.visible = true
+            } else {
+                //      this.butterfly.visible = false
+            }
+
         }
     },
     mounted() {
@@ -175,7 +218,7 @@ export default {
 
 <style>
 #container {
-    border: 1px red dashed;
+
     height: 2160px !important;
     width: 1920px;
     position: absolute;
@@ -184,6 +227,16 @@ export default {
     max-width: none !important;
     padding: 0 !important;
     pointer-events: none;
+}
+
+.background {
+    background-color: olivedrab;
+    position: absolute;
+    height: 1080px !important;
+    width: 1920px;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .controls {
