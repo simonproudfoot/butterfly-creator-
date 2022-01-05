@@ -41,7 +41,7 @@
         </div>
     </div>
     <h1 v-else class="loading">Loading</h1>
-    <butterFlyModel v-on:event_child="reset"  v-if="scene" :wingDesign="butterFlys[0]" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
+    <butterFlyModel v-on:event_child="reset" v-if="scene" :wingDesign="currentImage" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
 </div>
 </template>
 
@@ -106,7 +106,7 @@ export default {
             color: "#bc291e",
             threshold: 1,
             showFinished: false,
-            butterflyUlr: require("@/assets/butterflyD.glb"),
+            butterflyUlr: require("@/assets/butterflyFlat.glb"),
             modelLoading: true,
             scene: null,
         };
