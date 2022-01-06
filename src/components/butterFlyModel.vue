@@ -1,9 +1,8 @@
 <template>
 <div>
-    <span class="background"></span>
+    <video class="background" autoplay muted loop :src="require('@/assets/slave-bg.mp4')"></video>
     <div id="container" class="container">
         <div id="looping"></div>
-
         <p v-if="loading">LOADING...</p>
     </div>
 </div>
@@ -15,10 +14,11 @@ import * as dat from 'dat.gui';
 import { gsap, MotionPathPlugin } from "gsap/all";
 gsap.registerPlugin(MotionPathPlugin);
 export default {
-    props: ['wingDesign', 'index', 'final', 'loadedScene', 'event_child', 'wingSelected', 'ready', 'resetTime', 'loopA'],
+    props: ['wingDesign', 'index', 'final', 'loadedScene', 'event_child', 'wingSelected', 'ready', 'resetTime', 'loopA', 'allDesigns'],
     name: 'ThreeTest',
     data() {
         return {
+            landingZones: [{ x: 0, y: 1 }, { x: -2.4, y: 1.4, z: -30 }, { x: 1.5, y: 1.3 }], // in order
             gui: new dat.GUI(),
             loading: true,
             clock: new Three.Clock(),
@@ -29,13 +29,26 @@ export default {
             butterfly: '',
             butterflyA: {
                 model: null,
-                timeLine: null
+                timeLine: null,
+                image: null
             },
+            butterflyB: {
+                model: null,
+                timeLine: null,
+                image: null
+
+            },
+            butterflyC: {
+                model: null,
+                timeLine: null,
+                image: null
+            },
+
             alphaMapImageUlr: require('@/assets/test.png'),
             curve: null,
             points: null,
             t: 0,
-            testMesh: null,
+            maskObject: null,
             axis: '',
             leave: false,
             sittingPoint: {
@@ -46,37 +59,48 @@ export default {
         }
     },
     methods: {
-        changeWing(design) {
-            const texture = new Three.TextureLoader().load(design);
-            const texture2 = new Three.TextureLoader().load(design);
-            if (texture.onUpdate) {
-                texture.needsUpdate = false;
-                texture.onUpdate(texture);
-                //  texture.flipY = true;
-            }
-            if (this.wingSelected == 1) {
-                texture.offset.x = -0.050
-                texture.offset.y = -0.030
-            }
-            if (this.wingSelected == 2) {
-                texture.offset.x = -0.040
-                texture.offset.y = -0.030
-            }
-            if (this.wingSelected == 3) {
-                texture.offset.x = -0.050
-                texture.offset.y = 0.030
-            }
+        changeWing(item) {
+            if (item) {
+                console.log(item)
+                const texture = new Three.TextureLoader().load(item.image);
+                const texture2 = new Three.TextureLoader().load(item.image);
 
-            const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
-            material.map.flipY = false
-            material.map.center = new Three.Vector2(0.5, 0.5);
-            material.map.rotation = Math.PI
-            this.butterfly.getObjectByName('wingLeft').material = material
+                if (texture.onUpdate) {
+                    texture.needsUpdate = true;
+                    texture.onUpdate(texture);
+                }
+                if (this.wingSelected == 1) {
+                    texture.offset.x = -0.050
+                    texture.offset.y = -0.030
+                }
+                if (this.wingSelected == 2) {
+                    texture.offset.x = -0.040
+                    texture.offset.y = -0.030
+                }
+                if (this.wingSelected == 3) {
+                    texture.offset.x = -0.050
+                    texture.offset.y = 0.030
+                }
 
-            const material2 = new Three.MeshBasicMaterial({ map: texture2, side: Three.DoubleSide, alphaTest: 0.5 })
-            // material2.map.flipY = true
-            material2.map.center = new Three.Vector2(0.5, 0.5);
-            this.butterfly.getObjectByName('wingRight').material = material2
+                const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
+                material.map.flipY = false
+                material.map.center = new Three.Vector2(0.5, 0.5);
+                material.map.rotation = Math.PI
+                item.model.getObjectByName('wingLeft').material = material
+
+                const material2 = new Three.MeshBasicMaterial({ map: texture2, side: Three.DoubleSide, alphaTest: 0.5 })
+
+                material2.map.center = new Three.Vector2(0.5, 0.5);
+                item.model.getObjectByName('wingRight').material = material2
+
+                item.model.getObjectByName('wingRight').material = material2
+
+                setTimeout(() => {
+                    item.model.getObjectByName('wingLeft').material.needsUpdate = true
+                    item.model.getObjectByName('wingRight').material.needsUpdate = true
+                }, 1000);
+
+            }
 
         },
         originalPosition() {
@@ -90,39 +114,124 @@ export default {
         },
 
         loadButterFlyA() {
+
             // this is the one first generated
             this.butterflyA.model = this.loadedScene.scene.clone()
             this.butterflyA.model.visible = true
             this.butterflyA.model.name = 'Butterfly2'
             this.butterflyA.timeLine = gsap.timeline({ repeat: -1, repeatDelay: 1 });
-
             // set positions
-            this.butterflyA.model.scale.set(0.10, 0.10, 0.10)
+            this.butterflyA.model.scale.set(0.13, 0.13, 0.13)
             this.butterflyA.model.position.set(0, -2, 0)
             this.butterflyA.model.rotation.x = -30
             this.butterflyA.model.rotation.y = -3.14
-
             this.scene.add(this.butterflyA.model)
-            this.butterflyA.timeLine.to(this.butterflyA.model.position, {
 
+            // load inital 
+            if (this.allDesigns[0] && this.allDesigns[0].image) {
+                this.changeWing(this.butterflyA)
+            }
+
+            this.butterflyA.timeLine.to(this.butterflyA.model.position, {
                 motionPath: {
-                    path: [{ x: 0, y: 0, }, { x: 0, y: 1 }],
+                    path: [{ x: 0, y: 0, }, this.landingZones[0]],
                     alignOrigin: [0, 0],
                     autoRotate: true
                 },
                 delay: 0,
                 duration: 2,
             })
-
             this.butterflyA.timeLine.to(this.butterflyA.model.position, {
                 motionPath: {
-                    path: [{ x: 0, y: 1 }, { x: 0, y: 5, } ],
+                    path: [this.landingZones[0], { x: 0, y: 5, }],
                     alignOrigin: [0, 0],
                     autoRotate: true
                 },
                 delay: 2,
                 duration: 2,
+                onComplete: this.changeWing,
+                onCompleteParams: [this.butterflyA]
             })
+
+            //   this.mixer.update(1000)
+        },
+
+        loadButterFlyB() {
+            if (this.allDesigns[1]) {
+                this.butterflyB.model = this.loadedScene.scene.clone()
+                this.butterflyB.model.visible = true
+                this.butterflyB.model.name = 'Butterfly3'
+                this.butterflyB.timeLine = gsap.timeline({ repeat: -1, repeatDelay: 5, delay: 5 });
+                // set positions
+                this.butterflyB.model.scale.set(0.10, 0.10, 0.10)
+                this.butterflyB.model.position.set(0, -2, 0)
+                this.butterflyB.model.rotation.x = -30
+                this.butterflyB.model.rotation.y = -3.14
+                this.scene.add(this.butterflyB.model)
+
+                // load inital 
+                this.changeWing(this.butterflyB)
+
+                this.butterflyB.timeLine.to(this.butterflyB.model.position, {
+                    motionPath: {
+                        path: [{ x: -2, y: 0, }, this.landingZones[1]],
+                        alignOrigin: [0, 0],
+                        autoRotate: true
+                    },
+                    delay: 0,
+                    duration: 2,
+                })
+                this.butterflyB.timeLine.to(this.butterflyB.model.position, {
+                    motionPath: {
+                        path: [this.landingZones[1], { x: 0, y: 5, }],
+                        alignOrigin: [0, 0],
+                        autoRotate: true
+                    },
+                    delay: 2,
+                    duration: 2,
+                    onComplete: this.changeWing,
+                    onCompleteParams: [this.butterflyB]
+                })
+            }
+            //   this.mixer.update(1000)
+        },
+
+        loadButterFlyC() {
+            if (this.allDesigns[2]) {
+                this.butterflyC.model = this.loadedScene.scene.clone()
+                this.butterflyC.model.visible = true
+                this.butterflyC.model.name = 'Butterfly4'
+                this.butterflyC.timeLine = gsap.timeline({ repeat: -1, delay: 3.6, repeatDelay: 3.6 });
+                // set positions
+                this.butterflyC.model.scale.set(0.10, 0.10, 0.10)
+                this.butterflyC.model.position.set(0, -2, 0)
+                this.butterflyC.model.rotation.x = -30
+                this.butterflyC.model.rotation.y = -3.14
+                this.scene.add(this.butterflyC.model)
+
+                // load inital 
+                this.changeWing(this.butterflyC)
+                this.butterflyC.timeLine.to(this.butterflyC.model.position, {
+                    motionPath: {
+                        path: [{ x: -2, y: 0, }, this.landingZones[2]],
+                        alignOrigin: [0, 0],
+                        autoRotate: true
+                    },
+                    delay: 0,
+                    duration: 2,
+                })
+                this.butterflyC.timeLine.to(this.butterflyC.model.position, {
+                    motionPath: {
+                        path: [this.landingZones[2], { x: 0, y: 5, }],
+                        alignOrigin: [0, 0],
+                        autoRotate: true
+                    },
+                    delay: 2,
+                    duration: 2,
+                    onComplete: this.changeWing,
+                    onCompleteParams: [this.butterflyC]
+                })
+            }
             //   this.mixer.update(1000)
         },
 
@@ -147,8 +256,9 @@ export default {
 
             this.butterfly.visible = false
             this.originalPosition()
-
             this.loadButterFlyA()
+            this.loadButterFlyB()
+            this.loadButterFlyC()
 
             // bounding
             const geometry = new Three.BoxGeometry(10.000, 5.380, 1);
@@ -159,9 +269,9 @@ export default {
                 color: 0x00000,
                 //        wireframe: true
             });
-            this.testMesh = new Three.Mesh(geometry, material);
-            this.testMesh.position.set(0.450, -2.690, -0.360)
-            this.scene.add(this.testMesh)
+            this.maskObject = new Three.Mesh(geometry, material);
+            this.maskObject.position.set(0.450, -2.690, -0.360)
+            this.scene.add(this.maskObject)
 
             this.loading = false
             this.scene.getObjectByName('body').material.color.setHex(0x000);
@@ -176,7 +286,6 @@ export default {
             this.scene.getObjectByName('bulb_right').material.metalness = 1
             this.scene.getObjectByName('bulb_right').material.flatShading = true
 
-            //  this.butterfly.getObjectByName('Armature').position.y = 1.2
             // RENDER
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
@@ -233,8 +342,7 @@ export default {
         },
 
         moveAlong() {
-
-            gsap.to(this.butterfly.scale, { x: 0.10, y: 0.10, z: 0.10, delay: 2, duration: 1 })
+            gsap.to(this.butterfly.scale, { x: 0.13, y: 0.13, z: 0.13, delay: 2, duration: 1 })
             gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, y: 0.1, duration: 1 });
             gsap.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 1 }).then(() => {
                 setTimeout(() => {
@@ -247,7 +355,7 @@ export default {
 
             gsap.to(this.butterfly.position, {
                 motionPath: {
-                    path: [{ x: 0, y: 0, }, { x: -1, y: -0.5 }, { x: 0.5, y: 2 }, { x: -0.5, y: 5 }],
+                    path: [{ x: 0, y: 0, }, this.landingZones[0]],
                     alignOrigin: [0, 0],
                     autoRotate: true
                 },
@@ -259,7 +367,7 @@ export default {
 
             gsap.to(this.butterfly.position, {
                 motionPath: {
-                    path: [{ x: -1, y: 5 }, { x: 0.5, y: 15 }],
+                    path: [{ x: 1, y: 1 }, this.landingZones[0], { x: 2, y: 7 }],
                     alignOrigin: [0, 0],
                     autoRotate: true
                 },
@@ -277,18 +385,22 @@ export default {
 
         animate() {
             requestAnimationFrame(this.animate);
-
             this.renderer.render(this.scene, this.camera);
-
-            //   this.butterfly.getObjectByName('wing_lower2R').rotation.copy(this.butterfly.getObjectByName('wing_lowerR').rotation)
         }
     },
     watch: {
+
+        allDesigns(updated) {
+            this.butterflyA.image = updated[0].image
+            this.butterflyB.image = updated[1].image
+            this.butterflyC.image = updated[2].image
+        },
+
         ready(val) {
             if (val) {
                 this.butterfly.visible = true
                 this.wingSize()
-                this.changeWing(this.wingDesign)
+                // this.changeWing(this.wingDesign, this.butterfly)
                 this.moveAlong()
             }
         }

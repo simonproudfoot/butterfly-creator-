@@ -1,5 +1,9 @@
 <template>
 <div id="app">
+    <div class="key">
+        Current
+        <img v-for="(img, i) in butterFlys" :src="img.image" :key="i" :alt="img.wing" />
+    </div>
     <div class="zoomOut creator" v-if="scene" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1 mb-1" style="color: #7392a6">Choose your butterfly</h1>
@@ -41,7 +45,7 @@
     </div>
     <h1 v-else class="loading">Loading</h1>
 
-    <butterFlyModel v-on:event_child="reset" v-if="scene && sceneLoop1" :wingDesign="currentImage" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" :loopA="sceneLoop1"/>
+    <butterFlyModel :allDesigns="butterFlys" v-on:event_child="reset" v-if="scene && sceneLoop1" :wingDesign="currentImage" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" :loopA="sceneLoop1" />
 </div>
 </template>
 
@@ -56,7 +60,6 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
-
             imageDimension: {
                 height: 790 * 2,
                 width: 1080 * 2
@@ -144,6 +147,19 @@ export default {
                 this.paintInit();
             }, 1000);
         },
+        getSaved() {
+            var saved = JSON.parse(localStorage.getItem("previous") || "[]");
+            // console.log(saved[0])
+
+            // console.log(saved)
+            if (saved.length > 3) saved.length = 3;
+            if (saved) {
+                this.butterFlys = saved;
+                console.log(saved)
+            } else {
+                this.butterFlys = [];
+            }
+        },
         paintInit() {
             this.canvas = this.$refs.paintable;
             this.ctx = this.canvas.getContext("2d");
@@ -164,13 +180,7 @@ export default {
             this.ctxBack.drawImage(this.backImage, 0, topOffset, this.imageDimension.width + 1, this.imageDimension.height + 1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
             this.ctx.drawImage(this.outlineImage, 0, topOffset, this.imageDimension.width + 1, this.imageDimension.height + 1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
             this.ctx.globalCompositeOperation = "source-atop";
-            var saved = JSON.parse(localStorage.getItem("previous"));
-            if (saved.length > 5) saved.length = 5;
-            if (saved) {
-                this.butterFlys = saved;
-            } else {
-                this.butterFlys = [];
-            }
+
         },
         save() {
             gsap.to('.pallet', { x: -20, opacity: 0, duration: 1 })
@@ -193,12 +203,16 @@ export default {
             this.currentImage = img;
             // go go got
             if (!this.showFinished) {
-                this.butterFlys.unshift(this.currentImage);
-                if (this.butterFlys.length > 5) {
+
+                let currentCreation = { image: this.currentImage, wing: this.wingSelected.toString(), id: Math.floor(Math.random() * 10).toString() }
+
+                this.butterFlys.unshift(currentCreation);
+                if (this.butterFlys.length > 3) {
                     this.butterFlys.pop();
                 }
                 this.isActive = false;
                 this.showFinished = true;
+
                 setTimeout(() => {
                     localStorage.setItem("previous", JSON.stringify(this.butterFlys));
                 }, 1000);
@@ -229,14 +243,13 @@ export default {
             const gltfLoader = new GLTFLoader();
             if (!this.scene) {
                 gltfLoader.load(this.butterflyUrl, (gltf) => {
-                   // console.log("Model loaded");
+                    // console.log("Model loaded");
                     this.scene = gltf;
                 });
 
                 gltfLoader.load(this.loop1Url, (gltf) => {
                     this.sceneLoop1 = gltf;
 
-             
                 });
 
             }
@@ -309,12 +322,9 @@ export default {
     mounted() {
         this.disableScroll()
         this.loadObj();
+        this.getSaved()
     },
-    created() {
-        this.$on("event_parent", function (id) {
-            alert("Event from parent component emitted", id);
-        });
-    },
+
 };
 </script>
 
@@ -348,6 +358,22 @@ h1,
 h2,
 h3 {
     font-family: "Gilroy-Bold";
+}
+
+.key {
+    position: absolute;
+    width: 200px;
+    height: auto;
+    background-color: olivedrab;
+    top: 0;
+    z-index: 999;
+
+}
+
+.key img {
+
+    width: 100%;
+
 }
 
 .creator {
