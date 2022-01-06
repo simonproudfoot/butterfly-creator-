@@ -1,6 +1,5 @@
 <template>
 <div id="app">
-
     <div class="zoomOut creator" v-if="scene" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1 mb-1" style="color: #7392a6">Choose your butterfly</h1>
@@ -41,7 +40,8 @@
         </div>
     </div>
     <h1 v-else class="loading">Loading</h1>
-    <butterFlyModel v-on:event_child="reset" v-if="scene" :wingDesign="currentImage" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" />
+
+    <butterFlyModel v-on:event_child="reset" v-if="scene && sceneLoop1" :wingDesign="currentImage" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" :loopA="sceneLoop1"/>
 </div>
 </template>
 
@@ -56,6 +56,7 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
+
             imageDimension: {
                 height: 790 * 2,
                 width: 1080 * 2
@@ -106,9 +107,13 @@ export default {
             color: "#bc291e",
             threshold: 1,
             showFinished: false,
-            butterflyUlr: require("@/assets/butterflyFlat.glb"),
+            butterflyUrl: require("@/assets/butterflyFlat.glb"),
+            loop1Url: require("@/assets/butterfly_spot_a.gltf"),
             modelLoading: true,
             scene: null,
+            sceneLoop1: null,
+            sceneLoop2: null,
+            sceneLoop3: null,
         };
     },
     methods: {
@@ -140,29 +145,22 @@ export default {
             }, 1000);
         },
         paintInit() {
-
             this.canvas = this.$refs.paintable;
             this.ctx = this.canvas.getContext("2d");
             this.ctx.imageSmoothingQuality = 'high'
             console.log(this.ctx)
-
             this.canvasBack = this.$refs.background;
             this.ctxBack = this.canvasBack.getContext("2d");
-
             var hRatio = this.canvas.width / this.imageDimension.width;
             var vRatio = this.canvas.height / this.imageDimension.height;
             var ratio = Math.min(hRatio, vRatio);
-
             var centerShift_x = (this.canvas.width - this.imageDimension.width * ratio) / 2;
             var centerShift_y = (this.canvas.height - this.imageDimension.height * ratio) / 2;
             this.ctxBack.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
             var topOffset = 0
-
             if (this.wingSelected == 3) {
                 topOffset = -200
             }
-
             this.ctxBack.drawImage(this.backImage, 0, topOffset, this.imageDimension.width + 1, this.imageDimension.height + 1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
             this.ctx.drawImage(this.outlineImage, 0, topOffset, this.imageDimension.width + 1, this.imageDimension.height + 1, centerShift_x, centerShift_y, this.imageDimension.width * ratio, this.imageDimension.height * ratio);
             this.ctx.globalCompositeOperation = "source-atop";
@@ -170,11 +168,9 @@ export default {
             if (saved.length > 5) saved.length = 5;
             if (saved) {
                 this.butterFlys = saved;
-
             } else {
                 this.butterFlys = [];
             }
-
         },
         save() {
             gsap.to('.pallet', { x: -20, opacity: 0, duration: 1 })
@@ -190,9 +186,7 @@ export default {
             tCtx.imageSmoothingQuality = 'high'
             tempCanvas.width = this.canvasBack.width / 2;
             tempCanvas.height = this.canvasBack.height;
-
             tCtx.drawImage(this.canvasBack, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
-
             tCtx.globalCompositeOperation = "source-atop";
             tCtx.drawImage(this.canvas, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
             var img = tempCanvas.toDataURL("image/svg");
@@ -222,7 +216,6 @@ export default {
         selectBrush(b) {
             this.dynamicLineWidth = b;
         },
-
         navigate() {
             this.isFirstPaintable = !this.isFirstPaintable;
         },
@@ -235,13 +228,19 @@ export default {
         loadObj() {
             const gltfLoader = new GLTFLoader();
             if (!this.scene) {
-                gltfLoader.load(this.butterflyUlr, (gltf) => {
-                    console.log("Model loaded");
+                gltfLoader.load(this.butterflyUrl, (gltf) => {
+                   // console.log("Model loaded");
                     this.scene = gltf;
                 });
+
+                gltfLoader.load(this.loop1Url, (gltf) => {
+                    this.sceneLoop1 = gltf;
+
+             
+                });
+
             }
         },
-
         preventDefault(e) {
             e.preventDefault();
         },
@@ -254,11 +253,9 @@ export default {
         onHold() {
             console.log('go')
         }
-
     },
     watch: {
         canvas(val) {
-
             var options = {
                 dragLockToAxis: true,
                 dragBlockHorizontal: true,
@@ -267,7 +264,6 @@ export default {
                 velocity: 0.001
             };
             var hammertime = new Hammer(this.canvas, options);
-
             hammertime.on("panstart", (ev) => {
                 this.ctx.beginPath();
                 let px = ev.srcEvent.offsetX
@@ -276,20 +272,17 @@ export default {
                 this.ctx.lineCap = "round";
                 this.ctx.lineWidth = this.dynamicLineWidth;
             })
-
             hammertime.on("panmove", (ev) => {
                 let px = ev.srcEvent.offsetX
                 let py = ev.srcEvent.offsetY
                 let mirrorPx = this.canvas.width - ev.srcEvent.offsetX
                 this.ctx.moveTo(px, py)
                 this.ctx.lineTo(ev.srcEvent.offsetX, ev.srcEvent.offsetY);
-
                 this.ctx.stroke();
                 this.ctx.moveTo(mirrorPx, py);
                 this.ctx.lineTo(this.canvas.width - ev.srcEvent.offsetX, ev.srcEvent.offsetY);
                 this.ctx.stroke();
             })
-
             hammertime.on("panend", (ev) => {
                 this.ctx.strokeStyle = ''
                 this.ctx.lineCap = '';
@@ -297,7 +290,6 @@ export default {
                 this.canvas.onmousemove = null;
                 this.ctx.closePath();
             });
-
         },
         wingSelected(v) {
             this.outlineImage.src = require("@/assets/wings/" + v + "-front.svg");
@@ -305,9 +297,7 @@ export default {
             this.outlineImage.onload = () => {
                 setTimeout(() => {
                     this.paintInit()
-
                 }, 100);
-
             }
         },
         butterFlys() {
@@ -319,7 +309,6 @@ export default {
     mounted() {
         this.disableScroll()
         this.loadObj();
-
     },
     created() {
         this.$on("event_parent", function (id) {
@@ -342,22 +331,16 @@ export default {
 
 * {
     -webkit-touch-callout: none;
-
     /* iOS Safari */
     -webkit-user-select: none;
-
     /* Safari */
     -khtml-user-select: none;
-
     /* Konqueror HTML */
     -moz-user-select: none;
-
     /* Firefox */
     -ms-user-select: none;
-
     /* Internet Explorer/Edge */
     user-select: none;
-
     /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
@@ -389,7 +372,6 @@ h3 {
     transition-duration: 1s;
     transition-delay: 3s;
     opacity: 0;
-
 }
 
 .choose__icon {}
@@ -504,7 +486,6 @@ html {
     height: 1080px;
     width: 1920px;
     overflow: hidden;
-
     touch-action: unset;
 }
 
@@ -516,7 +497,6 @@ html {
     color: #2c3e50;
     height: 1080px;
     width: 1920px;
-
     background-size: cover;
     background-repeat: no-repeat;
     font-size: 25px;
@@ -563,7 +543,6 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%) scale(0.5);
     user-select: none;
-
 }
 
 .wrapper {
@@ -584,16 +563,13 @@ canvas {
     top: 0;
     width: 1px;
     height: 100%;
-
 }
 
 .body {
-
     position: absolute;
     height: 434px;
     left: 50%;
     transform: translate(-50%, -50%);
-
 }
 
 .wrapper .boxShadow {

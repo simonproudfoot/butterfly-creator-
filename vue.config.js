@@ -17,6 +17,12 @@ module.exports = {
                     loader: 'file-loader',
                     options: {}
                 }]
+            }, {
+                test: /\.(gltf)(\?.*)?$/,
+                use: [{
+                    loader: 'file-loader',
+                    options: {}
+                }]
             },
             ]
         }
