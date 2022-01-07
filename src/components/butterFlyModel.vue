@@ -123,9 +123,6 @@ export default {
         loadButterFly(butterFly, index, startDelay, restDelay) {
             // this is the one first generated
 
-            // onComplete: [this.changeWing],
-            //onCompleteParams: [butterFly]
-
             butterFly.model = this.loadedScene.scene.clone()
             butterFly.model.visible = true
             butterFly.model.name = 'Butterfly2'
@@ -142,6 +139,10 @@ export default {
                 this.changeWing(butterFly)
             }
             // SCENE 1
+
+            //    gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -0.1, repeat: -1, duration: 0.2, yoyo: true });
+            // gsap.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 0.1, repeat: -1, duration: 0.2, yoyo: true });
+
             // Wings
             butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
                 z: -1,
@@ -151,6 +152,17 @@ export default {
                 duration: 0.05,
                 yoyo: true
             })
+            butterFly.flapTl.to(butterFly.model.getObjectByName('wingLeft').rotation, {
+                z: 1,
+                // y: 0.5,
+                repeat: -1,
+                delay: 0,
+                duration: 0.05,
+                yoyo: true
+            })
+
+            // body
+
             butterFly.flapTl.fromTo(butterFly.model.rotation, {
                 y: -2.7,
             }, {
@@ -160,8 +172,9 @@ export default {
                 yoyo: true,
                 ease: 'none'
             })
-            // body
+
             butterFly.timeLine.to(butterFly.model.position, {
+                z: 0,
                 motionPath: {
                     path: this.paths[index].enter,
                     alignOrigin: [0, 0],
@@ -173,6 +186,7 @@ export default {
             })
             // SCENE 2
             butterFly.timeLine.to(butterFly.model.position, {
+                z: 10,
                 motionPath: {
                     path: this.paths[index].leave,
                     alignOrigin: [0, 0],
@@ -182,91 +196,9 @@ export default {
                 duration: 2,
                 onStart: () => butterFly.flapTl.timeScale(1),
                 onComplete: () => this.changeWing(butterFly),
-                // onComplete: this.changeWing,
-                // onCompleteParams: [butterFly. false]
+
             })
 
-        },
-
-        loadButterFlyB() {
-            //     if (this.allDesigns[1]) {
-            //         this.butterflyB.model = this.loadedScene.scene.clone()
-            //         this.butterflyB.model.visible = true
-            //         this.butterflyB.model.name = 'Butterfly3'
-            //         this.butterflyB.timeLine = gsap.timeline({ repeat: -1, repeatDelay: 5, delay: 5 });
-            //         // set positions
-            //         this.butterflyB.model.scale.set(0.10, 0.10, 0.10)
-            //         this.butterflyB.model.position.set(0, -2, 0)
-            //         this.butterflyB.model.rotation.x = -30
-            //         this.butterflyB.model.rotation.y = -3.14
-            //         this.scene.add(this.butterflyB.model)
-
-            //         // load inital 
-            //         this.changeWing(this.butterflyB)
-
-            //         this.butterflyB.timeLine.to(this.butterflyB.model.position, {
-            //             motionPath: {
-            //                 path: [{ x: -2, y: 0, }, this.landingZones[1]],
-            //                 alignOrigin: [0, 0],
-            //                 autoRotate: true
-            //             },
-            //             delay: 0,
-            //             duration: 2,
-            //         })
-            //         this.butterflyB.timeLine.to(this.butterflyB.model.position, {
-            //             motionPath: {
-            //                 path: [this.landingZones[1], { x: 0, y: 5, }],
-            //                 alignOrigin: [0, 0],
-            //                 autoRotate: true
-            //             },
-            //             delay: 2,
-            //             duration: 2,
-            //             onComplete: this.changeWing,
-            //             onCompleteParams: [this.butterflyB]
-            //         })
-            //     }
-            //     //   this.mixer.update(1000)
-            // },
-
-            // loadButterFlyC() {
-            //     if (this.allDesigns[2]) {
-            //         this.butterflyC.model = this.loadedScene.scene.clone()
-            //         this.butterflyC.model.visible = true
-            //         this.butterflyC.model.name = 'Butterfly4'
-            //         this.butterflyC.timeLine = gsap.timeline({ repeat: -1, delay: 3.6, repeatDelay: 3.6 });
-            //         // set positions
-            //         this.butterflyC.model.scale.set(0.10, 0.10, 0.10)
-            //         this.butterflyC.model.position.set(0, -2, 0)
-            //         this.butterflyC.model.rotation.x = -30
-            //         this.butterflyC.model.rotation.y = -3.14
-            //         this.scene.add(this.butterflyC.model)
-
-            //         // load inital 
-            //         this.changeWing(this.butterflyC)
-            //         this.butterflyC.timeLine.to(this.butterflyC.model.position, {
-            //             motionPath: {
-            //                 path: [{ x: -2, y: 0, }, this.landingZones[2]],
-            //                 alignOrigin: [0, 0],
-            //                 autoRotate: true
-            //             },
-            //             delay: 0,
-            //             duration: 2,
-            //         })
-
-            //         this.butterflyC.timeLine.to(this.butterflyC.model.position, {
-            //             motionPath: {
-
-            //                 alignOrigin: [0, 0],
-            //                 autoRotate: true
-            //             },
-            //             delay: 2,
-            //             duration: 2,
-            //             onComplete: this.changeWing,
-            //             onCompleteParams: [this.butterflyC]
-            //         })
-
-            //     }
-            //     //   this.mixer.update(1000)
         },
 
         init() {
@@ -377,12 +309,13 @@ export default {
             })
         },
 
-        flapWings(object) {
-            object.flapTl.to(object.model.getObjectByName('wingRight').rotation, { z: -1, y: 0.1, duration: 0.2, repeat: -1, yoyo: true })
-            object.flapTl.to(object.model.getObjectByName('wingLeft').rotation, { z: 1, y: 0.1, duration: 0.2, repeat: -1, yoyo: true })
-        },
+        // flapWings(object) {
+        //     object.flapTl.to(object.model.getObjectByName('wingRight').rotation, { z: -1, y: 0.1, duration: 0.2, repeat: -1, yoyo: true })
+        //     object.flapTl.to(object.model.getObjectByName('wingLeft').rotation, { z: 1, y: 0.1, duration: 0.2, repeat: -1, yoyo: true })
+        // },
 
         moveAlong() {
+            // this is for the new butterfly
             gsap.to(this.butterfly.scale, { x: 0.13, y: 0.13, z: 0.13, delay: 2, duration: 1 })
             gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, y: 0.1, duration: 1 });
             gsap.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 1 }).then(() => {
@@ -494,7 +427,7 @@ export default {
         const rot = this.gui.addFolder('Rotation')
         rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'x', -3, 3)
         rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'y', -3, 3)
-        rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'z', -3, 3).onChange(this.changeRot);
+        //     rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'z', -3, 3).onChange(this.changeRot);
 
         // const rot = this.gui.addFolder('Rotation')
         // rot.add(this.butterfly.rotation, 'y', -10, 10)
