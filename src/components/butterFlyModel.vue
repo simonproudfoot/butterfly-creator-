@@ -62,10 +62,12 @@ export default {
     },
     methods: {
         changeWing(item, main) {
+            let image;
+            let model;
+            let wing;
+
             if (item) {
-                let image;
-                let model;
-                let wing;
+
                 if (main) {
                     image = this.allDesigns[0].image
                     wing = this.allDesigns[0].wing
@@ -74,6 +76,7 @@ export default {
                     image = item.image
                     model = item.model
                     wing = item.wing
+
                 }
 
                 const texture = new Three.TextureLoader().load(image);
@@ -92,7 +95,7 @@ export default {
                 //     texture.offset.y = -0.030
                 // }
                 if (wing == 3) {
-                    texture.offset.x = 1
+                   // texture.offset.x = 1
                     texture.offset.y = 0.030
                 }
 
@@ -408,17 +411,17 @@ export default {
         moveAlong() {
             // this is for the new butterfly
             gsap.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, delay: 2, duration: 1 })
-              gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, y: 0.1, duration: 1, repeat: -1, yoyo: true });
+            gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, y: 0.1, duration: 1, repeat: -1, yoyo: true });
             gsap.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 1, repeat: -1, yoyo: true })
             gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 1, repeat: -1, yoyo: true })
-            .then(() => {
-                setTimeout(() => {
-                    this.wiggle()
-                }, 1000);
+                .then(() => {
+                    setTimeout(() => {
+                        this.wiggle()
+                    }, 1000);
 
-                gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -0.1, repeat: -1, duration: 0.2, yoyo: true });
-                gsap.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 0.1, repeat: -1, duration: 0.2, yoyo: true });
-            });
+                    gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -0.1, repeat: -1, duration: 0.2, yoyo: true });
+                    gsap.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 0.1, repeat: -1, duration: 0.2, yoyo: true });
+                });
 
             gsap.to(this.butterfly.position, {
                 motionPath: {
@@ -451,20 +454,20 @@ export default {
         },
 
         switchWings() {
-            this.butterflyA.image = this.allDesigns[0].image
-            this.butterflyB.image = this.allDesigns[1].image
-            this.butterflyC.image = this.allDesigns[2].image
+            this.allDesigns[0] ? this.butterflyA.image = this.allDesigns[0].image : null
+            this.allDesigns[1] ? this.butterflyB.image = this.allDesigns[1].image : null
+            this.allDesigns[2] ? this.butterflyC.image = this.allDesigns[2].image : null
         },
 
         animate() {
             requestAnimationFrame(this.animate);
             this.renderer.render(this.scene, this.camera);
-        }
+        },
 
     },
 
     computed: {
-        // { x: -2, y: 0, }, this.landingZones[1]
+
         paths() {
             let paths = [{
                     enter: [{ x: 0, y: 0, }, this.landingZones[0]],
@@ -482,19 +485,20 @@ export default {
 
             return paths
         }
+
     },
 
     watch: {
 
         allDesigns(updated) {
             this.switchWings()
+
         },
 
         ready(val) {
             if (val) {
                 this.butterfly.visible = true
                 this.wingSize(this.butterfly, true)
-
                 this.changeWing(this.butterfly, true)
                 this.moveAlong()
             }
@@ -504,7 +508,7 @@ export default {
         //alert('add camera cntroler')
         this.switchWings()
         this.init();
-        alert('todo, set textureoffsets, option for no flys yet, curve directions, hide new first time')
+        //  alert('todo, set textureoffsets, option for no flys yet, curve directions, hide new first time')
 
         this.animate();
 
@@ -521,7 +525,8 @@ export default {
         const rot = this.gui.addFolder('Rotation')
         rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'x', -3, 3, 0.1)
         rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'y', -3, 3, 0.1)
-        //     rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'z', -3, 3).onChange(this.changeRot);
+
+        //  rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'z', -3, 3).onChange(this.changeRot);
 
         // const rot = this.gui.addFolder('Rotation')
         // rot.add(this.butterfly.rotation, 'y', -10, 10)
