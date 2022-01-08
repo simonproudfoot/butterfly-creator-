@@ -18,7 +18,7 @@ export default {
     name: 'ThreeTest',
     data() {
         return {
-            mainTl: gsap.timeline({ paused: true}),
+            mainTl: gsap.timeline({ paused: true }),
             butterflyScale: 0.20,
             landingZones: [{ x: 0, y: 1 }, { x: -2.4, y: 1.4, z: -30 }, { x: 1.5, y: 1.3 }], // in order
             gui: new dat.GUI(),
@@ -158,7 +158,7 @@ export default {
                 delay: 0,
                 duration: 0.05,
                 yoyo: true
-            })
+            }, 0)
             // body
             // butterFly.flapTl.fromTo(butterFly.model.rotation, {
             //     y: -2.7,
@@ -380,27 +380,28 @@ export default {
         // },
         moveAlong() {
             // this is for the new butterfly
-
-            gsap.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, delay: 2, duration: 1 })
-
-            gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: 2, yoyo: true });
-            gsap.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: 2, yoyo: true })
-            // setTimeout(() => {
-            //     this.wiggle()
+            this.mainTl.play()
+            //  this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, delay: 2, duration: 1 })
+            this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: 2, yoyo: true });
+            this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: 2, yoyo: true }, 0)
+            // mainTl(() => {
+            //   //  this.wiggle()
             // }, 1000);
 
-            gsap.to(this.butterfly.getObjectByName('wingRight').rotation, { delay: 3, z: -0.1, repeat: -1,  repeatDelay: 0.1, yoyo: true });
-            gsap.to(this.butterfly.getObjectByName('wingLeft').rotation, { delay: 3, z: 0.1, repeat: -1,  repeatDelay: 0.1, yoyo: true });
+            this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { delay: 0.8, z: -0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
+            this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { delay: 0.8, z: 0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
+            this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, duration: 1, delay: 1 }, 1)
 
-            gsap.to(this.butterfly.position, {
+            this.mainTl.to(this.butterfly.position, {
                 motionPath: {
                     path: this.paths[0].enter,
                     autoRotate: true
                 },
-                delay: 2,
+                delay: 0.8,
                 duration: 2,
-            }).then(() => {});
-            gsap.to(this.butterfly.position, {
+            }, 1)
+            //.then(() => {});
+            this.mainTl.to(this.butterfly.position, {
                 motionPath: {
                     path: this.paths[0].leave,
                     alignOrigin: [0, 0],
@@ -408,14 +409,20 @@ export default {
                 },
                 delay: 7,
                 duration: 2,
-            }).then(() => {
-                this.butterfly.visible = false
-                this.originalPosition()
-            });
-            setTimeout(() => {
-                this.wiggle()
-            }, 7000);
+                onComplete: () => this.resetOrig(),
+            })
+            // setTimeout(() => {
+            //     this.wiggle()
+            // }, 7000);
         },
+
+        resetOrig() {
+            this.butterfly.visible = false
+            this.mainTl.pause(0)
+            this.originalPosition()
+     
+        },
+
         switchWings() {
             this.allDesigns[0] ? this.butterflyA.image = this.allDesigns[0].image : null
             this.allDesigns[1] ? this.butterflyB.image = this.allDesigns[1].image : null
