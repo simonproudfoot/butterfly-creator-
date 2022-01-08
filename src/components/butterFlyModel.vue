@@ -176,7 +176,7 @@ export default {
                     path: this.paths[index].enter,
                     autoRotate: true,
                 },
-                //onUpdate: this.updateMesh(butterFly),
+
                 delay: startDelay,
                 duration: 2,
                 onComplete: () => butterFly.flapTl.timeScale(0.01),
@@ -374,20 +374,17 @@ export default {
                 ease: 'none'
             })
         },
-        // flapWings(object) {
-        //     object.flapTl.to(object.model.getObjectByName('wingRight').rotation, { z: -1, y: 0.1, duration: 0.2, repeat: -1, yoyo: true })
-        //     object.flapTl.to(object.model.getObjectByName('wingLeft').rotation, { z: 1, y: 0.1, duration: 0.2, repeat: -1, yoyo: true })
-        // },
+
         moveAlong() {
-            // this is for the new butterfly
+
+            this.butterflyA.timeLine.clear()
+            this.butterflyA.timeLine.repeat(0)
+            this.butterflyA.timeLine.to(this.butterflyA.model.position, { y: 9, duration: 3 })
+            this.butterflyA.timeLine.play()
             this.mainTl.play()
-            //  this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, delay: 2, duration: 1 })
+
             this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: 2, yoyo: true });
             this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: 2, yoyo: true }, 0)
-            // mainTl(() => {
-            //   //  this.wiggle()
-            // }, 1000);
-
             this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { delay: 0.8, z: -0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
             this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { delay: 0.8, z: 0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
             this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, duration: 1, delay: 1 }, 1)
@@ -400,7 +397,7 @@ export default {
                 delay: 0.8,
                 duration: 2,
             }, 1)
-            //.then(() => {});
+
             this.mainTl.to(this.butterfly.position, {
                 motionPath: {
                     path: this.paths[0].leave,
@@ -411,18 +408,14 @@ export default {
                 duration: 2,
                 onComplete: () => this.resetOrig(),
             })
-            // setTimeout(() => {
-            //     this.wiggle()
-            // }, 7000);
         },
 
         resetOrig() {
             this.butterfly.visible = false
             this.mainTl.pause(0)
             this.originalPosition()
-     
+            this.loadButterFly(this.butterflyA, 0, 2, 3)
         },
-
         switchWings() {
             this.allDesigns[0] ? this.butterflyA.image = this.allDesigns[0].image : null
             this.allDesigns[1] ? this.butterflyB.image = this.allDesigns[1].image : null
