@@ -142,9 +142,10 @@ export default {
             this.butterfly.position.set(0, -1.7, 0)
             this.butterfly.rotation.x = -30
             this.butterfly.rotation.y = -3.14
-            gsap.set(this.butterfly.getObjectByName('wingRight').rotation, { z: 0 })
+            gsap.set(this.butterfly.getObjectByName('wingRight').rotation, { z: 0, repeat: 0 })
+            gsap.set(this.butterfly.getObjectByName('wingLeft').rotation, { z: 0, repeat: 0 })
             gsap.set(this.butterfly.scale, { x: 0.44, y: 0.44, z: 0.44 })
-            gsap.set(this.butterfly.getObjectByName('wingLeft').rotation, { z: 0 })
+
         },
 
         loadButterFly(butterFly, index, startDelay, restDelay, path, stopAt) {
@@ -289,7 +290,7 @@ export default {
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
-            //   this.hideShow()
+               this.hideShow()
 
         },
         wingSize(butterFly, main) {
@@ -362,7 +363,8 @@ export default {
             this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { delay: 0.8, z: -0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
             this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { delay: 0.8, z: 0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
             this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, duration: 1, delay: 1 }, 1)
-            this.mainTl.to(this.butterfly.position, {
+          
+          this.mainTl.to(this.butterfly.position, {
                 motionPath: {
                     path: this.paths['path2'],
                     useRadians: true,
@@ -408,7 +410,7 @@ export default {
     },
 
     watch: {
-     
+
         allDesigns(updated) {
             this.switchWings()
         },
@@ -427,8 +429,6 @@ export default {
         this.switchWings()
         this.init();
         this.animate();
-
-     
 
         // const size = this.gui.addFolder('Size')
         // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'x', 0, 10, 0.1)
