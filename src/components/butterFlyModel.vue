@@ -288,7 +288,7 @@ export default {
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
-            //   this.hideShow()
+             this.hideShow()
 
         },
         wingSize(butterFly, main) {
