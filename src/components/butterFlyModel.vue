@@ -4,6 +4,7 @@
     <div id="container" class="container">
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
+
     </div>
 </div>
 </template>
@@ -13,14 +14,30 @@ import * as Three from 'three'
 import * as dat from 'dat.gui';
 import { gsap, MotionPathPlugin } from "gsap/all";
 gsap.registerPlugin(MotionPathPlugin);
+
 export default {
     props: ['wingDesign', 'index', 'final', 'loadedScene', 'event_child', 'wingSelected', 'ready', 'resetTime', 'loopA', 'allDesigns'],
     name: 'ThreeTest',
     data() {
         return {
+            paths: {
+                path1: [
+                    { x: -3, y: 0, }, { x: -1.4, y: 3 }, { x: -3, y: 5 }
+                ],
+                path2: [
+                    { x: 0, y: 0, }, { x: 0.4, y: 1.8 }, { x: 0.2, y: 5 }
+                ],
+                path3: [
+                    { x: 3, y: 0, }, { x: 2, y: 3 }, { x: 2, y: 5 }
+                ]
+            },
             mainTl: gsap.timeline({ paused: true }),
+            curve1: {
+                line: null,
+                points: null
+            },
             butterflyScale: 0.20,
-            landingZones: [{ x: 0, y: 1 }, { x: -2.4, y: 1.4, z: -30 }, { x: 1.5, y: 1.3 }], // in order
+            //  landingZones: [{ x: 0, y: 1 }, { x: -2.4, y: 1.4, z: -30 }, { x: 1.5, y: 1.3 },], // in order
             gui: new dat.GUI(),
             loading: true,
             flapSettings: {
@@ -129,13 +146,8 @@ export default {
             gsap.set(this.butterfly.scale, { x: 0.44, y: 0.44, z: 0.44 })
             gsap.set(this.butterfly.getObjectByName('wingLeft').rotation, { z: 0 })
         },
-        addRotations(i) {
-            if (i == 0) {
-                // this.butterflyA.rotation = gsap.timeline({ repeat: -1, repeatDelay: 0.1 });
 
-            }
-        },
-        loadButterFly(butterFly, index, startDelay, restDelay) {
+        loadButterFly(butterFly, index, startDelay, restDelay, path) {
             butterFly.model = this.loadedScene.scene.clone()
             butterFly.model.visible = true
             butterFly.model.name = 'Butterfly-' + index
@@ -148,11 +160,24 @@ export default {
             butterFly.model.rotation.x = -30
             butterFly.model.rotation.y = -3.14
             this.scene.add(butterFly.model)
+
+            // create curve 
+            const curve = new Three.SplineCurve();
+            this.paths[path].forEach(element => {
+                curve.points.push(new Three.Vector2(element.x, element.y))
+            })
+            const points = curve.getPoints(50);
+            const geometry2 = new Three.BufferGeometry().setFromPoints(points);
+            const material2 = new Three.LineBasicMaterial({ color: 0xff0000 });
+            this.curve1.points = points
+            this.curve1.curve = new Three.Line(geometry2, material2);
+            this.scene.add(this.curve1.curve)
+
             // load inital 
             if (this.allDesigns[index] && this.allDesigns[index].image) {
                 this.changeWingsAll(butterFly)
             }
-            this.addRotations(index)
+
             // Wings
             butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
                 z: -1,
@@ -169,6 +194,7 @@ export default {
                 duration: 0.05,
                 yoyo: true
             }, 0)
+
             // body
             // butterFly.flapTl.fromTo(butterFly.model.rotation, {
             //     y: -2.7,
@@ -179,37 +205,36 @@ export default {
             //     yoyo: true,
             //     ease: 'none'
             // })
-            // SCENE 1 - enter
 
+            // SCENE 1 - enter
             butterFly.timeLine.to(butterFly.model.position, {
-                //   z: 0,
                 motionPath: {
-                    path: this.paths[index].enter,
+                    path: this.paths[path],
                     autoRotate: true,
                     useRadians: true,
 
                 },
                 delay: startDelay,
-
                 duration: 2,
-                // console.log(butterFly.timeLine['_recent']['_targets'][0]['rotation'])
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
                 onComplete: () => butterFly.flapTl.timeScale(0.01),
             })
 
             // SCENE 2 - fly away
-            butterFly.timeLine.to(butterFly.model.position, {
-                motionPath: {
-                    path: this.paths[index].leave,
-                    autoRotate: true,
-                    useRadians: true
-                },
-                delay: restDelay,
-                duration: 2,
-                onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
-                onStart: () => butterFly.flapTl.timeScale(1),
-                onComplete: () => this.changeWingsAll(butterFly),
-            })
+            // butterFly.timeLine.to(butterFly.model.position, {
+            //     motionPath: {
+            //         path: this.paths,
+            //         start: 1,
+            //         autoRotate: true,
+            //         useRadians: true
+            //     },
+            //     delay: restDelay,
+            //     duration: 2,
+            //     onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
+            //     onStart: () => butterFly.flapTl.timeScale(1),
+            //     onComplete: () => this.changeWingsAll(butterFly),
+            // })
+
         },
         init() {
             let container = document.getElementById('container');
@@ -230,9 +255,9 @@ export default {
             this.scene.add(this.butterfly);
             this.butterfly.visible = false
             this.originalPosition()
-            this.loadButterFly(this.butterflyA, 0, 2, 3) // index, start delay, rest delay
-            this.loadButterFly(this.butterflyB, 1, 1, 3) // index, start delay, rest delay
-            this.loadButterFly(this.butterflyC, 2, 1, 5) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyA, 0, 2, 3, 'path1') // index, start delay, rest delay
+            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path3') // index, start delay, rest delay
+            this.loadButterFly(this.butterflyC, 2, 1, 5, 'path2') // index, start delay, rest delay
             // bounding
             const geometry = new Three.BoxGeometry(10.000, 5.380, 1);
             const material = new Three.MeshBasicMaterial({
@@ -261,6 +286,7 @@ export default {
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
             this.hideShow()
+
         },
         wingSize(butterFly, main) {
             let size = this.allDesigns[0].wing
@@ -333,7 +359,7 @@ export default {
             this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, duration: 1, delay: 1 }, 1)
             this.mainTl.to(this.butterfly.position, {
                 motionPath: {
-                    path: this.paths[0].enter,
+                    path: this.paths[0],
                     autoRotate: true
                 },
                 delay: 0.8,
@@ -371,24 +397,7 @@ export default {
             this.allDesigns[2] ? this.butterflyC.model.visible = true : this.butterflyC.model.visible = false
         }
     },
-    computed: {
-        paths() {
-            let paths = [{
-                    enter: [{ x: 0, y: 0, }, this.landingZones[0]],
-                    leave: [this.landingZones[0], { x: 0, y: 5 }]
-                },
-                {
-                    enter: [{ x: -2, y: 0, }, this.landingZones[1]],
-                    leave: [this.landingZones[1], { x: 0, y: 5, }]
-                },
-                {
-                    enter: [{ x: -2, y: 0, }, this.landingZones[2]],
-                    leave: [this.landingZones[2], { x: 0, y: 5, }]
-                }
-            ]
-            return paths
-        },
-    },
+
     watch: {
         allDesigns(updated) {
             this.switchWings()
@@ -404,13 +413,9 @@ export default {
         }
     },
     mounted() {
-        //alert('add camera cntroler')
         this.switchWings()
         this.init();
-        //  alert('todo, set textureoffsets, option for no flys yet, curve directions, hide new first time')
         this.animate();
-        //setTimeout(() => {
-        //   }, 1000);
         const size = this.gui.addFolder('Size')
         size.add(this.butterfly.getObjectByName('wingLeft').scale, 'x', 0, 10, 0.1)
         size.add(this.butterfly.getObjectByName('wingLeft').scale, 'y', 0, 10, 0.1)
@@ -422,25 +427,6 @@ export default {
         const rot = this.gui.addFolder('Rotation')
         rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'x', -3, 3, 0.1)
         rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'y', -3, 3, 0.1)
-        //  rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'z', -3, 3).onChange(this.changeRot);
-        // const rot = this.gui.addFolder('Rotation')
-        // rot.add(this.butterfly.rotation, 'y', -10, 10)
-        // rot.add(this.butterfly.rotation, 'z', -10, 10)
-        // const wing = this.gui.addFolder('Move wing upper')
-        // wing.add(this.butterfly.getObjectByName('wing_upperR').rotation, 'z', -10, 10)
-        // const wingLow = this.gui.addFolder('Move wing lower')
-        // wingLow.add(this.butterfly.getObjectByName('wing_lowerR').rotation, 'x', -10, 10)
-        // wingLow.add(this.butterfly.getObjectByName('wing_lowerR').rotation, 'y', -10, 10)
-        // wingLow.add(this.butterfly.getObjectByName('wing_lowerR').rotation, 'z', -10, 10)
-        // wingLow.add(this.butterfly.getObjectByName('wing_lower2R').rotation, 'x', -10, 10)
-        // wingLow.add(this.butterfly.getObjectByName('wing_lower2R').position, 'x', -10, 10)
-        // gsap.to(this.butterfly.rotation, {
-        //     //   y: '10%',
-        //     repeat: -1,
-        //     yoyo: true,
-        //     y: 3,
-        //     duration: 2,
-        // });
     }
 }
 </script>
@@ -475,5 +461,13 @@ export default {
     color: #fff;
     padding: 10px;
     width: 100%;
+}
+
+.node {
+    position: fixed;
+    height: 10px;
+    width: 10px;
+    z-index: 9999;
+    background-color: orangered;
 }
 </style>
