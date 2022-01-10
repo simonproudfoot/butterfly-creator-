@@ -1,9 +1,9 @@
 <template>
 <div id="app">
-    <div class="key" style="display:"> 
+    <!-- <div class="key" style="display:"> 
         Current
         <img v-for="(img, i) in butterFlys" :src="img.image" :key="i" :alt="img.wing" />
-    </div>
+    </div> -->
     <div class="zoomOut creator" v-if="scene" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1 mb-1" style="color: #7392a6">Choose your butterfly</h1>

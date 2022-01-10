@@ -4,7 +4,6 @@
     <div id="container" class="container">
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
-
     </div>
 </div>
 </template>
@@ -355,12 +354,15 @@ export default {
             this.butterflyB.timeLine.repeat(0)
             this.butterflyB.timeLine.to(this.butterflyB.model.position, { y: 9, duration: 3 })
             this.butterflyB.timeLine.play()
+
             this.mainTl.play()
+
             this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: 2, yoyo: true });
             this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: 2, yoyo: true }, 0)
             this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { delay: 0.8, z: -0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
             this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { delay: 0.8, z: 0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
             this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, duration: 1, delay: 1 }, 1)
+
             this.mainTl.to(this.butterfly.position, {
                 motionPath: {
                     path: this.paths['path2'],
@@ -384,11 +386,11 @@ export default {
             })
         },
         resetOrig() {
+
             this.butterfly.visible = false
             this.mainTl.pause(0)
             this.originalPosition()
             this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.4) // MAIN! index, start delay, rest delay 
-            //  this.loadButterFly(this.butterflyB, 1, 1, 3, ') /
         },
         switchWings() {
             this.allDesigns[0] ? this.butterflyB.image = this.allDesigns[0].image : null
