@@ -33,7 +33,8 @@
                     </div>
                 </div>
             </div>
-            <button v-if="wingSelected" class="saveButton" @click="save">
+
+            <button v-if="wingSelected && showGoButton" class="saveButton" @click="save">
                 <img :src="require('@/assets/fly.svg')">
                 <h3>Fly away!</h3>
             </button>
@@ -45,7 +46,7 @@
     </div>
     <h1 v-else class="loading">Loading</h1>
 
-    <butterFlyModel :allDesigns="butterFlys" v-on:event_child="reset" v-if="scene && sceneLoop1" :wingDesign="currentImage" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" :loopA="sceneLoop1" />
+    <butterFlyModel v-on:animPlaying="animPlaying" :allDesigns="butterFlys" v-if="scene && sceneLoop1" :wingDesign="currentImage" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" :loopA="sceneLoop1" />
 </div>
 </template>
 
@@ -60,6 +61,7 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
+            showGoButton: true,
             imageDimension: {
                 height: 790 * 2,
                 width: 1080 * 2
@@ -120,6 +122,11 @@ export default {
         };
     },
     methods: {
+        animPlaying(val) {
+
+            this.showGoButton = val
+
+        },
         shadeColor(color, percent) {
             var R = parseInt(color.substring(1, 3), 16);
             var G = parseInt(color.substring(3, 5), 16);

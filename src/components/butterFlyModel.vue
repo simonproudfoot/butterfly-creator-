@@ -19,7 +19,7 @@ export default {
     name: 'ThreeTest',
     data() {
         return {
-            mainAnimStarted: false,
+            mainAnimationActive: false,
             paths: {
                 path1: [
                     { x: -3, y: -1, }, { x: -1.4, y: 3 }, { x: -3, y: 6 }
@@ -289,7 +289,7 @@ export default {
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
-            this.hideShow()
+            //   this.hideShow()
 
         },
         wingSize(butterFly, main) {
@@ -351,19 +351,16 @@ export default {
             })
         },
         moveAlong() {
+            this.$emit('animPlaying', false)
             this.butterflyB.timeLine.clear()
             this.butterflyB.timeLine.repeat(0)
             this.butterflyB.timeLine.to(this.butterflyB.model.position, { y: 9, duration: 3 })
             this.butterflyB.timeLine.play()
-
             this.mainTl.play()
-
-            if (!this.mainAnimStarted) {
-                this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: 2, yoyo: true });
-                this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: 2, yoyo: true }, 0)
-                this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { delay: 0.8, z: -0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
-                this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { delay: 0.8, z: 0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
-            }
+            this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: 2, yoyo: true });
+            this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: 2, yoyo: true }, 0)
+            this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { delay: 0.8, z: -0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
+            this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { delay: 0.8, z: 0.1, repeat: -1, duration: 0.05, yoyo: true }, 1);
             this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, duration: 1, delay: 1 }, 1)
             this.mainTl.to(this.butterfly.position, {
                 motionPath: {
@@ -388,11 +385,11 @@ export default {
             })
         },
         resetOrig() {
-            this.mainAnimStarted = true
             this.butterfly.visible = false
             this.mainTl.pause(0)
             this.originalPosition()
             this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.4) // MAIN! index, start delay, rest delay 
+            this.$emit('animPlaying', true)
         },
         switchWings() {
             this.allDesigns[0] ? this.butterflyB.image = this.allDesigns[0].image : null
@@ -411,6 +408,7 @@ export default {
     },
 
     watch: {
+     
         allDesigns(updated) {
             this.switchWings()
         },
@@ -425,9 +423,13 @@ export default {
         }
     },
     mounted() {
+
         this.switchWings()
         this.init();
         this.animate();
+
+     
+
         // const size = this.gui.addFolder('Size')
         // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'x', 0, 10, 0.1)
         // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'y', 0, 10, 0.1)
