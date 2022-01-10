@@ -11,7 +11,7 @@
 
 <script>
 import * as Three from 'three'
-import * as dat from 'dat.gui';
+//import * as dat from 'dat.gui';
 import { gsap, MotionPathPlugin } from "gsap/all";
 gsap.registerPlugin(MotionPathPlugin);
 
@@ -22,13 +22,13 @@ export default {
         return {
             paths: {
                 path1: [
-                    { x: -3, y: 0, }, { x: -1.4, y: 3 }, { x: -3, y: 5 }
+                    { x: -3, y: -1, }, { x: -1.4, y: 3 }, { x: -3, y: 6 }
                 ],
                 path2: [
-                    { x: 0, y: 0, }, { x: 0.4, y: 1.8 }, { x: 0.2, y: 5 }
+                    { x: 0, y: -1, }, { x: 0.4, y: 1.8 }, { x: 0.2, y: 6 }
                 ],
                 path3: [
-                    { x: 3, y: 0, }, { x: 2, y: 3 }, { x: 2, y: 5 }
+                    { x: 3, y: -1, }, { x: 2, y: 3 }, { x: 2, y: 6 }
                 ]
             },
             mainTl: gsap.timeline({ paused: true }),
@@ -38,7 +38,7 @@ export default {
             },
             butterflyScale: 0.20,
             //  landingZones: [{ x: 0, y: 1 }, { x: -2.4, y: 1.4, z: -30 }, { x: 1.5, y: 1.3 },], // in order
-            gui: new dat.GUI(),
+            //  gui: new dat.GUI(),
             loading: true,
             flapSettings: {
                 z: -1,
@@ -147,7 +147,7 @@ export default {
             gsap.set(this.butterfly.getObjectByName('wingLeft').rotation, { z: 0 })
         },
 
-        loadButterFly(butterFly, index, startDelay, restDelay, path) {
+        loadButterFly(butterFly, index, startDelay, restDelay, path, stopAt) {
             butterFly.model = this.loadedScene.scene.clone()
             butterFly.model.visible = true
             butterFly.model.name = 'Butterfly-' + index
@@ -163,9 +163,11 @@ export default {
 
             // create curve 
             const curve = new Three.SplineCurve();
+
             this.paths[path].forEach(element => {
                 curve.points.push(new Three.Vector2(element.x, element.y))
             })
+
             const points = curve.getPoints(50);
             const geometry2 = new Three.BufferGeometry().setFromPoints(points);
             const material2 = new Three.LineBasicMaterial({ color: 0xff0000 });
@@ -212,6 +214,7 @@ export default {
                     path: this.paths[path],
                     autoRotate: true,
                     useRadians: true,
+                    end: stopAt
 
                 },
                 delay: startDelay,
@@ -221,19 +224,20 @@ export default {
             })
 
             // SCENE 2 - fly away
-            // butterFly.timeLine.to(butterFly.model.position, {
-            //     motionPath: {
-            //         path: this.paths,
-            //         start: 1,
-            //         autoRotate: true,
-            //         useRadians: true
-            //     },
-            //     delay: restDelay,
-            //     duration: 2,
-            //     onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
-            //     onStart: () => butterFly.flapTl.timeScale(1),
-            //     onComplete: () => this.changeWingsAll(butterFly),
-            // })
+            butterFly.timeLine.to(butterFly.model.position, {
+                motionPath: {
+                    path: this.paths[path],
+                    start: stopAt,
+                    fromCurrent: true,
+                    autoRotate: true,
+                    useRadians: true
+                },
+                delay: restDelay,
+                duration: 2,
+                onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
+                onStart: () => butterFly.flapTl.timeScale(1),
+                onComplete: () => this.changeWingsAll(butterFly),
+            })
 
         },
         init() {
@@ -255,9 +259,9 @@ export default {
             this.scene.add(this.butterfly);
             this.butterfly.visible = false
             this.originalPosition()
-            this.loadButterFly(this.butterflyA, 0, 2, 3, 'path1') // index, start delay, rest delay
-            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path3') // index, start delay, rest delay
-            this.loadButterFly(this.butterflyC, 2, 1, 5, 'path2') // index, start delay, rest delay
+            this.loadButterFly(this.butterflyA, 0, 2, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
+            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.4) // MAIN! index, start delay, rest delay 
+            this.loadButterFly(this.butterflyC, 2, 1, 5, 'path3', 0.6) // index, start delay, rest delay
             // bounding
             const geometry = new Three.BoxGeometry(10.000, 5.380, 1);
             const material = new Three.MeshBasicMaterial({
@@ -285,7 +289,7 @@ export default {
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
-            this.hideShow()
+            //   this.hideShow()
 
         },
         wingSize(butterFly, main) {
@@ -347,10 +351,10 @@ export default {
             })
         },
         moveAlong() {
-            this.butterflyA.timeLine.clear()
-            this.butterflyA.timeLine.repeat(0)
-            this.butterflyA.timeLine.to(this.butterflyA.model.position, { y: 9, duration: 3 })
-            this.butterflyA.timeLine.play()
+            this.butterflyB.timeLine.clear()
+            this.butterflyB.timeLine.repeat(0)
+            this.butterflyB.timeLine.to(this.butterflyB.model.position, { y: 9, duration: 3 })
+            this.butterflyB.timeLine.play()
             this.mainTl.play()
             this.mainTl.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: 2, yoyo: true });
             this.mainTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: 2, yoyo: true }, 0)
@@ -359,17 +363,20 @@ export default {
             this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, duration: 1, delay: 1 }, 1)
             this.mainTl.to(this.butterfly.position, {
                 motionPath: {
-                    path: this.paths[0],
-                    autoRotate: true
+                    path: this.paths['path2'],
+                    useRadians: true,
+                    autoRotate: true,
+                    end: 0.4
                 },
                 delay: 0.8,
                 duration: 2,
             }, 1)
             this.mainTl.to(this.butterfly.position, {
                 motionPath: {
-                    path: this.paths[0].leave,
-                    alignOrigin: [0, 0],
-                    autoRotate: true
+                    path: this.paths['path2'],
+                    useRadians: true,
+                    autoRotate: true,
+                    start: 0.4
                 },
                 delay: 7,
                 duration: 2,
@@ -380,11 +387,12 @@ export default {
             this.butterfly.visible = false
             this.mainTl.pause(0)
             this.originalPosition()
-            this.loadButterFly(this.butterflyA, 0, 2, 3)
+            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.4) // MAIN! index, start delay, rest delay 
+            //  this.loadButterFly(this.butterflyB, 1, 1, 3, ') /
         },
         switchWings() {
-            this.allDesigns[0] ? this.butterflyA.image = this.allDesigns[0].image : null
-            this.allDesigns[1] ? this.butterflyB.image = this.allDesigns[1].image : null
+            this.allDesigns[0] ? this.butterflyB.image = this.allDesigns[0].image : null
+            this.allDesigns[1] ? this.butterflyA.image = this.allDesigns[1].image : null
             this.allDesigns[2] ? this.butterflyC.image = this.allDesigns[2].image : null
         },
         animate() {
@@ -392,6 +400,7 @@ export default {
             this.renderer.render(this.scene, this.camera);
         },
         hideShow() {
+
             this.allDesigns[0] ? this.butterflyA.model.visible = true : this.butterflyA.model.visible = false
             this.allDesigns[1] ? this.butterflyB.model.visible = true : this.butterflyB.model.visible = false
             this.allDesigns[2] ? this.butterflyC.model.visible = true : this.butterflyC.model.visible = false
@@ -416,17 +425,17 @@ export default {
         this.switchWings()
         this.init();
         this.animate();
-        const size = this.gui.addFolder('Size')
-        size.add(this.butterfly.getObjectByName('wingLeft').scale, 'x', 0, 10, 0.1)
-        size.add(this.butterfly.getObjectByName('wingLeft').scale, 'y', 0, 10, 0.1)
-        size.add(this.butterfly.getObjectByName('wingLeft').scale, 'z', 0, 10, 0.1)
-        const pos = this.gui.addFolder('Position')
-        pos.add(this.butterfly.getObjectByName('wingLeft').position, 'x', -3, 3, 0.1)
-        pos.add(this.butterfly.getObjectByName('wingLeft').position, 'y', -3, 3, 0.1)
-        pos.add(this.butterfly.getObjectByName('wingLeft').position, 'z', -3, 3, 0.1)
-        const rot = this.gui.addFolder('Rotation')
-        rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'x', -3, 3, 0.1)
-        rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'y', -3, 3, 0.1)
+        // const size = this.gui.addFolder('Size')
+        // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'x', 0, 10, 0.1)
+        // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'y', 0, 10, 0.1)
+        // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'z', 0, 10, 0.1)
+        // const pos = this.gui.addFolder('Position')
+        // pos.add(this.butterfly.getObjectByName('wingLeft').position, 'x', -3, 3, 0.1)
+        // pos.add(this.butterfly.getObjectByName('wingLeft').position, 'y', -3, 3, 0.1)
+        // pos.add(this.butterfly.getObjectByName('wingLeft').position, 'z', -3, 3, 0.1)
+        // const rot = this.gui.addFolder('Rotation')
+        // rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'x', -3, 3, 0.1)
+        // rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'y', -3, 3, 0.1)
     }
 }
 </script>

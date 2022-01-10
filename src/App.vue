@@ -1,6 +1,6 @@
 <template>
 <div id="app">
-    <div class="key" style="display: none"> 
+    <div class="key" style="display:"> 
         Current
         <img v-for="(img, i) in butterFlys" :src="img.image" :key="i" :alt="img.wing" />
     </div>
