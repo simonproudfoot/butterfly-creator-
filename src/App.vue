@@ -4,6 +4,7 @@
         Current
         <img v-for="(img, i) in butterFlys" :src="img.image" :key="i" :alt="img.wing" />
     </div> -->
+    <!-- <video class="attractor" autoplay muted loop :src="require('@/assets/attractor.mp4')" @click="showGoButton=true"></video> -->
     <div class="zoomOut creator" v-if="scene" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1 mb-1" style="color: #7392a6">Choose your butterfly</h1>
@@ -34,14 +35,16 @@
                 </div>
             </div>
 
-            <button v-if="wingSelected && showGoButton" class="saveButton" @click="save">
+            <button v-if="wingSelected" class="saveButton saveButtonReady" @click="save">
                 <img :src="require('@/assets/fly.svg')">
-                <h3>Fly away!</h3>
+                <h3 v-if="showGoButton">Fly away!</h3>
+                <h3 v-else style="left: 47px">Please wait</h3>
             </button>
-            <button v-if="!scene" class="saveButton">
+
+            <!-- <button v-if="!scene" class="saveButton">
                 LOADING MODEL <br />
                 <small>online example only</small>
-            </button>
+            </button> -->
         </div>
     </div>
     <h1 v-else class="loading">Loading</h1>
@@ -123,9 +126,13 @@ export default {
     },
     methods: {
         animPlaying(val) {
-
-            this.showGoButton = val
-
+            if (val == false) {
+                setTimeout(() => {
+                    this.showGoButton = false
+                }, 3000);
+            } else {
+                this.showGoButton = true
+            }
         },
         shadeColor(color, percent) {
             var R = parseInt(color.substring(1, 3), 16);
@@ -190,46 +197,48 @@ export default {
 
         },
         save() {
-            gsap.to('.pallet', { x: -20, opacity: 0, duration: 1 })
-            gsap.to('.brushes', { x: 20, opacity: 0, duration: 1 })
-            gsap.to('.saveButton', { y: -20, opacity: 0, duration: 1 })
-            gsap.to('.zoomOut', { opacity: 0, scale: 0.9, duration: 1, delay: 2 })
-            this.ctx.globalCompositeOperation = "destination-over";
-            this.ctx.fillStyle = '#000';
-            // draw background/rectangle on entire canvas
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            var tempCanvas = document.createElement("canvas");
-            var tCtx = tempCanvas.getContext("2d");
-            tCtx.imageSmoothingQuality = 'high'
-            tempCanvas.width = this.canvasBack.width / 2;
-            tempCanvas.height = this.canvasBack.height;
-            tCtx.drawImage(this.canvasBack, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
-            tCtx.globalCompositeOperation = "source-atop";
-            tCtx.drawImage(this.canvas, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
-            var img = tempCanvas.toDataURL("image/svg");
-            this.currentImage = img;
-            // go go got
-            if (!this.showFinished) {
+            if (this.showGoButton) {
+                gsap.to('.pallet', { x: -20, opacity: 0, duration: 1 })
+                gsap.to('.brushes', { x: 20, opacity: 0, duration: 1 })
+                gsap.to('.saveButtonReady', { y: -20, opacity: 0, duration: 1 })
+                gsap.to('.zoomOut', { opacity: 0, scale: 0.9, duration: 1, delay: 2 })
+                this.ctx.globalCompositeOperation = "destination-over";
+                this.ctx.fillStyle = '#000';
+                // draw background/rectangle on entire canvas
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                var tempCanvas = document.createElement("canvas");
+                var tCtx = tempCanvas.getContext("2d");
+                tCtx.imageSmoothingQuality = 'high'
+                tempCanvas.width = this.canvasBack.width / 2;
+                tempCanvas.height = this.canvasBack.height;
+                tCtx.drawImage(this.canvasBack, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
+                tCtx.globalCompositeOperation = "source-atop";
+                tCtx.drawImage(this.canvas, 0, 0, this.canvasBack.width - 50, this.canvasBack.height - 50);
+                var img = tempCanvas.toDataURL("image/svg");
+                this.currentImage = img;
+                // go go got
+                if (!this.showFinished) {
 
-                let currentCreation = { image: this.currentImage, wing: this.wingSelected.toString(), id: Math.floor(Math.random() * 10).toString() }
+                    let currentCreation = { image: this.currentImage, wing: this.wingSelected.toString(), id: Math.floor(Math.random() * 10).toString() }
 
-                this.butterFlys.unshift(currentCreation);
-                if (this.butterFlys.length > 3) {
-                    this.butterFlys.pop();
+                    this.butterFlys.unshift(currentCreation);
+                    if (this.butterFlys.length > 3) {
+                        this.butterFlys.pop();
+                    }
+                    this.isActive = false;
+                    this.showFinished = true;
+
+                    setTimeout(() => {
+                        localStorage.setItem("previous", JSON.stringify(this.butterFlys));
+                    }, 1000);
                 }
-                this.isActive = false;
-                this.showFinished = true;
-
                 setTimeout(() => {
-                    localStorage.setItem("previous", JSON.stringify(this.butterFlys));
-                }, 1000);
+                    gsap.to('.zoomOut', { scale: 1, opacity: 1 })
+                    this.refresh++
+                    this.wingSelected = 0
+                    this.showFinished = false
+                }, 3500);
             }
-            setTimeout(() => {
-                gsap.to('.zoomOut', { scale: 1, opacity: 1 })
-                this.refresh++
-                this.wingSelected = 0
-                this.showFinished = false
-            }, 3500);
         },
         selectColor(color) {
             this.color = color;
@@ -385,6 +394,14 @@ h3 {
 
 .creator {
     margin-top: 1080px;
+}
+
+.attractor {
+    margin-top: 1080px;
+    height: 1080px;
+    position: absolute;
+    left: 0;
+    width: 1920px;
 }
 
 .choose,
