@@ -175,7 +175,7 @@ export default {
 
             const points = curve.getPoints(50);
             const geometry2 = new Three.BufferGeometry().setFromPoints(points);
-            const material2 = new Three.LineBasicMaterial();
+            const material2 = new Three.LineBasicMaterial({ visible: false });
             this.curve1.points = points
             this.curve1.curve = new Three.Line(geometry2, material2);
             this.scene.add(this.curve1.curve)
