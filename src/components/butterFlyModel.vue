@@ -341,6 +341,7 @@ export default {
             }
             //  this.changeFlap(butterFly, true)
             // SCENE 1 - enter
+    
             butterFly.timeLine.set(butterFly.model.position, { y: -4 })
             butterFly.timeLine.to(butterFly.model.position, {
                 motionPath: {
@@ -351,9 +352,9 @@ export default {
                     fromCurrent: true,
                 },
                 delay: Math.floor(Math.random() * 20) + 5,
-                ease: "none", //do this
+                ease: "Power1.easeOut", //do this
                 immediateRender: true,
-                duration: 2,
+                duration: path == 'path5' ? 3 : 2,
                 onStart: () => this.changeFlap(butterFly, true, false),
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
                 onComplete: () => this.changeFlap(butterFly, false, false),
@@ -361,6 +362,7 @@ export default {
 
             // SCENE 2 - fly away
             butterFly.timeLine.to(butterFly.model.position, {
+                z: 5,
                 motionPath: {
                     path: this.paths[path],
                     start: stopAt,
@@ -368,7 +370,7 @@ export default {
                     useRadians: true,
                     fromCurrent: true
                 },
-                ease: "none",
+                 ease: "Power1.easeIn", //do this
                 immediateRender: true,
                 delay: Math.floor(Math.random() * 20) + 5,
                 duration: 2,
