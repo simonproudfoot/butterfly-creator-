@@ -48,12 +48,17 @@
         </div>
     </div>
     <h1 v-else class="loading">Loading</h1>
-
     <butterFlyModel v-on:animPlaying="animPlaying" :allDesigns="butterFlys" v-if="scene && sceneLoop1" :wingDesign="currentImage" :wingSelected="wingSelected" :final="true" :index="'main'" :loadedScene="scene" :ready="showFinished" :loopA="sceneLoop1" />
 </div>
 </template>
 
 <script>
+import Vue from 'vue'
+// import IdleVue from 'idle-vue'
+// Vue.use(IdleVue, {
+//   eventEmitter: eventsHub,
+//   idleTime: 10000
+// })
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import butterFlyModel from "./components/butterFlyModel";
 import gsap from "gsap";
@@ -281,6 +286,11 @@ export default {
         },
         onHold() {
             console.log('go')
+        }
+    },
+    computed: {
+        messageStr() {
+            return this.isAppIdle ? 'ZZZ' : 'Hello'
         }
     },
     watch: {

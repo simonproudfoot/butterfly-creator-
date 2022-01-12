@@ -20,6 +20,8 @@ export default {
     data() {
         return {
             mainAnimationActive: false,
+            premadeimages: [require('@/assets/4x/premade1@4x.png'), require('@/assets/4x/premade2@4x.png'), require('@/assets/4x/premade3@4x.png'), require('@/assets/4x/premade4@4x.png'), require('@/assets/4x/premade5@4x.png')],
+
             paths: {
                 path1: [
                     { x: 0, y: -1, }, { x: -2, y: -1, }, { x: -1.4, y: 3 }, { x: -3, y: 6 }
@@ -28,6 +30,12 @@ export default {
                     { x: 0, y: -1, }, { x: 0.3, y: 1.8 }, { x: 2, y: 6 }
                 ],
                 path3: [
+                    { x: 0, y: -1, }, { x: 3, y: -1, }, { x: 2, y: 3 }, { x: 2, y: 6 }
+                ],
+                path4: [
+                    { x: 0, y: -1, }, { x: 3, y: -1, }, { x: 2, y: 3 }, { x: 2, y: 6 }
+                ],
+                path5: [
                     { x: 0, y: -1, }, { x: 3, y: -1, }, { x: 2, y: 3 }, { x: 2, y: 6 }
                 ]
             },
@@ -79,6 +87,20 @@ export default {
                 image: null,
                 rotation: null,
             },
+            butterflyD: {
+                model: null,
+                timeLine: null,
+                flapTl: null,
+                image: null,
+                rotation: null,
+            },
+            butterflyE: {
+                model: null,
+                timeLine: null,
+                flapTl: null,
+                image: null,
+                rotation: null,
+            },
             alphaMapImageUlr: require('@/assets/test.png'),
             curve: null,
             points: null,
@@ -94,7 +116,7 @@ export default {
         }
     },
     methods: {
-        changeWing(item, main) {
+        changeWing(item, main, premade) {
             let image;
             let model;
             let wing;
@@ -108,6 +130,19 @@ export default {
                     model = item.model
                     wing = item.wing
                 }
+
+                let random = Math.floor(Math.random() * 5);
+                if (premade) {
+                    image = this.premadeimages[random]
+                    if (random == 3 || random == 5) {
+                        wing = 3
+                    } else if (random == 1) {
+                        wing = 2
+                    } else {
+                        wing = 1
+                    }
+                }
+
                 const texture = new Three.TextureLoader().load(image);
                 const texture2 = new Three.TextureLoader().load(image);
                 if (texture.onUpdate) {
@@ -130,6 +165,7 @@ export default {
                 material.map.flipY = false
                 material.map.center = new Three.Vector2(0.5, 0.5);
                 material.map.rotation = Math.PI
+                console.log(model.getObjectByName('wingLeft'))
                 model.getObjectByName('wingLeft').material = material
                 const material2 = new Three.MeshBasicMaterial({ map: texture2, side: Three.DoubleSide, alphaTest: 0.5 })
                 material2.map.center = new Three.Vector2(0.5, 0.5);
@@ -141,9 +177,14 @@ export default {
             }
         },
         changeWingsAll(butterFly) {
+            console.log(butterFly.model.name)
+            if (butterFly.model.name == "Butterfly-3" || butterFly.model.name == "Butterfly-4") {
+                this.changeWing(butterFly, false, true)
+            } else {
+                this.changeWing(butterFly)
+                this.wingSize(butterFly)
+            }
 
-            this.changeWing(butterFly)
-            this.wingSize(butterFly)
             //  this.hideShow();
         },
         originalPosition() {
@@ -270,7 +311,7 @@ export default {
 
             const points = curve.getPoints(50);
             const geometry2 = new Three.BufferGeometry().setFromPoints(points);
-            const material2 = new Three.LineBasicMaterial({ visible: false, color: 'pink' });
+            const material2 = new Three.LineBasicMaterial({ visible: true, color: 'pink' });
             this.curve1.points = points
             this.curve1.curve = new Three.Line(geometry2, material2);
             this.scene.add(this.curve1.curve)
@@ -310,7 +351,7 @@ export default {
                 },
                 ease: "none",
                 immediateRender: true,
-                delay: 20,
+                delay: 1,
                 duration: 2,
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
                 onStart: () => this.changeFlap(butterFly, true),
@@ -337,9 +378,16 @@ export default {
             this.scene.add(this.butterfly);
             this.butterfly.visible = false
             this.originalPosition()
-            this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
+            // this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
             this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35) // MAIN! index, start delay, rest delay 
-            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.6) // index, start delay, rest delay
+            // this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.6) // index, start delay, rest delay
+
+            this.loadButterFly(this.butterflyD, 3, 2, 5, 'path2', 0.6) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyE, 3, 1, 5, 'path1', 0.6) // index, start delay, rest delay
+
+            this.changeWing(this.butterflyD, false, true)
+            this.changeWing(this.butterflyE, false, true)
+
             // boundingfs
             const geometry = new Three.BoxGeometry(10.000, 5.380, 1);
             const material = new Three.MeshBasicMaterial({
@@ -367,7 +415,7 @@ export default {
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
-            this.hideShow()
+            //  this.hideShow()
 
         },
         wingSize(butterFly, main) {
