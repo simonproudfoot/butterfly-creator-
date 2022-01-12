@@ -157,49 +157,97 @@ export default {
 
         },
 
-        changeFlap(butterFly, fast) {
-            if (butterFly.flapTl && butterFly.flapTl.isActive()) {
-                butterFly.flapTl.kill()
-            }
+        changeFlap(butterFly, fast, main, mainStart) {
+            if (!main) {
+                if (butterFly.flapTl && butterFly.flapTl.isActive()) {
+                    butterFly.flapTl.kill()
+                }
 
-            butterFly.flapTl = gsap.timeline({ paused: true, smoothChildTiming: true, repeat: -1, yoyo: true });
-            console.log(butterFly.flapTl)
-            butterFly.model.getObjectByName('wingRight').rotation.z = 0
-            butterFly.model.getObjectByName('wingLeft').rotation.z = 0
+                butterFly.flapTl = gsap.timeline({ paused: true, smoothChildTiming: true, repeat: -1, yoyo: true });
 
-            if (fast) {
-                butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
-                    z: -1,
-                    duration: 0.1,
-                }, 0)
-                butterFly.flapTl.to(butterFly.model.getObjectByName('wingLeft').rotation, {
-                    z: 1,
-                    duration: 0.1,
-                }, 0)
+                butterFly.model.getObjectByName('wingRight').rotation.z = 0
+                butterFly.model.getObjectByName('wingLeft').rotation.z = 0
 
+                if (fast) {
+                    butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
+                        z: -1,
+                        duration: 0.1,
+                    }, 0)
+                    butterFly.flapTl.to(butterFly.model.getObjectByName('wingLeft').rotation, {
+                        z: 1,
+                        duration: 0.1,
+                    }, 0)
+
+                } else {
+                    butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
+                        z: 0,
+                        delay: 2,
+                        duration: 1,
+                    }, 0)
+                    butterFly.flapTl.to(butterFly.model.getObjectByName('wingLeft').rotation, {
+                        z: 0,
+                        delay: 2,
+                        duration: 1,
+                    }, 0)
+
+                    butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
+                        z: -0.5,
+                        duration: 1,
+
+                    }, 1)
+                    butterFly.flapTl.to(butterFly.model.getObjectByName('wingLeft').rotation, {
+                        z: 0.5,
+                        duration: 1,
+                    }, 1)
+                }
+                butterFly.flapTl.play(0)
             } else {
-                butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
-                    z: 0,
-                    delay: 2,
-                    duration: 1,
-                }, 0)
-                butterFly.flapTl.to(butterFly.model.getObjectByName('wingLeft').rotation, {
-                    z: 0,
-                    delay: 2,
-                    duration: 1,
-                }, 0)
 
-                butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
-                    z: -0.5,
-                    duration: 1,
+                if (this.mainFlapTl && this.mainFlapTl.isActive()) {
+                    this.mainFlapTl.kill()
+                }
 
-                }, 1)
-                butterFly.flapTl.to(butterFly.model.getObjectByName('wingLeft').rotation, {
-                    z: 0.5,
-                    duration: 1,
-                }, 1)
+                this.mainFlapTl = gsap.timeline({ paused: true, smoothChildTiming: true, repeat: -1, yoyo: true });
+                this.butterfly.getObjectByName('wingRight').rotation.z = 0
+                this.butterfly.getObjectByName('wingLeft').rotation.z = 0
+
+                if (fast) {
+                    this.mainFlapTl.to(this.butterfly.getObjectByName('wingRight').rotation, {
+                        z: -1,
+                        duration: 0.1,
+                    }, 0)
+                    this.mainFlapTl.to(this.butterfly.getObjectByName('wingLeft').rotation, {
+                        z: 1,
+                        duration: 0.1,
+                    }, 0)
+
+                } else if (mainStart) {
+                    this.mainFlapTl.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: 2, yoyo: true });
+                    this.mainFlapTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: 2, yoyo: true }, 0)
+                } else {
+                    this.mainFlapTl.to(this.butterfly.getObjectByName('wingRight').rotation, {
+                        z: 0,
+                        delay: 2,
+                        duration: 1,
+                    }, 0)
+                    this.mainFlapTl.to(this.butterfly.getObjectByName('wingLeft').rotation, {
+                        z: 0,
+                        delay: 2,
+                        duration: 1,
+                    }, 0)
+
+                    this.mainFlapTl.to(this.butterfly.getObjectByName('wingRight').rotation, {
+                        z: -0.5,
+                        duration: 1,
+
+                    }, 1)
+                    this.mainFlapTl.to(this.butterfly.getObjectByName('wingLeft').rotation, {
+                        z: 0.5,
+                        duration: 1,
+                    }, 1)
+                }
+                this.mainFlapTl.play(0)
             }
-            butterFly.flapTl.play(0)
         },
 
         loadButterFly(butterFly, index, startDelay, restDelay, path, stopAt) {
@@ -222,7 +270,7 @@ export default {
 
             const points = curve.getPoints(50);
             const geometry2 = new Three.BufferGeometry().setFromPoints(points);
-            const material2 = new Three.LineBasicMaterial({ visible: true, color: 'pink' });
+            const material2 = new Three.LineBasicMaterial({ visible: false, color: 'pink' });
             this.curve1.points = points
             this.curve1.curve = new Three.Line(geometry2, material2);
             this.scene.add(this.curve1.curve)
@@ -246,9 +294,9 @@ export default {
                 ease: "none", //do this
                 immediateRender: true,
                 duration: 2,
-                onStart: () => this.changeFlap(butterFly, true),
+                onStart: () => this.changeFlap(butterFly, true, false),
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
-                onComplete: () => this.changeFlap(butterFly, false),
+                onComplete: () => this.changeFlap(butterFly, false, false),
             })
 
             // SCENE 2 - fly away
@@ -289,9 +337,9 @@ export default {
             this.scene.add(this.butterfly);
             this.butterfly.visible = false
             this.originalPosition()
-            this.loadButterFly(this.butterflyA, 0, 2, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
+            this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
             this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35) // MAIN! index, start delay, rest delay 
-            this.loadButterFly(this.butterflyC, 2, 1, 5, 'path3', 0.6) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.6) // index, start delay, rest delay
             // boundingfs
             const geometry = new Three.BoxGeometry(10.000, 5.380, 1);
             const material = new Three.MeshBasicMaterial({
@@ -382,36 +430,38 @@ export default {
         },
         moveAlong() {
             this.$emit('animPlaying', false)
-            // CLEAR MAIN
             let landTime = 4
-            // clear butterB
             this.butterflyB.timeLine.repeat(0)
             this.butterflyB.timeLine.kill()
-            gsap.to(this.butterflyB.model.position, {
-                y: 7,
-                duration: 2,
-                //  onStart: () =>  this.butterflyB.flapTl.play(0).timeScale(7),
-            })
+
+            console.log(this.butterflyB.timeLine.progress())
+
+            if (this.butterflyB.timeLine && this.butterflyB.timeLine.isActive && this.butterflyB.timeLine.progress() > 0.0600) {
+                gsap.to(this.butterflyB.model.position, {
+                    y: 7,
+                    duration: 2,
+                    onStart: () => this.changeFlap(this.butterflyB, true),
+                    onComplete: () => this.butterflyB.visible = false,
+                    onUpdate: () => console.log(this.butterflyB.timeLine.progress())
+                })
+                gsap.to(this.butterflyB.model.rotation, {
+                    y: Math.PI,
+                    duration: 0.5,
+                })
+            }
 
             // RUN MAIN
-            this.mainTl = gsap.timeline({ paused: false, onStart: () => this.mainAnimationActive = true, onComplete: () => this.mainAnimationActive = false })
-            this.mainFlapTl = gsap.timeline()
-
-            // wake up flap
-            this.mainFlapTl.to(this.butterfly.getObjectByName('wingRight').rotation, { z: -1, duration: 0.5, repeat: -1, yoyo: true });
-            this.mainFlapTl.to(this.butterfly.getObjectByName('wingLeft').rotation, { z: 1, duration: 0.5, repeat: -1, yoyo: true }, 0)
-
+            this.mainTl = gsap.timeline({ paused: false })
+            this.changeFlap(this.butterfly, false, true, true) // butterFly, fast, main, mainStart
             // scale
             this.mainTl.to(this.butterfly.scale, { x: this.butterflyScale, y: this.butterflyScale, z: this.butterflyScale, duration: 1, delay: 1 }, 1)
-
             // move
             this.mainTl.to(this.butterfly.position, {
                 y: 1,
                 delay: 0.8,
                 duration: 2,
-                //  onUpdate: (i) => this.butterfly.rotation.y = this.mainTl['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
-                // onStart: () => this.mainFlapTl.timeScale(8),
-                onComplete: () => this.mainFlapTl.timeScale(0.5),
+                onStart: () => this.changeFlap(this.butterfly, true, true, false),
+                onComplete: () => this.changeFlap(this.butterfly, false, true, false),
             }, 1)
 
             // leave
@@ -419,19 +469,15 @@ export default {
                 y: 5,
                 delay: landTime,
                 duration: 2,
-                onStart: () => this.mainFlapTl.timeScale(8),
+                onStart: () => this.changeFlap(this.butterfly, true, true, false),
                 onComplete: () => this.resetOrig(),
-                onUpdate: (i) => this.butterfly.rotation.y = this.mainTl['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
             })
         },
         resetOrig() {
-
-            this.$emit('animPlaying', true)
-            this.mainFlapTl.pause(0)
             this.butterfly.visible = false
-            this.mainAnimationActive = false
             this.originalPosition()
-            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.4, true) // MAIN! index, start delay, rest delay 
+            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35) // MAIN! index, start delay, rest delay 
+            this.$emit('animPlaying', true)
 
         },
         switchWings() {
