@@ -30,13 +30,13 @@ export default {
                     { x: 0, y: -1, }, { x: 0.3, y: 1.8 }, { x: 2, y: 6 }
                 ],
                 path3: [
-                    { x: 0, y: -1, }, { x: 3, y: -1, }, { x: 2, y: 3 }, { x: 2, y: 6 }
+                    { x: 0, y: -1, }, { x: 0.8, y: -1, }, { x: 1.2, y: 3 }, { x: -2, y: 6 }
                 ],
                 path4: [
-                    { x: 0, y: -1, }, { x: 3, y: -1, }, { x: 2, y: 3 }, { x: 2, y: 6 }
+                    { x: 0, y: -1, }, { x: 1.4, y: -1, }, { x: 3.3, y: 2 }, { x: 2, y: 4 }, { x: 3, y: 6 }
                 ],
                 path5: [
-                    { x: 0, y: -1, }, { x: 3, y: -1, }, { x: 2, y: 3 }, { x: 2, y: 6 }
+                    { x: 0, y: -1, }, { x: -5, y: -1, }, { x: -2, y: 3 }, { x: -3, y: 6 }
                 ]
             },
             flapSpeed: {
@@ -125,13 +125,15 @@ export default {
                     image = this.allDesigns[0].image
                     wing = this.allDesigns[0].wing
                     model = item
+                    this.wingSize(item, this.allDesigns[0].wing)
                 } else {
                     image = item.image
                     model = item.model
                     wing = item.wing
+                    this.wingSize(item, item.wing)
                 }
-
                 let random = Math.floor(Math.random() * 5);
+
                 if (premade) {
                     image = this.premadeimages[random]
                     if (random == 3 || random == 5) {
@@ -141,7 +143,11 @@ export default {
                     } else {
                         wing = 1
                     }
+
+                    this.wingSize(item.model, wing)
                 }
+
+                console.log(item.name + ' is wing ' + wing)
 
                 const texture = new Three.TextureLoader().load(image);
                 const texture2 = new Three.TextureLoader().load(image);
@@ -210,6 +216,7 @@ export default {
                 butterFly.model.getObjectByName('wingLeft').rotation.z = 0
 
                 if (fast) {
+                   
                     butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
                         z: -1,
                         duration: 0.1,
@@ -220,6 +227,7 @@ export default {
                     }, 0)
 
                 } else {
+                      butterFly.flapTl.repeatDelay(Math.floor(Math.random() * 3))
                     butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
                         z: 0,
                         delay: 2,
@@ -311,7 +319,18 @@ export default {
 
             const points = curve.getPoints(50);
             const geometry2 = new Three.BufferGeometry().setFromPoints(points);
-            const material2 = new Three.LineBasicMaterial({ visible: true, color: 'pink' });
+
+            let linecolor;
+            let visible;
+            if (index == 2) {
+                visible = true
+                linecolor = 'fc0303'
+            } else {
+                visible = true
+                linecolor = Math.floor(Math.random() * 16777215).toString(16);
+            }
+
+            const material2 = new Three.LineBasicMaterial({ visible: false, color: '#' + linecolor });
             this.curve1.points = points
             this.curve1.curve = new Three.Line(geometry2, material2);
             this.scene.add(this.curve1.curve)
@@ -331,7 +350,7 @@ export default {
                     end: stopAt,
                     fromCurrent: true,
                 },
-                delay: startDelay,
+                delay: Math.floor(Math.random() * 20) + 5,
                 ease: "none", //do this
                 immediateRender: true,
                 duration: 2,
@@ -351,7 +370,7 @@ export default {
                 },
                 ease: "none",
                 immediateRender: true,
-                delay: 1,
+                delay: Math.floor(Math.random() * 20) + 5,
                 duration: 2,
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
                 onStart: () => this.changeFlap(butterFly, true),
@@ -378,12 +397,12 @@ export default {
             this.scene.add(this.butterfly);
             this.butterfly.visible = false
             this.originalPosition()
-            // this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
+            this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
             this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35) // MAIN! index, start delay, rest delay 
-            // this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.6) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.36) // index, start delay, rest delay
 
-            this.loadButterFly(this.butterflyD, 3, 2, 5, 'path2', 0.6) // index, start delay, rest delay
-            this.loadButterFly(this.butterflyE, 3, 1, 5, 'path1', 0.6) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyD, 3, 2, 5, 'path4', 0.51) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyE, 4, 1, 5, 'path5', 0.65) // index, start delay, rest delay
 
             this.changeWing(this.butterflyD, false, true)
             this.changeWing(this.butterflyE, false, true)
@@ -418,7 +437,7 @@ export default {
             //  this.hideShow()
 
         },
-        wingSize(butterFly, main) {
+        wingSize(butterFly, main, premade) {
             let size = this.allDesigns[0].wing
             let model;
             if (main) {
@@ -465,17 +484,7 @@ export default {
                 model.getObjectByName('bulb_right').position.z = 1.819
             }
         },
-        wiggle() {
-            gsap.fromTo(this.butterfly.rotation, {
-                y: -2.7,
-            }, {
-                y: -3.4,
-                repeat: 1,
-                repeatDelay: 0.01,
-                yoyo: true,
-                ease: 'none'
-            })
-        },
+      
         moveAlong() {
             this.$emit('animPlaying', false)
             let landTime = 4
@@ -484,7 +493,7 @@ export default {
 
             console.log(this.butterflyB.timeLine.progress())
 
-            if (this.butterflyB.timeLine && this.butterflyB.timeLine.isActive && this.butterflyB.timeLine.progress() > 0.0600) {
+            if (this.butterflyB.timeLine && this.butterflyB.timeLine.isActive && this.butterflyB.timeLine.progress() > 0.5) {
                 gsap.to(this.butterflyB.model.position, {
                     y: 7,
                     duration: 2,
