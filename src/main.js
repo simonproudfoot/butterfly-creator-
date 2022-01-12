@@ -4,6 +4,9 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 Vue.config.productionTip = false
 
+import Vidle from 'v-idle'
+
+Vue.use(Vidle)
 
 new Vue({
 

@@ -88,6 +88,7 @@ export default {
                 rotation: null,
             },
             butterflyD: {
+                size: null,
                 model: null,
                 timeLine: null,
                 flapTl: null,
@@ -95,6 +96,7 @@ export default {
                 rotation: null,
             },
             butterflyE: {
+                size: null,
                 model: null,
                 timeLine: null,
                 flapTl: null,
@@ -136,6 +138,7 @@ export default {
 
                 if (premade) {
                     image = this.premadeimages[random]
+                    model = item.model
                     if (random == 3 || random == 5) {
                         wing = 3
                     } else if (random == 1) {
@@ -144,7 +147,9 @@ export default {
                         wing = 1
                     }
 
-                    this.wingSize(item.model, wing)
+                    //   console.log('premade',item.model)
+
+                    //      
                 }
 
                 console.log(item.name + ' is wing ' + wing)
@@ -409,6 +414,8 @@ export default {
             this.changeWing(this.butterflyD, false, true)
             this.changeWing(this.butterflyE, false, true)
 
+          //  this.wingSize(this.butterflyD, false, this.butterflyD.size)
+
             // boundingfs
             const geometry = new Three.BoxGeometry(10.000, 5.380, 1);
             const material = new Three.MeshBasicMaterial({
@@ -436,15 +443,17 @@ export default {
             this.renderer = new Three.WebGLRenderer({ antialias: true, alpha: true });
             this.renderer.setSize(container.clientWidth, container.clientHeight);
             container.appendChild(this.renderer.domElement);
-            //  this.hideShow()
+            this.hideShow()
 
         },
         wingSize(butterFly, main, premade) {
             let size;
             if (!premade) {
                 size = this.allDesigns[0].wing
-            } else {
+            }
+            if (premade) {
                 size = premade
+                //  alert(premade)
             }
             let model;
             if (main) {
@@ -500,7 +509,7 @@ export default {
 
             console.log(this.butterflyB.timeLine.progress())
 
-            if (this.butterflyB.timeLine && this.butterflyB.timeLine.isActive && this.butterflyB.timeLine.progress() > 0.5) {
+            if (this.butterflyB.timeLine && this.butterflyB.timeLine.isActive && this.butterflyB.timeLine.progress() > 0.05) {
                 gsap.to(this.butterflyB.model.position, {
                     y: 7,
                     duration: 2,

@@ -1,10 +1,17 @@
 <template>
 <div id="app">
-    <!-- <div class="key" style="display:"> 
+    <!-- <div class="key" style="display:">
         Current
-        <img v-for="(img, i) in butterFlys" :src="img.image" :key="i" :alt="img.wing" />
+        <div v-for="(img, i) in butterFlys" :key="i" >
+            <img :src="img.image" />
+            <small>{{img.wing}}</small>
+        </div>
+
     </div> -->
-    <!-- <video class="attractor" autoplay muted loop :src="require('@/assets/attractor.mp4')" @click="showGoButton=true"></video> -->
+
+    <v-idle style="display: none" :duration="100" :loop="true" @idle="idle" />
+
+    <video class="attractor" autoplay muted loop v-if="showAttractor" :src="require('@/assets/attractor.mp4')" @click="showAttractor=false"></video>
     <div class="zoomOut creator" v-if="scene" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
         <div v-show="!wingSelected" class="choose">
             <h1 class="display-1 mb-1" style="color: #7392a6">Choose your butterfly</h1>
@@ -69,6 +76,7 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
+            showAttractor: false,
             showGoButton: true,
             imageDimension: {
                 height: 790 * 2,
@@ -130,6 +138,20 @@ export default {
         };
     },
     methods: {
+        begin(){
+
+        },
+        idle() {
+            this.showAttractor = true
+            this.color = "#bc291e"
+            this.wingSelected = 0
+
+            // gsap.to('.zoomOut', { scale: 1, opacity: 1 })
+            this.refresh++
+            this.wingSelected = 0
+            this.showFinished = false
+
+        },
         animPlaying(val) {
             if (val == false) {
                 setTimeout(() => {
@@ -288,11 +310,7 @@ export default {
             console.log('go')
         }
     },
-    computed: {
-        messageStr() {
-            return this.isAppIdle ? 'ZZZ' : 'Hello'
-        }
-    },
+   
     watch: {
         canvas(val) {
             var options = {
@@ -412,6 +430,7 @@ h3 {
     position: absolute;
     left: 0;
     width: 1920px;
+    z-index: 99;
 }
 
 .choose,
