@@ -11,7 +11,7 @@
 
 <script>
 import * as Three from 'three'
-import { gsap, MotionPathPlugin, Power1 } from "gsap/all";
+import { gsap, MotionPathPlugin, Power2 } from "gsap/all";
 gsap.registerPlugin(MotionPathPlugin);
 
 export default {
@@ -216,7 +216,7 @@ export default {
                 butterFly.model.getObjectByName('wingLeft').rotation.z = 0
 
                 if (fast) {
-                   
+
                     butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
                         z: -1,
                         duration: 0.1,
@@ -227,7 +227,7 @@ export default {
                     }, 0)
 
                 } else {
-                      butterFly.flapTl.repeatDelay(Math.floor(Math.random() * 3))
+                    butterFly.flapTl.repeatDelay(Math.floor(Math.random() * 3))
                     butterFly.flapTl.to(butterFly.model.getObjectByName('wingRight').rotation, {
                         z: 0,
                         delay: 2,
@@ -341,7 +341,7 @@ export default {
             }
             //  this.changeFlap(butterFly, true)
             // SCENE 1 - enter
-    
+
             butterFly.timeLine.set(butterFly.model.position, { y: -4 })
             butterFly.timeLine.to(butterFly.model.position, {
                 motionPath: {
@@ -352,7 +352,7 @@ export default {
                     fromCurrent: true,
                 },
                 delay: Math.floor(Math.random() * 20) + 5,
-                ease: "Power1.easeOut", //do this
+                ease: "Power2.easeOut", //do this
                 immediateRender: true,
                 duration: path == 'path5' ? 3 : 2,
                 onStart: () => this.changeFlap(butterFly, true, false),
@@ -370,7 +370,7 @@ export default {
                     useRadians: true,
                     fromCurrent: true
                 },
-                 ease: "Power1.easeIn", //do this
+                ease: "Power1.easeIn", //do this
                 immediateRender: true,
                 delay: Math.floor(Math.random() * 20) + 5,
                 duration: 2,
@@ -440,7 +440,12 @@ export default {
 
         },
         wingSize(butterFly, main, premade) {
-            let size = this.allDesigns[0].wing
+            let size;
+            if (!premade) {
+                size = this.allDesigns[0].wing
+            } else {
+                size = premade
+            }
             let model;
             if (main) {
                 model = butterFly
@@ -486,7 +491,7 @@ export default {
                 model.getObjectByName('bulb_right').position.z = 1.819
             }
         },
-      
+
         moveAlong() {
             this.$emit('animPlaying', false)
             let landTime = 4
