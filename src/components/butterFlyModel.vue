@@ -5,8 +5,7 @@
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
 
-        <pre>{{butterflyE.wing}}</pre>
-        <pre>{{butterflyE.image}}</pre>
+     
 
         <!-- <h1>A:{{butterflyA.wing}}</h1>
         <h1>B{{butterflyB.wing}}</h1>
@@ -119,6 +118,7 @@ export default {
                 image: null,
                 rotation: null,
                 wing: null,
+                change: 0
             },
             butterflyE: {
                 size: null,
@@ -128,6 +128,7 @@ export default {
                 image: null,
                 rotation: null,
                 wing: null,
+                change: 0
             },
             alphaMapImageUlr: require('@/assets/test.png'),
             curve: null,
@@ -163,7 +164,8 @@ export default {
                     //   this.wingSize(item, item.wing)
                 }
 
-                if (premade) {
+                if (model.userData.premade) {
+
                     image = item.image
                     model = item.model
                     wing = item.wing
@@ -209,26 +211,9 @@ export default {
 
             }
         },
-        changeWingsAll(butterFly) {
-
-            // var pre = false
-            // var whichpre = false;
-
-            // if (butterFly.model.name == "Butterfly-3") {
-            //     butterFly.wing = this.pre1Size
-            //     pre = true
-            //     whichpre = 'a'
-            // }
-            // if (butterFly.model.name == "Butterfly-4") {
-            //     pre = true
-            //     butterFly.wing = this.pre2Size
-            //     whichpre = 'b'
-            // }
-
-            this.changeWing(butterFly, false, false, false) // changeWing(item, main, premade, ab) {
-            this.wingSize(butterFly, false, false, false) // item, main, premade
-
-            //  this.hideShow();
+        changeWingsAll(butterFly, premade) {
+            this.changeWing(butterFly, false, false, premade) // changeWing(item, main, premade, ab) {
+            this.wingSize(butterFly, false, false, premade) // item, main, premade
         },
         originalPosition() {
             this.butterfly.scale.set(0.44, 0.44, 0.44)
@@ -336,22 +321,22 @@ export default {
             }
         },
 
+        randomWing(butterFly) {
+            if (butterFly.model.userData.premade) {
+                let random = Math.floor(Math.random() * 4) + 0
+                const selected = this.premadeimages[random]
+                butterFly.wing = random
+                butterFly.image = selected.image
+            }
+        },
         loadButterFly(butterFly, index, startDelay, restDelay, path, stopAt, premade) {
 
             butterFly.model = this.loadedScene.scene.clone()
             butterFly.model.visible = true
             butterFly.model.name = 'Butterfly-' + index
+            premade ? butterFly.model.userData.premade = true : butterFly.model.userData.premade = false
 
-            if (premade) {
-                let random = Math.floor(Math.random() * 4) + 0
-                const selected = this.premadeimages[random]
-                butterFly.wing = random
-                butterFly.image = selected.image
-
-                //    this.changeWing(butterFly, false, true, false) // changeWing(item, main, premade, ab) {
-                //    this.changeWingsAll(butterFly, false, true, false) // changeWing(item, main, premade, ab) {
-
-            }
+            this.randomWing(butterFly)
 
             butterFly.timeLine = gsap.timeline({ repeat: -1, ease: 'none', });
             butterFly.model.scale.set(this.butterflyScale, this.butterflyScale, this.butterflyScale)
@@ -428,7 +413,8 @@ export default {
                 duration: 2,
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
                 onStart: () => this.changeFlap(butterFly, true),
-                onComplete: () => this.changeWingsAll(butterFly)
+                onComplete: () => !premade ? this.changeWingsAll(butterFly, premade) : butterFly.change++
+                // this.butterflyD, 3, 2, 5, 'path4', 0.51, true
             })
 
         },
@@ -452,9 +438,9 @@ export default {
             this.butterfly.visible = false
             this.originalPosition()
 
-            this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
-            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35) // MAIN! index, start delay, rest delay 
-            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.36) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7, false) // index, start delay, rest delay, path, stopPoint
+            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35, false) // MAIN! index, start delay, rest delay 
+            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.36, false) // index, start delay, rest delay
 
             this.loadButterFly(this.butterflyD, 3, 2, 5, 'path4', 0.51, true) // index, start delay, rest delay
             this.loadButterFly(this.butterflyE, 4, 1, 5, 'path5', 0.65, true) // index, start delay, rest delay
@@ -497,9 +483,10 @@ export default {
             this.hideShow()
 
         },
-        wingSize(butterFly, main, premade) {
+        wingSize(butterFly, main) {
             let size;
             let model;
+            let premade = butterFly.userData ? butterFly.userData.premade : false
 
             if (main && !premade) {
                 size = this.allDesigns[0].wing
@@ -739,6 +726,23 @@ export default {
 
         allDesigns(updated) {
             this.switchWings()
+        },
+
+        'butterflyD.change'() {
+            //   this.butterflyD.timeLine.repeat(0)
+            //  this.butterflyD.timeLine.kill()
+            this.randomWing(this.butterflyD)
+            this.changeWingsAll(this.butterflyD, true)
+            //     this.changeWing(butterFly, false, false, premade) // changeWing(item, main, premade, ab) {
+            //     this.wingSize(butterFly, false, false, premade) // item, main, premade
+            // },
+
+            //  this.loadButterFly(this.butterflyD, 4, 1, 5, 'path5', 0.65, true) // index, start delay, rest delay
+        },
+
+        'butterflyE.change'() {
+            this.randomWing(this.butterflyE)
+            this.changeWingsAll(this.butterflyE, true)
         },
         ready(val) {
             if (val) {
