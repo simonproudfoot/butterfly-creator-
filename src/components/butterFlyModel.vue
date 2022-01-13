@@ -5,8 +5,6 @@
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
 
-     
-
         <!-- <h1>A:{{butterflyA.wing}}</h1>
         <h1>B{{butterflyB.wing}}</h1>
         <h1>C:{{butterflyC.wing}}</h1> -->
@@ -212,6 +210,7 @@ export default {
             }
         },
         changeWingsAll(butterFly, premade) {
+            this.switchWing(butterFly)
             this.changeWing(butterFly, false, false, premade) // changeWing(item, main, premade, ab) {
             this.wingSize(butterFly, false, false, premade) // item, main, premade
         },
@@ -334,6 +333,7 @@ export default {
             butterFly.model = this.loadedScene.scene.clone()
             butterFly.model.visible = true
             butterFly.model.name = 'Butterfly-' + index
+            butterFly.model.userData.index = index
             premade ? butterFly.model.userData.premade = true : butterFly.model.userData.premade = false
 
             this.randomWing(butterFly)
@@ -445,14 +445,6 @@ export default {
             this.loadButterFly(this.butterflyD, 3, 2, 5, 'path4', 0.51, true) // index, start delay, rest delay
             this.loadButterFly(this.butterflyE, 4, 1, 5, 'path5', 0.65, true) // index, start delay, rest delay
 
-            // this.changeWing(this.butterflyD, false, true, 'a')
-            // this.changeWing(this.butterflyE, false, true, 'b')
-
-            // this.wingSize(this.butterflyD, false, this.pre1Size) // wingSize(butterFly, main, premade) 
-            // this.wingSize(this.butterflyE, false, this.pre2Size)
-
-            //  this.wingSize(this.butterflyD, false, this.butterflyD.size)
-
             // boundingfs
             const geometry = new Three.BoxGeometry(10.000, 5.380, 1);
             const material = new Three.MeshBasicMaterial({
@@ -532,11 +524,11 @@ export default {
                         model.getObjectByName('wingLeft').position.set(-0.33, 0.84, 0.6)
                     }
 
-                    // model.getObjectByName('body').position.set(0.000, 0.729, -1.926)
-                    // model.getObjectByName('ant-1').position.set(0.008, 0.810, -0.496)
-                    // model.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
-                    // model.getObjectByName('bulb_left').position.set(0.446, 0.813, 0.959)
-                    // model.getObjectByName('bulb_right').position.set(-0.433, 0.813, 0.959)
+                    model.getObjectByName('body').position.set(0.000, 0.729, -1.926)
+                    model.getObjectByName('ant-1').position.set(0.008, 0.810, -0.496)
+                    model.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
+                    model.getObjectByName('bulb_left').position.set(0.446, 0.813, 0.959)
+                    model.getObjectByName('bulb_right').position.set(-0.433, 0.813, 0.959)
 
                 }
                 if (size == 2) {
@@ -559,11 +551,11 @@ export default {
                         model.getObjectByName('wingLeft').position.set(-0.33, 0.84, 1.06)
                     }
 
-                    // model.getObjectByName('body').position.set(0.000, 0.729, -1.926)
-                    // model.getObjectByName('ant-1').position.set(0.008, 0.810, -0.496)
-                    // model.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
-                    // model.getObjectByName('bulb_left').position.set(0.446, 0.813, 0.959)
-                    // model.getObjectByName('bulb_right').position.set(-0.433, 0.813, 0.959)
+                    model.getObjectByName('body').position.set(0.000, 0.729, -1.926)
+                    model.getObjectByName('ant-1').position.set(0.008, 0.810, -0.496)
+                    model.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
+                    model.getObjectByName('bulb_left').position.set(0.446, 0.813, 0.959)
+                    model.getObjectByName('bulb_right').position.set(-0.433, 0.813, 0.959)
                 }
                 if (size == 3) {
 
@@ -696,16 +688,14 @@ export default {
             this.$emit('animPlaying', true)
 
         },
-        switchWings() {
-            // IMAGES
-            this.allDesigns[0] ? this.butterflyB.image = this.allDesigns[0].image : null
-            this.allDesigns[1] ? this.butterflyA.image = this.allDesigns[1].image : null
-            this.allDesigns[2] ? this.butterflyC.image = this.allDesigns[2].image : null
+        switchWing(butterfly) {
 
-            // WINGS
-            this.allDesigns[0] ? this.butterflyB.wing = this.allDesigns[0].wing : null
-            this.allDesigns[1] ? this.butterflyA.wing = this.allDesigns[1].wing : null
-            this.allDesigns[2] ? this.butterflyC.wing = this.allDesigns[2].wing : null
+            //  console.log('loaded', butterfly.model)
+            console.log('ggogog',butterfly.model.userData.index)
+            const index = butterfly.model.userData.index
+            // // IMAGES
+            this.allDesigns[index] ? butterfly.image = this.allDesigns[index].image : null
+            this.allDesigns[index] ? butterfly.wing = this.allDesigns[index].wing : null
 
         },
         animate() {
@@ -725,7 +715,7 @@ export default {
     watch: {
 
         allDesigns(updated) {
-            this.switchWings()
+
         },
 
         'butterflyD.change'() {
@@ -765,7 +755,7 @@ export default {
     },
     mounted() {
 
-        this.switchWings()
+        // this.switchWings()
         this.init();
         this.animate();
 
