@@ -18,7 +18,7 @@
 import * as Three from 'three'
 import { gsap, MotionPathPlugin, Power2 } from "gsap/all";
 gsap.registerPlugin(MotionPathPlugin);
-import * as dat from 'dat.gui';
+//import * as dat from 'dat.gui';
 
 export default {
     props: ['wingDesign', 'index', 'final', 'loadedScene', 'event_child', 'wingSelected', 'ready', 'resetTime', 'loopA', 'allDesigns'],
@@ -69,7 +69,7 @@ export default {
             },
             butterflyScale: 0.15,
             //  landingZones: [{ x: 0, y: 1 }, { x: -2.4, y: 1.4, z: -30 }, { x: 1.5, y: 1.3 },], // in order
-            gui: new dat.GUI(),
+           // gui: new dat.GUI(),
             loading: true,
             flapSettings: {
                 z: -1,
@@ -759,17 +759,17 @@ export default {
         this.init();
         this.animate();
 
-        setTimeout(() => {
+        // setTimeout(() => {
 
-            const size = this.gui.addFolder('Size')
-            size.add(this.butterflyA.model.rotation, 'x', 0, 10, 0.1)
-            size.add(this.butterflyA.model.rotation, 'y', 0, 10, 0.1)
-            size.add(this.butterflyA.model.rotation, 'z', 0, 10, 0.1)
-            const pos = this.gui.addFolder('Position')
-            pos.add(this.butterflyA.model.getObjectByName('wingLeft').position, 'x', -3, 3, 0.1)
-            pos.add(this.butterflyA.model.getObjectByName('wingLeft').position, 'y', -3, 3, 0.1)
-            pos.add(this.butterflyA.model.getObjectByName('wingLeft').position, 'z', -3, 3, 0.1)
-        }, 4000);
+        //     const size = this.gui.addFolder('Size')
+        //     size.add(this.butterflyA.model.rotation, 'x', 0, 10, 0.1)
+        //     size.add(this.butterflyA.model.rotation, 'y', 0, 10, 0.1)
+        //     size.add(this.butterflyA.model.rotation, 'z', 0, 10, 0.1)
+        //     const pos = this.gui.addFolder('Position')
+        //     pos.add(this.butterflyA.model.getObjectByName('wingLeft').position, 'x', -3, 3, 0.1)
+        //     pos.add(this.butterflyA.model.getObjectByName('wingLeft').position, 'y', -3, 3, 0.1)
+        //     pos.add(this.butterflyA.model.getObjectByName('wingLeft').position, 'z', -3, 3, 0.1)
+        // }, 4000);
 
     }
 }
