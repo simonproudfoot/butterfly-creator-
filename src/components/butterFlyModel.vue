@@ -2,7 +2,6 @@
 <div>
     <video class="background" autoplay muted loop :src="require('@/assets/slave-bg.mp4')"></video>
     <div id="container" class="container">
-
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
     </div>
@@ -13,6 +12,7 @@
 import * as Three from 'three'
 import { gsap, MotionPathPlugin, Power2 } from "gsap/all";
 gsap.registerPlugin(MotionPathPlugin);
+import * as dat from 'dat.gui';
 
 export default {
     props: ['wingDesign', 'index', 'final', 'loadedScene', 'event_child', 'wingSelected', 'ready', 'resetTime', 'loopA', 'allDesigns'],
@@ -20,8 +20,15 @@ export default {
     data() {
         return {
             mainAnimationActive: false,
-            premadeimages: [require('@/assets/4x/premade1@4x.png'), require('@/assets/4x/premade2@4x.png'), require('@/assets/4x/premade3@4x.png'), require('@/assets/4x/premade4@4x.png'), require('@/assets/4x/premade5@4x.png')],
-
+            premadeimages: [
+                { image: require('@/assets/4x/premade1@4x.png'), wing: 2 },
+                { image: require('@/assets/4x/premade2@4x.png'), wing: 1 },
+                { image: require('@/assets/4x/premade3@4x.png'), wing: 3 },
+                { image: require('@/assets/4x/premade4@4x.png'), wing: 1 },
+                { image: require('@/assets/4x/premade5@4x.png'), wing: 3 },
+            ],
+            pre1Size: 0,
+            pre2Size: 0,
             paths: {
                 path1: [
                     { x: 0, y: -1, }, { x: -2, y: -1, }, { x: -1.4, y: 3 }, { x: -3, y: 6 }
@@ -51,7 +58,7 @@ export default {
             },
             butterflyScale: 0.15,
             //  landingZones: [{ x: 0, y: 1 }, { x: -2.4, y: 1.4, z: -30 }, { x: 1.5, y: 1.3 },], // in order
-            //  gui: new dat.GUI(),
+            gui: new dat.GUI(),
             loading: true,
             flapSettings: {
                 z: -1,
@@ -118,10 +125,11 @@ export default {
         }
     },
     methods: {
-        changeWing(item, main, premade) {
+        changeWing(item, main, premade, ab) {
             let image;
             let model;
             let wing;
+
             if (item) {
                 if (main) {
                     image = this.allDesigns[0].image
@@ -137,22 +145,16 @@ export default {
                 let random = Math.floor(Math.random() * 5);
 
                 if (premade) {
-                    image = this.premadeimages[random]
+                    const selected = this.premadeimages[random]
                     model = item.model
-                    if (random == 3 || random == 5) {
-                        wing = 3
-                    } else if (random == 1) {
-                        wing = 2
+                    image = selected.image
+                    if (ab == 'a') {
+                        //    alert(model.name)
+                        this.pre1Size = selected.wing
                     } else {
-                        wing = 1
+                        this.pre2Size = selected.wing
                     }
-
-                    //   console.log('premade',item.model)
-
-                    //      
                 }
-
-                console.log(item.name + ' is wing ' + wing)
 
                 const texture = new Three.TextureLoader().load(image);
                 const texture2 = new Three.TextureLoader().load(image);
@@ -160,23 +162,31 @@ export default {
                     texture.needsUpdate = true;
                     texture.onUpdate(texture);
                 }
-                // if (this.wingSelected == 1) {
-                //     texture.offset.x = -0.050
-                //     texture.offset.y = -0.030
-                // }
-                // if (this.wingSelected == 2) {
-                //     texture.offset.x = -0.040
-                //     texture.offset.y = -0.030
-                // }
+                if (wing == 1) {
+                    texture.offset.x = -0.050
+                    texture2.offset.x = -0.050
+
+                }
+                if (wing == 2) {
+                    texture.offset.x = -0.040
+                    texture2.offset.x = -0.040
+                }
                 if (wing == 3) {
-                    // texture.offset.x = 1
-                    texture.offset.y = 0.030
+                    texture.offset.x = -0.03
+                    texture2.offset.x = -0.03
+                }
+
+                console.log('wing', wing)
+
+                if (!main) {
+                    texture.offset.x = -0.03
+                    texture2.offset.x = -0.02
                 }
                 const material = new Three.MeshBasicMaterial({ map: texture, side: Three.DoubleSide, alphaTest: 0.5 })
                 material.map.flipY = false
                 material.map.center = new Three.Vector2(0.5, 0.5);
                 material.map.rotation = Math.PI
-                console.log(model.getObjectByName('wingLeft'))
+
                 model.getObjectByName('wingLeft').material = material
                 const material2 = new Three.MeshBasicMaterial({ map: texture2, side: Three.DoubleSide, alphaTest: 0.5 })
                 material2.map.center = new Three.Vector2(0.5, 0.5);
@@ -185,16 +195,21 @@ export default {
                     model.getObjectByName('wingLeft').material.needsUpdate = true
                     model.getObjectByName('wingRight').material.needsUpdate = true
                 }, 1000);
+
+                console.log(model.name, 'is', wing)
             }
         },
         changeWingsAll(butterFly) {
-            console.log(butterFly.model.name)
-            if (butterFly.model.name == "Butterfly-3" || butterFly.model.name == "Butterfly-4") {
-                this.changeWing(butterFly, false, true)
-            } else {
-                this.changeWing(butterFly)
-                this.wingSize(butterFly)
+
+            if (butterFly.model.name == "Butterfly-3") {
+                butterFly.wing = this.pre1Size
             }
+            if (butterFly.model.name == "Butterfly-4") {
+                butterFly.wing = this.pre2Size
+            }
+
+            this.changeWing(butterFly, false, false)
+            this.wingSize(butterFly, false, false)
 
             //  this.hideShow();
         },
@@ -347,7 +362,8 @@ export default {
             //  this.changeFlap(butterFly, true)
             // SCENE 1 - enter
 
-            butterFly.timeLine.set(butterFly.model.position, { y: -4 })
+            butterFly.timeLine.set(butterFly.model.position, { y: -1 })
+
             butterFly.timeLine.to(butterFly.model.position, {
                 motionPath: {
                     path: this.paths[path],
@@ -356,7 +372,7 @@ export default {
                     end: stopAt,
                     fromCurrent: true,
                 },
-                delay: Math.floor(Math.random() * 20) + 5,
+                delay: Math.floor(Math.random() * 15) + 1,
                 ease: "Power2.easeOut", //do this
                 immediateRender: true,
                 duration: path == 'path5' ? 3 : 2,
@@ -411,10 +427,13 @@ export default {
             this.loadButterFly(this.butterflyD, 3, 2, 5, 'path4', 0.51) // index, start delay, rest delay
             this.loadButterFly(this.butterflyE, 4, 1, 5, 'path5', 0.65) // index, start delay, rest delay
 
-            this.changeWing(this.butterflyD, false, true)
-            this.changeWing(this.butterflyE, false, true)
+            this.changeWing(this.butterflyD, false, true, 'a')
+            this.changeWing(this.butterflyE, false, true, 'b')
 
-          //  this.wingSize(this.butterflyD, false, this.butterflyD.size)
+            this.wingSize(this.butterflyD, false, this.pre1Size)
+            this.wingSize(this.butterflyE, false, this.pre2Size)
+
+            //  this.wingSize(this.butterflyD, false, this.butterflyD.size)
 
             // boundingfs
             const geometry = new Three.BoxGeometry(10.000, 5.380, 1);
@@ -450,11 +469,10 @@ export default {
             let size;
             if (!premade) {
                 size = this.allDesigns[0].wing
-            }
-            if (premade) {
+            } else {
                 size = premade
-                //  alert(premade)
             }
+
             let model;
             if (main) {
                 model = butterFly
@@ -471,6 +489,10 @@ export default {
                 model.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
                 model.getObjectByName('bulb_left').position.set(0.446, 0.813, 0.959)
                 model.getObjectByName('bulb_right').position.set(-0.433, 0.813, 0.959)
+
+                if (!main) {
+                    model.getObjectByName('wingRight').position.z = 0.8
+                }
             }
             if (size == 2) {
                 model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
@@ -484,11 +506,25 @@ export default {
                 model.getObjectByName('bulb_right').position.set(-0.433, 0.813, 0.959)
             }
             if (size == 3) {
-                model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
-                model.getObjectByName('wingRight').position.set(0.3919, 0.84, 1.2)
-                model.getObjectByName('wingLeft').scale.set(2.4, 1.9, 3.5)
-                model.getObjectByName('wingLeft').position.set(-0.3919, 0.84, 1.2)
-                model.getObjectByName('body').position.set(0.000, 0.729, -1.926)
+
+                if (premade) {
+                    model.getObjectByName('wingRight').scale.set(2, 1.5, 2.6)
+                    model.getObjectByName('wingLeft').scale.set(2, 1.5, 2.6)
+
+                    //  model.getObjectByName('wingRight').position.set(0.3919, 0.84, 0.6)
+
+                    model.getObjectByName('wingRight').position.z = 0.6
+
+                    model.getObjectByName('wingLeft').position.z = 0.6
+                    // model.getObjectByName('body').position.set(0.000, 0.729, -1.926)
+                } else {
+                    model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
+                    model.getObjectByName('wingRight').position.set(0.3919, 0.84, 1.2)
+                    model.getObjectByName('wingLeft').scale.set(2.4, 1.9, 3.5)
+                    model.getObjectByName('wingLeft').position.set(-0.3919, 0.84, 1.2)
+                    model.getObjectByName('body').position.set(0.000, 0.729, -1.926)
+                }
+
                 model.getObjectByName('ant-1').position.set(0.008, 0.810, -0.496)
                 model.getObjectByName('ant-2').position.set(0.008, 0.810, -0.496)
                 model.getObjectByName('bulb_left').position.set(0.446, 0.813, 0.959)
@@ -499,6 +535,7 @@ export default {
                 model.getObjectByName('bulb_left').position.z = 1.819
                 model.getObjectByName('bulb_right').position.z = 1.819
             }
+
         },
 
         moveAlong() {
@@ -507,7 +544,7 @@ export default {
             this.butterflyB.timeLine.repeat(0)
             this.butterflyB.timeLine.kill()
 
-            console.log(this.butterflyB.timeLine.progress())
+            //  console.log(this.butterflyB.timeLine.progress())
 
             if (this.butterflyB.timeLine && this.butterflyB.timeLine.isActive && this.butterflyB.timeLine.progress() > 0.05) {
                 gsap.to(this.butterflyB.model.position, {
@@ -515,7 +552,7 @@ export default {
                     duration: 2,
                     onStart: () => this.changeFlap(this.butterflyB, true),
                     onComplete: () => this.butterflyB.visible = false,
-                    onUpdate: () => console.log(this.butterflyB.timeLine.progress())
+                    //    onUpdate: () => console.log(this.butterflyB.timeLine.progress())
                 })
                 gsap.to(this.butterflyB.model.rotation, {
                     y: Math.PI,
@@ -566,7 +603,10 @@ export default {
             this.allDesigns[0] ? this.butterflyB.model.visible = true : this.butterflyB.model.visible = false
             this.allDesigns[1] ? this.butterflyA.model.visible = true : this.butterflyA.model.visible = false
             this.allDesigns[2] ? this.butterflyC.model.visible = true : this.butterflyC.model.visible = false
-        }
+        },
+        mirror() {
+
+        },
     },
 
     watch: {
@@ -578,9 +618,18 @@ export default {
             if (val) {
                 this.butterfly.visible = true
                 this.wingSize(this.butterfly, true)
-                this.changeWing(this.butterfly, true)
+                this.changeWing(this.butterfly, true, false)
                 this.moveAlong()
+                //  this.butterfly.visible = true
                 this.hideShow()
+
+                // const texture = this.gui.addFolder('Texture')
+                // texture.add(this.butterflyC.model.getObjectByName('wingLeft').material.map.offset, 'x', -0.5, 0.5, 0.01).onChange((val) => {
+                //     this.butterflyB.model.getObjectByName('wingRight').material.map.offset.x = val
+                // });
+                // texture.add(this.butterflyC.model.getObjectByName('wingLeft').material.map.offset, 'y', -0.5, 0.5, 0.01).onChange((val) => {
+                //     this.butterflyB.model.getObjectByName('wingRight').material.map.offset.y = -val
+                // });
             }
         }
     },
@@ -590,17 +639,15 @@ export default {
         this.init();
         this.animate();
 
-        // const size = this.gui.addFolder('Size')
-        // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'x', 0, 10, 0.1)
-        // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'y', 0, 10, 0.1)
-        // size.add(this.butterfly.getObjectByName('wingLeft').scale, 'z', 0, 10, 0.1)
-        // const pos = this.gui.addFolder('Position')
-        // pos.add(this.butterfly.getObjectByName('wingLeft').position, 'x', -3, 3, 0.1)
-        // pos.add(this.butterfly.getObjectByName('wingLeft').position, 'y', -3, 3, 0.1)
-        // pos.add(this.butterfly.getObjectByName('wingLeft').position, 'z', -3, 3, 0.1)
-        // const rot = this.gui.addFolder('Rotation')
-        // rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'x', -3, 3, 0.1)
-        // rot.add(this.butterfly.getObjectByName('wingLeft').rotation, 'y', -3, 3, 0.1)
+        const size = this.gui.addFolder('Size')
+        size.add(this.butterfly.getObjectByName('wingLeft').scale, 'x', 0, 10, 0.1)
+        size.add(this.butterfly.getObjectByName('wingLeft').scale, 'y', 0, 10, 0.1)
+        size.add(this.butterfly.getObjectByName('wingLeft').scale, 'z', 0, 10, 0.1)
+        const pos = this.gui.addFolder('Position')
+        pos.add(this.butterfly.getObjectByName('wingLeft').position, 'x', -3, 3, 0.1)
+        pos.add(this.butterfly.getObjectByName('wingLeft').position, 'y', -3, 3, 0.1)
+        pos.add(this.butterfly.getObjectByName('wingLeft').position, 'z', -3, 3, 0.1)
+
     }
 }
 </script>

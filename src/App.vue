@@ -60,12 +60,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
-// import IdleVue from 'idle-vue'
-// Vue.use(IdleVue, {
-//   eventEmitter: eventsHub,
-//   idleTime: 10000
-// })
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import butterFlyModel from "./components/butterFlyModel";
 import gsap from "gsap";
