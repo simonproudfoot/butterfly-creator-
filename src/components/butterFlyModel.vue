@@ -173,7 +173,7 @@ export default {
                 }
                 if (wing == 1) {
                     texture.offset.x = -0.080
-                    texture2.offset.x = 1.080
+                    texture2.offset.x = -0.080
 
                 }
                 if (wing == 2) {
@@ -513,7 +513,7 @@ export default {
 
                     } else {
 
-                        //model.getObjectByName('wingLeft').visible = false
+                
 
                         model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
                         model.getObjectByName('wingRight').position.set(0.50, 0.84, 0.6)
