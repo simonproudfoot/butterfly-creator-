@@ -7,9 +7,7 @@
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
 
-         <!-- <h1>A:{{butterflyA.wing}}</h1>
-        <h1>B{{butterflyB.wing}}</h1>
-        <h1>C:{{butterflyC.wing}}</h1>  -->
+
 
     </div>
 
@@ -441,7 +439,7 @@ export default {
 
             this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7, false) // index, start delay, rest delay, path, stopPoint
             this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35, false) // MAIN! index, start delay, rest delay 
-            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.36, false) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.57, false) // index, start delay, rest delay
 
             this.loadButterFly(this.butterflyD, 3, 2, 5, 'path4', 0.51, true) // index, start delay, rest delay
             this.loadButterFly(this.butterflyE, 4, 1, 5, 'path5', 0.65, true) // index, start delay, rest delay
