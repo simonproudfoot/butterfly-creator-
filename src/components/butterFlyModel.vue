@@ -1,7 +1,7 @@
 <template>
 <div>
     <video class="background" autoplay muted loop :src="require('@/assets/slave-bg.mp4')"></video>
-    <div id="container" class="container">
+    <div id="container" class="container" >
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
 
@@ -143,6 +143,9 @@ export default {
         }
     },
     methods: {
+        test(){
+            console.log('y', this.butterflyB.position.y)
+        },
         changeWing(item, main, premade, ab) {
             let image;
             let model;
@@ -394,7 +397,8 @@ export default {
                 duration: path == 'path5' ? 3 : 2,
                 onStart: () => this.changeFlap(butterFly, true, false),
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
-                onComplete: () => this.changeFlap(butterFly, false, false),
+             //  onUpdate: ()=> butterFly.model.name == 'Butterfly-1' ? console.log(butterFly.model.position.y) : null,
+               onComplete: () => this.changeFlap(butterFly, false, false),
             })
 
             // SCENE 2 - fly away
@@ -499,9 +503,9 @@ export default {
 
             if (size) {
 
-                console.log('changing ', model.name)
-                console.log('to ', size)
-                console.log('-----')
+                // console.log('changing ', model.name)
+                // console.log('to ', size)
+                // console.log('-----')
 
                 if (size == 1) {
 
@@ -609,7 +613,7 @@ export default {
 
             //  console.log(this.butterflyB.timeLine.progress())
 
-            if (this.butterflyB.timeLine && this.butterflyB.timeLine.isActive && this.butterflyB.timeLine.progress() > 0.05) {
+            if (this.butterflyB.timeLine && this.butterflyB.timeLine.isActive && this.butterflyB.model.position.y > 0.4) {
                 gsap.to(this.butterflyB.model.position, {
                     y: 6,
                     duration: 3,
@@ -624,7 +628,7 @@ export default {
                 })
             }
 
-            if (this.butterflyA.timeLine && this.butterflyA.timeLine.isActive && this.butterflyA.timeLine.progress() > 0.05) {
+            if (this.butterflyA.timeLine && this.butterflyA.timeLine.isActive && this.butterflyA.model.position.y > 0.4) {
                 gsap.to(this.butterflyA.model.position, {
                     y: 6,
                     duration: 3,
@@ -640,7 +644,7 @@ export default {
                 })
             }
 
-            if (this.butterflyC.timeLine && this.butterflyC.timeLine.isActive && this.butterflyC.timeLine.progress() > 0.05) {
+            if (this.butterflyC.timeLine && this.butterflyC.timeLine.isActive &&  this.butterflyC.model.position.y > 0.4) {
                 gsap.to(this.butterflyC.model.position, {
                     y: 6,
                     duration: 3,
@@ -692,7 +696,14 @@ export default {
 
             //  console.log('loaded', butterfly.model)
             console.log('ggogog',butterfly.model.userData.index)
-            const index = butterfly.model.userData.index
+            let index = butterfly.model.userData.index
+
+            if(index == 1){
+                index = 0
+            }else if(index == 0){
+                index = 1
+            }
+
             // // IMAGES
             this.allDesigns[index] ? butterfly.image = this.allDesigns[index].image : null
             this.allDesigns[index] ? butterfly.wing = this.allDesigns[index].wing : null
