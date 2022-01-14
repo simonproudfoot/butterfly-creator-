@@ -513,8 +513,6 @@ export default {
 
                     } else {
 
-                
-
                         model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
                         model.getObjectByName('wingRight').position.set(0.50, 0.84, 0.6)
                         model.getObjectByName('wingLeft').scale.set(2.4, 1.9, 3.5)
@@ -680,9 +678,9 @@ export default {
         resetOrig() {
             this.butterfly.visible = false
             this.originalPosition()
-            this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7) // index, start delay, rest delay, path, stopPoint
-            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35) // MAIN! index, start delay, rest delay 
-            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.36) // index, start delay, rest delay
+            this.loadButterFly(this.butterflyA, 0, 4, 3, 'path1', 0.7, false) // index, start delay, rest delay, path, stopPoint
+            this.loadButterFly(this.butterflyB, 1, 1, 3, 'path2', 0.35, false) // MAIN! index, start delay, rest delay 
+            this.loadButterFly(this.butterflyC, 2, 6, 5, 'path3', 0.57, false) // index, start delay, rest delay
             this.$emit('animPlaying', true)
 
         },
