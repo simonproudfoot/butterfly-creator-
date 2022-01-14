@@ -7,8 +7,6 @@
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
 
-
-
     </div>
 
 </div>
@@ -174,8 +172,8 @@ export default {
                     texture.onUpdate(texture);
                 }
                 if (wing == 1) {
-                    texture.offset.x = -0.050
-                    texture2.offset.x = -0.050
+                    texture.offset.x = -0.080
+                    texture2.offset.x = 1.080
 
                 }
                 if (wing == 2) {
@@ -370,7 +368,7 @@ export default {
 
             // load inital 
             if (this.allDesigns[index] && this.allDesigns[index].image || premade) {
-                //     alert('y')
+
                 this.changeWingsAll(butterFly)
             }
 
@@ -452,6 +450,7 @@ export default {
                 opacity: 0,
                 color: 0x00000,
             });
+
             this.maskObject = new Three.Mesh(geometry, material);
             this.maskObject.position.set(0.450, -2.690, -0.360)
             this.scene.add(this.maskObject)
@@ -489,7 +488,6 @@ export default {
             if (main) {
                 size = this.allDesigns[0].wing
             } else {
-
                 size = butterFly.wing
             }
 
@@ -514,10 +512,14 @@ export default {
                         model.getObjectByName('wingLeft').position.set(-0.33, 0.84, 1.06)
 
                     } else {
+
+                        //model.getObjectByName('wingLeft').visible = false
+
                         model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
-                        model.getObjectByName('wingRight').position.set(0.30, 0.84, 0.6)
+                        model.getObjectByName('wingRight').position.set(0.50, 0.84, 0.6)
                         model.getObjectByName('wingLeft').scale.set(2.4, 1.9, 3.5)
-                        model.getObjectByName('wingLeft').position.set(-0.33, 0.84, 0.6)
+
+                        model.getObjectByName('wingLeft').position.set(-0.38, 0.84, 0.6)
                     }
 
                     model.getObjectByName('body').position.set(0.000, 0.729, -1.926)
@@ -738,16 +740,9 @@ export default {
                 this.wingSize(this.butterfly, true, false)
                 this.changeWing(this.butterfly, true, false)
                 this.moveAlong()
-                //  this.butterfly.visible = true
+
                 this.hideShow()
 
-                // const texture = this.gui.addFolder('Texture')
-                // texture.add(this.butterflyC.model.getObjectByName('wingLeft').material.map.offset, 'x', -0.5, 0.5, 0.01).onChange((val) => {
-                //     this.butterflyB.model.getObjectByName('wingRight').material.map.offset.x = val
-                // });
-                // texture.add(this.butterflyC.model.getObjectByName('wingLeft').material.map.offset, 'y', -0.5, 0.5, 0.01).onChange((val) => {
-                //     this.butterflyB.model.getObjectByName('wingRight').material.map.offset.y = -val
-                // });
             }
         }
     },
