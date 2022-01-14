@@ -327,7 +327,7 @@ export default {
         loadButterFly(butterFly, index, startDelay, restDelay, path, stopAt, premade) {
 
             butterFly.model = this.loadedScene.scene.clone()
-            butterFly.model.visible = true
+           
             butterFly.model.name = 'Butterfly-' + index
             butterFly.model.userData.index = index
             premade ? butterFly.model.userData.premade = true : butterFly.model.userData.premade = false
@@ -340,6 +340,7 @@ export default {
             butterFly.model.rotation.x = -30
             butterFly.model.rotation.y = -3.14
             this.scene.add(butterFly.model)
+            butterFly.model.visible = false
 
             // create curve 
             const curve = new Three.SplineCurve();
@@ -388,7 +389,7 @@ export default {
                 ease: "Power2.easeOut", //do this
                 immediateRender: true,
                 duration: path == 'path5' ? 3 : 2,
-                onStart: () => this.changeFlap(butterFly, true, false),
+                onStart: () => { this.changeFlap(butterFly, true, false), butterFly.wing ? butterFly.model.visible = true : null },
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
                 //  onUpdate: ()=> butterFly.model.name == 'Butterfly-1' ? console.log(butterFly.model.position.y) : null,
                 onComplete: () => this.changeFlap(butterFly, false, false),
