@@ -61,6 +61,7 @@ export default {
     components: { butterFlyModel },
     data() {
         return {
+            imageCount: 0,
             showAttractor: false,
             showGoButton: true,
             imageDimension: {
@@ -297,6 +298,16 @@ export default {
     },
 
     watch: {
+        imageCount(val) {
+            var listen = true
+
+            if (val == 2 && listen) {
+                this.paintInit()
+                listen = false
+                this.imageCount = 0
+
+            }
+        },
         canvas(val) {
             var options = {
                 dragLockToAxis: true,
@@ -334,14 +345,20 @@ export default {
             });
         },
         wingSelected(v) {
+
             this.outlineImage.src = require("@/assets/wings/" + v + "-front.svg");
             this.backImage.src = require("@/assets/wings/" + v + "-back.svg");
-            this.outlineImage.onload = () => {
-                setTimeout(() => {
-                    this.paintInit()
-                }, 100);
+            this.backImage.onload = () => {
+
+                this.imageCount++
             }
+
+            this.outlineImage.onload = () => {
+                this.imageCount++
+            }
+
         },
+
         butterFlys() {
             if (this.ready) {
                 localStorage.setItem("previous", JSON.stringify(this.butterFlys));
