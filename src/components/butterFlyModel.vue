@@ -1,13 +1,15 @@
 <template>
 <div>
     <video class="background" autoplay muted loop :src="require('@/assets/slave-bg.mp4')"></video>
-    <div id="container" class="container" >
+
+    <div id="container" class="container">
+
         <div id="looping"></div>
         <p v-if="loading">LOADING...</p>
 
-        <!-- <h1>A:{{butterflyA.wing}}</h1>
+         <!-- <h1>A:{{butterflyA.wing}}</h1>
         <h1>B{{butterflyB.wing}}</h1>
-        <h1>C:{{butterflyC.wing}}</h1> -->
+        <h1>C:{{butterflyC.wing}}</h1>  -->
 
     </div>
 
@@ -32,11 +34,6 @@ export default {
                 { image: require('@/assets/SVG/premade3.svg'), wing: 1 },
                 { image: require('@/assets/SVG/premade4.svg'), wing: 2 },
                 { image: require('@/assets/SVG/premade5.svg'), wing: 1 },
-
-                // { image: require('@/assets/4x/premade2@4x.png'), wing: 1 },
-                // { image: require('@/assets/4x/premade3@4x.png'), wing: 3 },
-                // { image: require('@/assets/4x/premade4@4x.png'), wing: 1 },
-                // { image: require('@/assets/4x/premade5@4x.png'), wing: 3 },
             ],
             pre1Size: 0,
             pre2Size: 0,
@@ -69,7 +66,7 @@ export default {
             },
             butterflyScale: 0.15,
             //  landingZones: [{ x: 0, y: 1 }, { x: -2.4, y: 1.4, z: -30 }, { x: 1.5, y: 1.3 },], // in order
-           // gui: new dat.GUI(),
+            // gui: new dat.GUI(),
             loading: true,
             flapSettings: {
                 z: -1,
@@ -143,7 +140,7 @@ export default {
         }
     },
     methods: {
-        test(){
+        test() {
             console.log('y', this.butterflyB.position.y)
         },
         changeWing(item, main, premade, ab) {
@@ -327,7 +324,7 @@ export default {
             if (butterFly.model.userData.premade) {
                 let random = Math.floor(Math.random() * 4) + 0
                 const selected = this.premadeimages[random]
-                butterFly.wing = random
+                butterFly.wing = selected.wing
                 butterFly.image = selected.image
             }
         },
@@ -397,8 +394,8 @@ export default {
                 duration: path == 'path5' ? 3 : 2,
                 onStart: () => this.changeFlap(butterFly, true, false),
                 onUpdate: (i) => butterFly.model.rotation.y = butterFly.timeLine['_recent']['_targets'][0]['rotation'] + Math.PI / 2,
-             //  onUpdate: ()=> butterFly.model.name == 'Butterfly-1' ? console.log(butterFly.model.position.y) : null,
-               onComplete: () => this.changeFlap(butterFly, false, false),
+                //  onUpdate: ()=> butterFly.model.name == 'Butterfly-1' ? console.log(butterFly.model.position.y) : null,
+                onComplete: () => this.changeFlap(butterFly, false, false),
             })
 
             // SCENE 2 - fly away
@@ -482,23 +479,20 @@ export default {
         wingSize(butterFly, main) {
             let size;
             let model;
-            let premade = butterFly.userData ? butterFly.userData.premade : false
-
-            if (main && !premade) {
-                size = this.allDesigns[0].wing
-            }
-            if (premade && !main) {
-                alert('premade')
-                size = premade
-            }
-            if (!main && !premade) {
-                size = butterFly.wing
-            }
 
             if (main) {
                 model = butterFly
             } else {
                 model = butterFly.model
+            }
+
+            let premade = model.userData && model.userData.premade ? model.userData.premade : false
+
+            if (main) {
+                size = this.allDesigns[0].wing
+            } else {
+
+                size = butterFly.wing
             }
 
             if (size) {
@@ -510,10 +504,10 @@ export default {
                 if (size == 1) {
 
                     if (premade) {
-                        // model.getObjectByName('wingRight').scale.set(2, 1.5, 2.6)
-                        // model.getObjectByName('wingLeft').scale.set(2, 1.5, 2.6)
-                        // model.getObjectByName('wingRight').position.z = 1
-                        // model.getObjectByName('wingLeft').position.z = 0.6
+                        model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
+                        model.getObjectByName('wingRight').position.set(0.30, 0.84, 0.6)
+                        model.getObjectByName('wingLeft').scale.set(2.4, 1.9, 3.5)
+                        model.getObjectByName('wingLeft').position.set(-0.33, 0.84, 0.6)
                     } else if (main && !premade) {
                         // MAIN! 
                         model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
@@ -538,10 +532,10 @@ export default {
                 if (size == 2) {
 
                     if (premade) {
-                        // model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
-                        // model.getObjectByName('wingRight').position.set(0.30, 0.84, 1.06)
-                        // model.getObjectByName('wingLeft').scale.set(2.4, 1.9, 3.5)
-                        // model.getObjectByName('wingLeft').position.set(-0.33, 0.84, 1.06)
+                        model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
+                        model.getObjectByName('wingRight').position.set(0.30, 0.84, 1.06)
+                        model.getObjectByName('wingLeft').scale.set(2.4, 1.9, 3.5)
+                        model.getObjectByName('wingLeft').position.set(-0.33, 0.84, 1.06)
                     } else if (main && !premade) {
                         model.getObjectByName('wingRight').scale.set(2.4, 1.9, 3.5)
                         model.getObjectByName('wingRight').position.set(0.30, 0.84, 1.06)
@@ -644,7 +638,7 @@ export default {
                 })
             }
 
-            if (this.butterflyC.timeLine && this.butterflyC.timeLine.isActive &&  this.butterflyC.model.position.y > 0.4) {
+            if (this.butterflyC.timeLine && this.butterflyC.timeLine.isActive && this.butterflyC.model.position.y > 0.4) {
                 gsap.to(this.butterflyC.model.position, {
                     y: 6,
                     duration: 3,
@@ -695,12 +689,12 @@ export default {
         switchWing(butterfly) {
 
             //  console.log('loaded', butterfly.model)
-            console.log('ggogog',butterfly.model.userData.index)
+            console.log('ggogog', butterfly.model.userData.index)
             let index = butterfly.model.userData.index
 
-            if(index == 1){
+            if (index == 1) {
                 index = 0
-            }else if(index == 0){
+            } else if (index == 0) {
                 index = 1
             }
 
@@ -730,15 +724,10 @@ export default {
         },
 
         'butterflyD.change'() {
-            //   this.butterflyD.timeLine.repeat(0)
-            //  this.butterflyD.timeLine.kill()
+
             this.randomWing(this.butterflyD)
             this.changeWingsAll(this.butterflyD, true)
-            //     this.changeWing(butterFly, false, false, premade) // changeWing(item, main, premade, ab) {
-            //     this.wingSize(butterFly, false, false, premade) // item, main, premade
-            // },
 
-            //  this.loadButterFly(this.butterflyD, 4, 1, 5, 'path5', 0.65, true) // index, start delay, rest delay
         },
 
         'butterflyE.change'() {

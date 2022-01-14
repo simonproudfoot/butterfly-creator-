@@ -1,13 +1,6 @@
 <template>
 <div id="app">
-    <!-- <div class="key" style="display:">
-        Current
-        <div v-for="(img, i) in butterFlys" :key="i">
-            <img :src="img.image" />
-            <small>{{img.wing}}</small>
-        </div>
 
-    </div> -->
 
     <v-idle style="display: none" :duration="100" :loop="true" @idle="idle" />
 
