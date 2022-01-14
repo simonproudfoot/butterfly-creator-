@@ -1,9 +1,7 @@
 <template>
 <div id="app">
 
-
     <v-idle style="display: none" :duration="100" :loop="true" @idle="idle" />
-
     <video class="attractor" autoplay muted loop v-if="showAttractor" :src="require('@/assets/attractor.mp4')" @click="showAttractor=false"></video>
     <div class="zoomOut creator" v-if="scene" :style="{ backgroundImage: 'url(' + require('@/assets/Paper.jpg') + ')' }">
         <div v-show="!wingSelected" class="choose">
@@ -93,8 +91,8 @@ export default {
                 '#339164',
                 '#5489af',
                 '#7fddda',
-                '#766a90',
-                '#9c76a3',
+                '#b37cc1',
+                '#766a8d',
             ],
             brushWidths: [{
                     name: "Small brush",
